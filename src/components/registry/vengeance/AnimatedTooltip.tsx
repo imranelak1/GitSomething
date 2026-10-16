@@ -6,7 +6,7 @@
  */
 import { useState, type ReactNode } from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import './tooltip.css';
 
 interface AnimatedTooltipProps {

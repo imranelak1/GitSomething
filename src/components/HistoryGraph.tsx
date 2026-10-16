@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   GitBranch,
   GitCommitHorizontal,
@@ -18,7 +18,9 @@ export interface HistoryPlan {
   target: string;
 }
 
-export const graphColors = ['#d7ff63', '#a68bff', '#ffb88c', '#83dcd0', '#f3a4d4'];
+// The same branch colors have an ink variant for the light history ledger.
+export const graphColors = ['#8ca2ff', '#ff8768', '#9fe6c3', '#f2d75c', '#c8a6e3'];
+const historyGraphColors = ['#4263eb', '#b74b30', '#207858', '#8a6d12', '#7d4a9b'];
 
 /** Keep each actual first-parent chain in its lane until it meets a known ancestor. */
 export function buildCommitLanes(repository: RepositorySnapshot) {
@@ -58,7 +60,8 @@ export function HistoryGraph({
   const laneCount = Math.max(0, ...lanes.values()) + 1;
   const graphWidth = Math.max(130, 58 + laneCount * 29);
   const rowHeight = 82;
-  const colorFor = (id: string) => graphColors[(lanes.get(id) ?? 0) % graphColors.length];
+  const colorFor = (id: string) =>
+    historyGraphColors[(lanes.get(id) ?? 0) % historyGraphColors.length];
   const style = {
     '--history-graph-width': `${graphWidth}px`,
     '--history-row-height': `${rowHeight}px`,
@@ -68,13 +71,19 @@ export function HistoryGraph({
     <div className="history-view history-cinematic" style={style}>
       <div className="history-intro">
         <div>
-          <h2>Every idea has a history.</h2>
-          <p>Follow the branches. See how it came together.</p>
+          <h2>The story so far.</h2>
+          <p>Real commits. Every detour included.</p>
         </div>
-        <span className="history-count">
-          <GitCommitHorizontal size={16} />
-          {commits.length} recent commits
-        </span>
+        <div className="history-context">
+          <span className="history-current-branch">
+            <GitBranch size={14} />
+            {repository.branch}
+          </span>
+          <span className="history-count">
+            <GitCommitHorizontal size={15} />
+            {commits.length} recent commits
+          </span>
+        </div>
       </div>
       {commits.length === 0 ? (
         <div className="history-empty">
@@ -116,12 +125,12 @@ export function HistoryGraph({
                         stroke={parentIndex ? colorFor(parent) : colorFor(commit.id)}
                         strokeWidth={3}
                         strokeLinecap="round"
-                        opacity={0.78}
+                        opacity={0.85}
                         initial={reducedMotion ? false : { pathLength: 0 }}
                         animate={{ pathLength: 1 }}
                         transition={{
                           duration: 0.85,
-                          delay: index * 0.045,
+                          delay: Math.min(index, 8) * 0.045,
                           ease: [0.22, 1, 0.36, 1],
                         }}
                       />
@@ -131,6 +140,9 @@ export function HistoryGraph({
               </svg>
               {commits.map((commit, index) => {
                 const isSelected = selectedCommit?.id === commit.id;
+                const isHead = repository.branches.some(
+                  (branch) => branch.current && branch.target === commit.id,
+                );
                 return (
                   <motion.div
                     key={commit.id}
@@ -138,14 +150,14 @@ export function HistoryGraph({
                     style={{ '--commit-color': colorFor(commit.id) } as CSSProperties}
                     initial={reducedMotion ? false : { opacity: 0.4 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.035, duration: 0.3 }}
+                    transition={{ delay: Math.min(index, 8) * 0.035, duration: 0.3 }}
                     drag="y"
                     dragSnapToOrigin
                     dragMomentum={false}
                     dragElastic={0.12}
                     whileDrag={{
                       zIndex: 4,
-                      backgroundColor: '#24272b',
+                      backgroundColor: '#e4eaff',
                       scale: reducedMotion ? 1 : 1.012,
                     }}
                     onDragEnd={(_, info) => {
@@ -178,12 +190,12 @@ export function HistoryGraph({
                   >
                     <div className="graph-node-cell">
                       <motion.span
-                        className={`graph-node ${index === 0 ? 'graph-node-head' : ''}`}
+                        className={`graph-node ${isHead ? 'graph-node-head' : ''}`}
                         style={{ left: 27 + (lanes.get(commit.id) ?? 0) * 29 }}
                         initial={reducedMotion ? false : { scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{
-                          delay: index * 0.055 + 0.1,
+                          delay: Math.min(index, 8) * 0.055 + 0.1,
                           type: 'spring',
                           stiffness: 350,
                           damping: 24,
@@ -272,8 +284,8 @@ export function HistoryGraph({
               <motion.div
                 key={selectedCommit.id}
                 className="commit-detail"
-                initial={reducedMotion ? false : { opacity: 0, y: 6, filter: 'blur(3px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                initial={reducedMotion ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, transition: { duration: 0.08 } }}
                 transition={{ duration: 0.22 }}
               >

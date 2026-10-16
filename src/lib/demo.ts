@@ -123,7 +123,7 @@ export function Dropzone({ onComplete }: DropzoneProps) {
 }
 `;
 const modified = `import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { FolderOpen, ArrowUpRight } from 'lucide-react';
 import { createRepository } from '@/lib/github';
 

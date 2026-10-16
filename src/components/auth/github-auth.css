@@ -1,19 +1,20 @@
-.github-connect {
-  --github-lime: #d7ff63;
-  --github-violet: #a68bff;
-  border: 1px solid #3c3b48;
-  border-radius: 10px;
-  background: #111117;
-  padding: 22px;
-  color: #f5f5f7;
+﻿.github-connect {
+  --github-accent: #4263eb;
+  border: 1px solid #c7cfdf;
+  border-radius: 9px;
+  background: #e9edf8;
+  padding: 21px;
+  color: #171c26;
   font-family: 'Manrope', sans-serif;
   min-width: 0;
+  color-scheme: light;
 }
 .github-connect.is-compact {
   padding: 18px;
 }
 .github-connect.is-connected {
-  border-color: #d7ff635c;
+  border-color: #96baa7;
+  background: #e5f0e7;
 }
 .github-connect button {
   font: inherit;
@@ -25,16 +26,16 @@
 }
 .github-connect button:focus-visible,
 .github-permissions summary:focus-visible {
-  outline: 2px solid var(--github-lime);
+  outline: 2px solid #4263eb;
   outline-offset: 4px;
 }
 .github-connect-heading {
   display: flex;
   align-items: flex-start;
-  gap: 13px;
+  gap: 12px;
 }
 .github-connect-heading > svg {
-  color: var(--github-violet);
+  color: #4263eb;
   flex: none;
   margin-top: 3px;
 }
@@ -43,22 +44,23 @@
   min-width: 0;
 }
 .github-connect-heading strong {
-  font-size: 20px;
-  line-height: 1.3;
-  font-weight: 750;
-  letter-spacing: -0.03em;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.7px;
 }
 .github-connect.is-compact .github-connect-heading strong {
-  font-size: 17px;
+  font-size: 18px;
 }
 .github-connect-heading p {
-  margin: 7px 0 0;
-  font-size: 13px;
-  line-height: 1.65;
-  color: #b5b4c1;
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #5d687c;
 }
 .github-connect-heading > .github-connected-check {
-  color: var(--github-lime);
+  color: #35684e;
 }
 .github-signin-actions {
   display: flex;
@@ -69,20 +71,24 @@
 }
 .github-signin-button.button {
   min-height: 40px;
-  background: var(--github-lime);
-  color: #16190c;
-  border: 1px solid var(--github-lime);
-  font-size: 13px;
+  background: #4263eb;
+  color: #fff;
+  border: 1px solid #4263eb;
+  font-size: 12px;
   font-weight: 750;
-  border-radius: 8px;
-  padding: 10px 15px;
+  border-radius: 7px;
+  padding: 10px 14px;
+}
+.github-signin-button.button:hover {
+  background: #3151d7;
+  border-color: #3151d7;
 }
 .github-signin-actions > span {
   display: flex;
   gap: 6px;
   align-items: center;
-  font-size: 11px;
-  color: #b1b0bf;
+  font-size: 10px;
+  color: #637087;
 }
 .github-auth-local-note {
   display: flex;
@@ -90,18 +96,18 @@
   gap: 10px;
   margin-top: 17px;
   padding-top: 15px;
-  border-top: 1px solid #33323f;
-  color: #b8b7c5;
+  border-top: 1px solid #c9d1e3;
+  color: #5d687c;
 }
 .github-auth-local-note svg {
   flex: none;
   margin-top: 3px;
-  color: var(--github-violet);
+  color: #4263eb;
 }
 .github-auth-local-note p {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.65;
+  font-size: 12px;
+  line-height: 1.75;
 }
 .github-account-row {
   display: flex;
@@ -115,11 +121,13 @@
   width: 36px;
   height: 36px;
   flex: none;
-  background: var(--github-violet);
-  color: #171126;
+  background: #9fe6c3;
+  color: #244936;
+  border: 1px solid #8cbe9f;
   border-radius: 8px;
-  font-size: 17px;
-  font-weight: 800;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
 }
 .github-account-row > div {
   min-width: 0;
@@ -128,13 +136,13 @@
   gap: 4px;
 }
 .github-account-row strong {
-  font-size: 13px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .github-account-row > div > span {
-  color: #b5b4c1;
-  font-size: 11px;
-  line-height: 1.5;
+  color: #5e7466;
+  font-size: 10px;
+  line-height: 1.6;
 }
 .github-auth-text-button {
   display: inline-flex;
@@ -143,15 +151,15 @@
   gap: 6px;
   border: 0;
   background: transparent;
-  color: #c9c6d7;
-  font-size: 12px !important;
+  color: #4e5f76;
+  font-size: 11px !important;
   padding: 7px 3px;
   text-decoration: underline;
-  text-decoration-color: #706c82;
+  text-decoration-color: #97a2b3;
   text-underline-offset: 4px;
 }
 .github-auth-text-button:hover {
-  color: var(--github-lime);
+  color: #2647cb;
   text-decoration-color: currentColor;
 }
 .github-device-flow {
@@ -161,24 +169,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 15px 16px;
-  background: #242030;
-  border: 1px solid #a68bff75;
+  gap: 10px;
+  padding: 15px;
+  background: #fffdf8;
+  border: 1px solid #a7b5db;
   border-radius: 8px;
 }
 .github-device-code-row code {
   font-family: 'Geist Mono', monospace;
-  font-size: 27px;
+  font-size: 25px;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  color: #e0d5ff;
+  letter-spacing: 0.03em;
+  color: #2a49b8;
   user-select: text;
   font-variant-numeric: tabular-nums;
 }
 .github-device-code-row code::selection {
-  background: var(--github-lime);
-  color: #151810;
+  background: #f2d75c;
+  color: #171c26;
 }
 .github-code-copy {
   display: flex;
@@ -186,14 +194,14 @@
   align-items: center;
   flex: none;
   padding: 8px 9px;
-  background: #343040;
-  border: 1px solid #655b7b;
+  background: #e8edf9;
+  border: 1px solid #b7c4e0;
   border-radius: 6px;
-  color: #f0eafd;
-  font-size: 12px !important;
+  color: #3150b5;
+  font-size: 11px !important;
 }
 .github-code-copy:hover {
-  background: #423950;
+  background: #dce4f7;
 }
 .github-device-actions {
   display: flex;
@@ -205,35 +213,35 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #b8b4c8;
+  color: #5c6a80;
   margin-top: 17px;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.6;
 }
 .github-device-wait svg {
-  color: var(--github-violet);
+  color: #4263eb;
   flex: none;
 }
 .github-device-wait time {
   margin-left: auto;
   font-family: 'Geist Mono', monospace;
   font-variant-numeric: tabular-nums;
-  color: #e0d5ff;
+  color: #3150b5;
 }
 .github-auth-copy-help {
   margin: 8px 0 0;
-  color: #ffb88c;
-  font-size: 12px;
+  color: #9b5635;
+  font-size: 11px;
   line-height: 1.5;
 }
 .github-auth-error {
   display: flex;
   gap: 8px;
-  color: #ffbca7;
+  color: #97412c;
   margin-top: 16px;
   padding: 12px;
-  background: #30211f;
-  border: 1px solid #66423b;
+  background: #f9ded4;
+  border: 1px solid #d6a392;
   border-radius: 7px;
 }
 .github-auth-error svg {
@@ -248,15 +256,15 @@
 }
 .github-permissions {
   margin-top: 18px;
-  border-top: 1px solid #33323f;
+  border-top: 1px solid #c7d0e3;
   padding-top: 12px;
 }
 .github-permissions summary {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 12px;
-  color: #c2b9d5;
+  font-size: 11px;
+  color: #4f6080;
   cursor: pointer;
   list-style: none;
 }
@@ -274,15 +282,15 @@
   padding: 3px 0 0 20px;
 }
 .github-permissions p {
-  font-size: 12px;
-  line-height: 1.75;
-  color: #b8b4c7;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #5e6b83;
   margin: 10px 0 0;
 }
 .github-permissions code {
   font-family: 'Geist Mono', monospace;
-  font-size: 11px;
-  color: #d2c2f8;
+  font-size: 10px;
+  color: #3150b5;
 }
 .github-auth-spinner {
   animation: github-auth-spin 0.9s linear infinite;
@@ -294,21 +302,22 @@
 }
 @media (max-width: 480px) {
   .github-connect {
-    padding: 18px;
+    padding: 17px;
   }
   .github-connect-heading strong {
     font-size: 18px;
   }
   .github-device-code-row {
-    padding: 13px 11px;
+    padding: 12px 10px;
   }
   .github-device-code-row code {
-    font-size: 22px;
+    font-size: 20px;
     letter-spacing: 0.02em;
   }
   .github-code-copy {
-    font-size: 11px !important;
-    padding: 8px;
+    font-size: 10px !important;
+    padding: 7px;
+    gap: 4px;
   }
   .github-account-row {
     flex-wrap: wrap;
@@ -318,6 +327,14 @@
   }
   .github-device-wait {
     flex-wrap: wrap;
+  }
+}
+@media (max-width: 360px) {
+  .github-device-code-row {
+    flex-wrap: wrap;
+  }
+  .github-device-code-row code {
+    font-size: 21px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

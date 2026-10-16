@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { Check, ChevronDown, LoaderCircle, Terminal, Trash2, X } from 'lucide-react';
 import { AnimatedTooltip } from './registry/vengeance/AnimatedTooltip';
 import type { GitLog } from '@/lib/types';

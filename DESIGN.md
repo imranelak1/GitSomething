@@ -1,50 +1,42 @@
-# Branchline design system
+﻿# Branchline Studio design system
 
-The October redesign replaces the restrained first milestone with a vivid, kinetic desktop interface. The user explicitly requested a much bolder, modern UI using Vengeance and Skiper. Preserve Git behavior while making selection, branches, and publishing visible through color, spatial organization, and movement.
+The Studio redesign follows the user's request for a mix of fun and serious design, stronger personality, a better palette, and motion informed by AnimMaster and Motion.dev. It replaces the previous lime/violet identity. Git remains a dependable editing task; personality comes from physical interactions, authored branch illustrations, and distinct materials for different jobs.
 
-## Visual identity
+## Palette and type
 
-| Token         | Value     | Purpose                                             |
-| ------------- | --------- | --------------------------------------------------- |
-| Canvas        | `#0a0b0e` | Deep black application ground                       |
-| Surface       | `#15151c` | Working panels                                      |
-| Text          | `#f5f5f7` | Readable primary text                               |
-| Muted         | `#a1a1af` | Supporting metadata                                 |
-| Electric lime | `#d7ff63` | Primary actions, staged changes, current graph lane |
-| Ultraviolet   | `#a68bff` | Branch context, selection, spatial focus            |
-| Peach         | `#ffb88c` | Secondary branches and changed-file markers         |
+| Token  | Value     | Use                                                       |
+| ------ | --------- | --------------------------------------------------------- |
+| Ink    | `#171c26` | Main canvas, strong text on paper                         |
+| Editor | `#18202e` | Quiet Monaco background                                   |
+| Cobalt | `#4263eb` | Navigation rail, selected controls, primary action        |
+| Paper  | `#f4f1e8` | Files, repository context, history ledger, form fields    |
+| Coral  | `#ff8768` | Project creation, folder illustration, expressive heading |
+| Butter | `#f2d75c` | Commit composer, current branch, onboarding illustration  |
+| Mint   | `#9fe6c3` | Added lines, successful operations, healthy state         |
 
-Use self-hosted **Manrope**, including its 700 and 800 weights, for application typography. Geist Mono remains for code, paths, command tokens, and commit hashes. Titles use a distinct scale and compact leading. Do not shrink interaction text into decorative microtype.
+Self-hosted **Space Grotesk** gives display text its character. **Manrope** handles controls and interface copy; **Geist Mono** handles code, paths, command tokens, and hashes. Large text has compact leading; file names and labels remain readable at their actual working scale.
 
-## Composition
+The cobalt rail anchors the interface. A warm paper sidebar and file list contrast with the ink code canvas. The butter composer makes the next commit tangible, while a dark console keeps equivalent commands visually attached to the editing task. On narrow screens, files, diff, and composer keep their task order. Panels do not overlap and dialogs scroll within the viewport.
 
-The activity rail makes major destinations immediate. The repository sidebar establishes context through a saturated violet project selector, while the main workspace stays dark enough for code. The masthead pairs expressive typography with a compact graph built from actual commit parent relationships.
+## Signature interactions
 
-Changed files and Monaco share the central working surface. The commit composer spans their combined width at the bottom, preserving space for reviewing the file list. The Glass-Box console remains attached to the workspace and uses lime and violet token colors.
+- The real commit graph draws paths derived from parent IDs. Branch pills and commit nodes spring into position; HEAD follows the actual checked-out branch target.
+- The four-step guide combines a paper reading surface with a butter illustration panel. An original **BranchBloom** SVG grows from editing to saving and sharing; it is a conceptual illustration, not invented repository data.
+- The publishing folder lifts its document on hover and responds to press. Native progress and its explicitly labeled preview drive the upload pipeline.
+- File selections and tabs use shared Motion layout. A successful commit briefly turns the composer mark into a spring-driven check; a failed operation cannot trigger it.
+- Existing **Skiper TextRoll** and **Vengeance AnimatedButton/tooltips** remain attributed and active.
+- New magnetic interactions keep their hit targets stable and stop following the pointer during keyboard focus, touch, or reduced motion.
 
-On narrow screens, the activity rail, sidebar, and compact graph yield to the task: changed files, diff, then commit composer. Controls must fit without overlapping the editor. Dialogs remain independently scrollable.
+Animation uses `motion/react`, the current Motion for React entry point. Drawing and transitions run on state changes or direct interaction. The diff itself stays still while being read. There are no perpetual ornamental effects.
 
-`src/styles.css` retains base styles for shared primitives. `src/workspace.css` defines the new workspace composition and palette. History and publishing use scoped style files alongside their components.
+## Source ownership
 
-## Motion
+AnimMaster's public mouse, SVG, and physics examples informed the direction. Its component source is paid and no licensed files were supplied. The components in `registry/animmaster` are original Branchline code, not an installation or copy of the paid catalog. [Motion sources and licensing](docs/MOTION_SOURCES.md) records this boundary.
 
-- Actual **Skiper TextRoll** animates headline and dialog-title characters on hover or keyboard focus.
-- Actual **Vengeance AnimatedButton** provides the primary action's spring press and animated highlight.
-- File selection moves with shared Framer Motion layout; staging gives direct checkbox feedback.
-- Branch paths draw from their real topology. Selection and expanded commit details animate in place.
-- The publishing pipeline moves transfer particles only during actual native progress or its explicitly labeled preview.
-- Console entries animate when commands arrive. Tooltips explain tokens on focus and hover.
+Skiper's free TextRoll attribution and Vengeance's MIT notices remain in their source directories and in-app credits. Do not label original components as upstream library source.
 
-Respect `prefers-reduced-motion`. Spatial movement must be removable without losing status, focus, progress, or access to a control. Motion never changes Git state by itself.
+## Accessibility and product truth
 
-## Registry source and credit
+Keyboard focus uses cobalt on paper and a bright contrasting outline on ink. Reduced-motion users receive the same state, progress, and controls without spatial springs or path-drawing entrances. Dialog focus returns to its launcher; opening another protected flow does not steal that flow's focus.
 
-`src/components/registry/skiper/TextRoll.tsx` is adapted from Skiper's free `skiper58` registry source. The registry's free-use attribution is preserved in its provenance file and the application's help dialog. The surrounding Radix modal is project-owned code.
-
-`src/components/registry/vengeance` includes attributed, MIT-licensed AnimatedButton and tooltip adaptations. Keep their original license and source links. Source-owned shadcn Button composition delegates the primary variant to the Vengeance component.
-
-## Truth and interaction
-
-The browser remains an explicit demo. History gestures explain proposed operations without pretending unsupported mutations are implemented. Publishing tokens remain transient. New visual components display real repository facts; no invented metrics or decorative commits are added.
-
-Keyboard focus must remain visible. Disabled controls must communicate their state. A native operation's errors and completed steps remain readable even when an animation is active.
+The browser remains an explicit demo. OAuth credentials stay in Rust and the OS credential store. History gestures preview unsupported mutations and cannot rewrite history. The visual system must not turn planned features into apparent working controls or imply that a practice push uploaded files.

@@ -1,6 +1,6 @@
 # Branchline
 
-A desktop Git client built around a calm working directory, readable diffs, and a transparent explanation of every action. Tauri 2 and Rust run Git through `git2`/libgit2; React, TypeScript, Monaco, and Framer Motion provide the interface.
+A desktop Git client built around a clear working directory, readable diffs, and a transparent explanation of every action. Tauri 2 and Rust run Git through `git2`/libgit2; React, TypeScript, Monaco, and Motion for React provide the interface.
 
 This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
@@ -93,7 +93,7 @@ branchline/
 └── DESIGN.md
 ```
 
-Registries contain reviewed component source and attribution. The Skiper directory contains the actual free TextRoll source adaptation, credited in the application, alongside a project-owned kinetic modal. Vengeance AnimatedButton and tooltip adaptations preserve their MIT notices. [Dependency rationale](docs/DEPENDENCIES.md) explains these choices.
+Registries contain reviewed component source and attribution. The Skiper directory contains the actual free TextRoll source adaptation, credited in the application, alongside a project-owned kinetic modal. Vengeance AnimatedButton and tooltip adaptations preserve their MIT notices. The Studio redesign uses Motion for React and original components inspired by AnimMaster's public examples, without including paid source. [Motion sources](docs/MOTION_SOURCES.md) and [dependency rationale](docs/DEPENDENCIES.md) explain these choices.
 
 ## Checks
 

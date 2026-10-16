@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { open as chooseDirectory } from '@tauri-apps/plugin-dialog';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -180,7 +180,60 @@ function PublishPipeline({
           className="publish-pipeline-icon"
           whileHover={reducedMotion ? undefined : { rotate: -7, y: -3 }}
         >
-          {localDone ? <Check size={23} /> : <FolderOpen size={25} />}
+          {localDone ? (
+            <Check size={23} />
+          ) : (
+            <motion.svg
+              viewBox="0 0 100 78"
+              className="publish-folder-drawing"
+              initial="rest"
+              whileHover={reducedMotion ? undefined : 'open'}
+            >
+              <path
+                d="M9 24a7 7 0 0 1 7-7h22l8 9h38a7 7 0 0 1 7 7v31a7 7 0 0 1-7 7H16a7 7 0 0 1-7-7Z"
+                fill="#e97054"
+                stroke="#a14833"
+                strokeWidth="1.6"
+              />
+              <motion.g
+                variants={{ rest: { y: 0, rotate: -7 }, open: { y: -8, rotate: 0 } }}
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                style={{ transformOrigin: '50% 100%' }}
+              >
+                <rect
+                  x="24"
+                  y="9"
+                  width="47"
+                  height="51"
+                  rx="4"
+                  fill="#fffaf0"
+                  stroke="#c8c1b1"
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M33 21h26M33 28h18M33 35h23"
+                  stroke="#4263eb"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="m39 45 5 5 10-10"
+                  fill="none"
+                  stroke="#3b7556"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </motion.g>
+              <path
+                d="M9 38a4 4 0 0 1 4-4h74a4 4 0 0 1 4 5l-7 27a7 7 0 0 1-7 5H20a7 7 0 0 1-7-6Z"
+                fill="#ff8768"
+                stroke="#a14833"
+                strokeWidth="1.6"
+              />
+              <path d="M24 45h18" stroke="#ffd3bf" strokeWidth="3" strokeLinecap="round" />
+            </motion.svg>
+          )}
         </motion.div>
         <strong>Local folder</strong>
         <span>
@@ -250,10 +303,16 @@ export function DropzoneToGitHub({
   const activeUnlisten = useRef<UnlistenFn | null>(null);
   const lastExternalPath = useRef('');
   const lastGitHubIdentity = useRef({ name: '', email: '' });
+  const surface = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
   const desktop = isDesktop();
   const github = useGitHubAuth();
   const hasProgress = Object.keys(progress).length > 0;
+  const screen = result ? 'complete' : hasProgress ? 'progress' : 'setup';
+
+  useLayoutEffect(() => {
+    if (open) surface.current?.closest<HTMLElement>('.publish-dialog')?.scrollTo({ top: 0 });
+  }, [open, screen]);
 
   useEffect(() => {
     if (provider !== 'github' || !github.account) return;
@@ -456,372 +515,374 @@ export function DropzoneToGitHub({
             : 'Your folder. A name. Your first push. We’ll connect the dots.'
       }
     >
-      <AnimatePresence mode="wait" initial={false}>
-        {hasProgress ? (
-          <motion.div
-            key="progress"
-            className="publish-progress-view"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.15 }}
-          >
-            {preview && (
-              <div className="publish-preview-label">
-                <Play size={13} /> Preview only · no files or repositories are changed
-              </div>
-            )}
-            <PublishPipeline
-              provider={provider}
-              hasFolder={!!path}
-              busy={busy}
-              progress={progress}
-            />
-            <div className="publish-progress-repo">
-              <div className="publish-repo-icon">
-                <Folder size={21} />
-              </div>
-              <div>
-                <strong>{name || 'your-project'}</strong>
-                <span>
-                  {provider === 'github' ? 'GitHub' : 'GitLab'} ·{' '}
-                  {privateRepo ? 'Private repository' : 'Public repository'}
-                </span>
-              </div>
-              <GitBranch size={17} />
-            </div>
-            <div className="publish-progress-track" aria-hidden="true">
-              <motion.div
-                animate={{ width: `${(completed / steps.length) * 100}%` }}
-                transition={{ duration: reducedMotion ? 0 : 0.35 }}
-              />
-            </div>
-            <ol className="publish-steps" aria-label="Publishing progress">
-              {steps.map((step, index) => {
-                const status = progress[step.key];
-                return (
-                  <motion.li
-                    key={step.key}
-                    className={`publish-step ${status ?? 'waiting'}`}
-                    animate={{ x: status === 'running' && !reducedMotion ? 4 : 0 }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  >
-                    <span className="publish-step-marker">
-                      {status === 'success' ? (
-                        <Check size={14} />
-                      ) : status === 'running' ? (
-                        <LoaderCircle className="publish-spinner" size={15} />
-                      ) : status === 'error' ? (
-                        <CircleAlert size={15} />
-                      ) : (
-                        index + 1
-                      )}
-                    </span>
-                    <div>
-                      <strong>{step.title}</strong>
-                      <span>{step.description}</span>
-                    </div>
-                    {status === 'success' && <span className="publish-step-done">Done</span>}
-                  </motion.li>
-                );
-              })}
-            </ol>
-            <p className="publish-progress-message" aria-live="polite">
-              {message}
-            </p>
-            {error && (
-              <div className="publish-error" role="alert">
-                <CircleAlert size={16} />
-                <span>{error}</span>
-              </div>
-            )}
-            <footer className="publish-progress-footer">
-              {result ? (
-                <>
-                  <a
-                    className="publish-secondary-button"
-                    href={repositoryUrl}
-                    aria-disabled={!repositoryUrl}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    Open on {provider === 'github' ? 'GitHub' : 'GitLab'}
-                    <ExternalLink size={14} />
-                  </a>
-                  <Button
-                    className="publish-primary-button"
-                    onClick={() => {
-                      onPublished(result);
-                      onOpenChange(false);
-                    }}
-                  >
-                    Open repository
-                    <ArrowRight size={15} />
-                  </Button>
-                </>
-              ) : busy ? (
-                <span className="publish-running-note">
-                  <LoaderCircle className="publish-spinner" size={14} />
-                  {preview ? 'Playing preview…' : 'Publishing your repository…'}
-                </span>
-              ) : (
-                <>
-                  <button className="publish-secondary-button" onClick={resetProgress}>
-                    {error ? 'Back to setup' : 'Replay setup'}
-                  </button>
-                  <Button className="publish-primary-button" onClick={() => onOpenChange(false)}>
-                    Done
-                    <Check size={15} />
-                  </Button>
-                </>
-              )}
-            </footer>
-          </motion.div>
-        ) : (
-          <motion.form
-            key="form"
-            onSubmit={publish}
-            className="publish-form"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.15 }}
-          >
-            <PublishPipeline provider={provider} hasFolder={!!path} />
-            <motion.button
-              type="button"
-              className={`publish-drop-target ${path ? 'has-folder' : ''}`}
-              onClick={pickFolder}
-              disabled={!desktop}
-              whileHover={reducedMotion || !desktop ? undefined : { y: -2 }}
-              whileTap={reducedMotion || !desktop ? undefined : { scale: 0.99 }}
+      <div ref={surface}>
+        <AnimatePresence mode="wait" initial={false}>
+          {hasProgress ? (
+            <motion.div
+              key="progress"
+              className="publish-progress-view"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reducedMotion ? 0 : 0.15 }}
             >
-              <FolderOpen size={20} />
-              <span>
-                <strong>
-                  {path
-                    ? folderName(path)
-                    : desktop
-                      ? 'Drop a folder here, or choose one'
-                      : 'Your local folder goes here'}
-                </strong>
-                <span>
-                  {path ||
-                    (desktop
-                      ? 'We’ll take it from here.'
-                      : 'Native folder access is available in the desktop app.')}
-                </span>
-              </span>
-              {desktop && <ArrowUpRight size={17} />}
-            </motion.button>
-            {desktop && (
-              <button
-                type="button"
-                className="publish-text-button publish-manual-toggle"
-                onClick={() => setManualPath(!manualPath)}
-              >
-                {manualPath ? 'Hide folder path' : 'Enter a folder path instead'}
-                <ChevronDown size={12} className={manualPath ? 'is-open' : ''} />
-              </button>
-            )}
-            {manualPath && (
-              <label className="publish-label">
-                Folder path
-                <input
-                  type="text"
-                  value={path}
-                  onChange={(event) => {
-                    setPath(event.target.value);
-                    if (!name) setName(folderName(event.target.value));
-                  }}
-                  placeholder="C:\Users\you\Projects\my-project"
-                  required
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-              </label>
-            )}
-            <div className="publish-name-provider-row">
-              <label className="publish-label">
-                Repository name
-                <input
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="your-next-big-thing"
-                  required={desktop}
-                  pattern={'[a-zA-Z0-9._\\-]+'}
-                  maxLength={100}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-              </label>
-              <label className="publish-label publish-provider-label">
-                Publish to
-                <span className="publish-select-wrap">
-                  <select
-                    value={provider}
-                    onChange={(event) => {
-                      setProvider(event.target.value as Provider);
-                      setToken('');
-                    }}
-                    aria-label="Git provider"
-                  >
-                    <option value="github">GitHub</option>
-                    <option value="gitlab">GitLab</option>
-                  </select>
-                  <ChevronDown size={13} />
-                </span>
-              </label>
-            </div>
-            <div className="publish-visibility-row">
-              <div className="publish-visibility-copy">
-                <strong>Who can see your code?</strong>
-                <span>
-                  {privateRepo
-                    ? 'Only you and people you invite.'
-                    : 'Anyone can see your files and history.'}
-                </span>
-              </div>
-              <div
-                className="publish-visibility-toggle"
-                aria-label="Repository visibility"
-                role="group"
-              >
-                {[
-                  { value: true, label: 'Private', icon: LockKeyhole },
-                  { value: false, label: 'Public', icon: Globe2 },
-                ].map(({ value, label, icon: Icon }) => (
-                  <button
-                    type="button"
-                    key={label}
-                    aria-pressed={privateRepo === value}
-                    onClick={() => setPrivateRepo(value)}
-                  >
-                    {privateRepo === value && (
-                      <motion.span
-                        className="publish-visibility-active"
-                        layoutId="publish-visibility"
-                        transition={{
-                          type: 'spring',
-                          stiffness: 450,
-                          damping: 35,
-                          duration: reducedMotion ? 0 : undefined,
-                        }}
-                      />
-                    )}
-                    <Icon size={13} />
-                    <span>{label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            {provider === 'github' ? (
-              <GitHubConnectCard compact />
-            ) : desktop ? (
-              <div className="publish-auth-fields">
-                <label className="publish-label">
-                  <span className="publish-field-label">
-                    <span>GitLab access token</span>
-                    <AnimatedTooltip content="Use a GitLab token with api and write_repository access. Your token is used for this publish only and is never saved.">
-                      <KeyRound size={12} />
-                    </AnimatedTooltip>
+              {preview && (
+                <div className="publish-preview-label">
+                  <Play size={13} /> Preview only · no files or repositories are changed
+                </div>
+              )}
+              <PublishPipeline
+                provider={provider}
+                hasFolder={!!path}
+                busy={busy}
+                progress={progress}
+              />
+              <div className="publish-progress-repo">
+                <div className="publish-repo-icon">
+                  <Folder size={21} />
+                </div>
+                <div>
+                  <strong>{name || 'your-project'}</strong>
+                  <span>
+                    {provider === 'github' ? 'GitHub' : 'GitLab'} ·{' '}
+                    {privateRepo ? 'Private repository' : 'Public repository'}
                   </span>
+                </div>
+                <GitBranch size={17} />
+              </div>
+              <div className="publish-progress-track" aria-hidden="true">
+                <motion.div
+                  animate={{ width: `${(completed / steps.length) * 100}%` }}
+                  transition={{ duration: reducedMotion ? 0 : 0.35 }}
+                />
+              </div>
+              <ol className="publish-steps" aria-label="Publishing progress">
+                {steps.map((step, index) => {
+                  const status = progress[step.key];
+                  return (
+                    <motion.li
+                      key={step.key}
+                      className={`publish-step ${status ?? 'waiting'}`}
+                      animate={{ x: status === 'running' && !reducedMotion ? 4 : 0 }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    >
+                      <span className="publish-step-marker">
+                        {status === 'success' ? (
+                          <Check size={14} />
+                        ) : status === 'running' ? (
+                          <LoaderCircle className="publish-spinner" size={15} />
+                        ) : status === 'error' ? (
+                          <CircleAlert size={15} />
+                        ) : (
+                          index + 1
+                        )}
+                      </span>
+                      <div>
+                        <strong>{step.title}</strong>
+                        <span>{step.description}</span>
+                      </div>
+                      {status === 'success' && <span className="publish-step-done">Done</span>}
+                    </motion.li>
+                  );
+                })}
+              </ol>
+              <p className="publish-progress-message" aria-live="polite">
+                {message}
+              </p>
+              {error && (
+                <div className="publish-error" role="alert">
+                  <CircleAlert size={16} />
+                  <span>{error}</span>
+                </div>
+              )}
+              <footer className="publish-progress-footer">
+                {result ? (
+                  <>
+                    <a
+                      className="publish-secondary-button"
+                      href={repositoryUrl}
+                      aria-disabled={!repositoryUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      Open on {provider === 'github' ? 'GitHub' : 'GitLab'}
+                      <ExternalLink size={14} />
+                    </a>
+                    <Button
+                      className="publish-primary-button"
+                      onClick={() => {
+                        onPublished(result);
+                        onOpenChange(false);
+                      }}
+                    >
+                      Open repository
+                      <ArrowRight size={15} />
+                    </Button>
+                  </>
+                ) : busy ? (
+                  <span className="publish-running-note">
+                    <LoaderCircle className="publish-spinner" size={14} />
+                    {preview ? 'Playing preview…' : 'Publishing your repository…'}
+                  </span>
+                ) : (
+                  <>
+                    <button className="publish-secondary-button" onClick={resetProgress}>
+                      {error ? 'Back to setup' : 'Replay setup'}
+                    </button>
+                    <Button className="publish-primary-button" onClick={() => onOpenChange(false)}>
+                      Done
+                      <Check size={15} />
+                    </Button>
+                  </>
+                )}
+              </footer>
+            </motion.div>
+          ) : (
+            <motion.form
+              key="form"
+              onSubmit={publish}
+              className="publish-form"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reducedMotion ? 0 : 0.15 }}
+            >
+              <PublishPipeline provider={provider} hasFolder={!!path} />
+              <motion.button
+                type="button"
+                className={`publish-drop-target ${path ? 'has-folder' : ''}`}
+                onClick={pickFolder}
+                disabled={!desktop}
+                whileHover={reducedMotion || !desktop ? undefined : { y: -2 }}
+                whileTap={reducedMotion || !desktop ? undefined : { scale: 0.99 }}
+              >
+                <FolderOpen size={20} />
+                <span>
+                  <strong>
+                    {path
+                      ? folderName(path)
+                      : desktop
+                        ? 'Drop a folder here, or choose one'
+                        : 'Your local folder goes here'}
+                  </strong>
+                  <span>
+                    {path ||
+                      (desktop
+                        ? 'We’ll take it from here.'
+                        : 'Native folder access is available in the desktop app.')}
+                  </span>
+                </span>
+                {desktop && <ArrowUpRight size={17} />}
+              </motion.button>
+              {desktop && (
+                <button
+                  type="button"
+                  className="publish-text-button publish-manual-toggle"
+                  onClick={() => setManualPath(!manualPath)}
+                >
+                  {manualPath ? 'Hide folder path' : 'Enter a folder path instead'}
+                  <ChevronDown size={12} className={manualPath ? 'is-open' : ''} />
+                </button>
+              )}
+              {manualPath && (
+                <label className="publish-label">
+                  Folder path
                   <input
-                    type="password"
-                    value={token}
-                    onChange={(event) => setToken(event.target.value)}
+                    type="text"
+                    value={path}
+                    onChange={(event) => {
+                      setPath(event.target.value);
+                      if (!name) setName(folderName(event.target.value));
+                    }}
+                    placeholder="C:\Users\you\Projects\my-project"
                     required
                     autoComplete="off"
                     spellCheck={false}
-                    placeholder="glpat-…"
                   />
-                  <span className="publish-field-hint">
-                    <LockKeyhole size={10} />
-                    Used once. Never stored.
+                </label>
+              )}
+              <div className="publish-name-provider-row">
+                <label className="publish-label">
+                  Repository name
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    placeholder="your-next-big-thing"
+                    required={desktop}
+                    pattern={'[a-zA-Z0-9._\\-]+'}
+                    maxLength={100}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                </label>
+                <label className="publish-label publish-provider-label">
+                  Publish to
+                  <span className="publish-select-wrap">
+                    <select
+                      value={provider}
+                      onChange={(event) => {
+                        setProvider(event.target.value as Provider);
+                        setToken('');
+                      }}
+                      aria-label="Git provider"
+                    >
+                      <option value="github">GitHub</option>
+                      <option value="gitlab">GitLab</option>
+                    </select>
+                    <ChevronDown size={13} />
                   </span>
                 </label>
               </div>
-            ) : (
-              <div className="publish-desktop-note">
-                <Monitor size={16} />
-                <span>
-                  <strong>Desktop app required to publish</strong>
-                  <span>Explore the flow below. Your files stay untouched.</span>
-                </span>
-              </div>
-            )}
-            {desktop && (
-              <details className="publish-identity" key={provider} open={provider === 'gitlab'}>
-                <summary>
-                  <GitCommitHorizontal size={13} />
-                  Commit identity
+              <div className="publish-visibility-row">
+                <div className="publish-visibility-copy">
+                  <strong>Who can see your code?</strong>
                   <span>
-                    {provider === 'github'
-                      ? authorName || 'From your GitHub profile'
-                      : 'Your name and email'}
+                    {privateRepo
+                      ? 'Only you and people you invite.'
+                      : 'Anyone can see your files and history.'}
                   </span>
-                  <ChevronDown size={13} />
-                </summary>
-                <p>Your name and email appear in the first commit. You can change them here.</p>
-                <div className="publish-author-row">
+                </div>
+                <div
+                  className="publish-visibility-toggle"
+                  aria-label="Repository visibility"
+                  role="group"
+                >
+                  {[
+                    { value: true, label: 'Private', icon: LockKeyhole },
+                    { value: false, label: 'Public', icon: Globe2 },
+                  ].map(({ value, label, icon: Icon }) => (
+                    <button
+                      type="button"
+                      key={label}
+                      aria-pressed={privateRepo === value}
+                      onClick={() => setPrivateRepo(value)}
+                    >
+                      {privateRepo === value && (
+                        <motion.span
+                          className="publish-visibility-active"
+                          layoutId="publish-visibility"
+                          transition={{
+                            type: 'spring',
+                            stiffness: 450,
+                            damping: 35,
+                            duration: reducedMotion ? 0 : undefined,
+                          }}
+                        />
+                      )}
+                      <Icon size={13} />
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {provider === 'github' ? (
+                <GitHubConnectCard compact />
+              ) : desktop ? (
+                <div className="publish-auth-fields">
                   <label className="publish-label">
-                    Commit author
+                    <span className="publish-field-label">
+                      <span>GitLab access token</span>
+                      <AnimatedTooltip content="Use a GitLab token with api and write_repository access. Your token is used for this publish only and is never saved.">
+                        <KeyRound size={12} />
+                      </AnimatedTooltip>
+                    </span>
                     <input
-                      value={authorName}
-                      onChange={(event) => setAuthorName(event.target.value)}
-                      placeholder="Your name"
-                      required={provider === 'gitlab'}
-                      autoComplete="name"
+                      type="password"
+                      value={token}
+                      onChange={(event) => setToken(event.target.value)}
+                      required
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder="glpat-…"
                     />
-                  </label>
-                  <label className="publish-label">
-                    Commit email
-                    <input
-                      type="email"
-                      value={authorEmail}
-                      onChange={(event) => setAuthorEmail(event.target.value)}
-                      placeholder={
-                        provider === 'github' ? 'Use my GitHub commit email' : 'you@example.com'
-                      }
-                      required={provider === 'gitlab'}
-                      autoComplete="email"
-                    />
+                    <span className="publish-field-hint">
+                      <LockKeyhole size={10} />
+                      Used once. Never stored.
+                    </span>
                   </label>
                 </div>
-              </details>
-            )}
-            {error && (
-              <div className="publish-error" role="alert">
-                <CircleAlert size={16} />
-                <span>{error}</span>
-              </div>
-            )}
-            <footer className="publish-form-footer">
-              <span className="publish-footer-note">
-                <GitCommitHorizontal size={13} />
-                {desktop && provider === 'github' && !github.connected
-                  ? 'Sign in above to create & push.'
-                  : 'One folder. First commit. First push.'}
-              </span>
-              {desktop ? (
-                <Button
-                  type="submit"
-                  className="publish-primary-button"
-                  disabled={busy || (provider === 'github' && !github.connected)}
-                >
-                  Create & push
-                  <Upload size={15} />
-                </Button>
               ) : (
-                <Button type="button" className="publish-primary-button" onClick={runPreview}>
-                  <Play size={14} />
-                  Preview flow
-                </Button>
+                <div className="publish-desktop-note">
+                  <Monitor size={16} />
+                  <span>
+                    <strong>Desktop app required to publish</strong>
+                    <span>Explore the flow below. Your files stay untouched.</span>
+                  </span>
+                </div>
               )}
-            </footer>
-          </motion.form>
-        )}
-      </AnimatePresence>
+              {desktop && (
+                <details className="publish-identity" key={provider} open={provider === 'gitlab'}>
+                  <summary>
+                    <GitCommitHorizontal size={13} />
+                    Commit identity
+                    <span>
+                      {provider === 'github'
+                        ? authorName || 'From your GitHub profile'
+                        : 'Your name and email'}
+                    </span>
+                    <ChevronDown size={13} />
+                  </summary>
+                  <p>Your name and email appear in the first commit. You can change them here.</p>
+                  <div className="publish-author-row">
+                    <label className="publish-label">
+                      Commit author
+                      <input
+                        value={authorName}
+                        onChange={(event) => setAuthorName(event.target.value)}
+                        placeholder="Your name"
+                        required={provider === 'gitlab'}
+                        autoComplete="name"
+                      />
+                    </label>
+                    <label className="publish-label">
+                      Commit email
+                      <input
+                        type="email"
+                        value={authorEmail}
+                        onChange={(event) => setAuthorEmail(event.target.value)}
+                        placeholder={
+                          provider === 'github' ? 'Use my GitHub commit email' : 'you@example.com'
+                        }
+                        required={provider === 'gitlab'}
+                        autoComplete="email"
+                      />
+                    </label>
+                  </div>
+                </details>
+              )}
+              {error && (
+                <div className="publish-error" role="alert">
+                  <CircleAlert size={16} />
+                  <span>{error}</span>
+                </div>
+              )}
+              <footer className="publish-form-footer">
+                <span className="publish-footer-note">
+                  <GitCommitHorizontal size={13} />
+                  {desktop && provider === 'github' && !github.connected
+                    ? 'Sign in above to create & push.'
+                    : 'One folder. First commit. First push.'}
+                </span>
+                {desktop ? (
+                  <Button
+                    type="submit"
+                    className="publish-primary-button"
+                    disabled={busy || (provider === 'github' && !github.connected)}
+                  >
+                    Create & push
+                    <Upload size={15} />
+                  </Button>
+                ) : (
+                  <Button type="button" className="publish-primary-button" onClick={runPreview}>
+                    <Play size={14} />
+                    Preview flow
+                  </Button>
+                )}
+              </footer>
+            </motion.form>
+          )}
+        </AnimatePresence>
+      </div>
     </KineticModal>
   );
 }

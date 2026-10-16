@@ -7,22 +7,22 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #dfd0ed;
-  border: 1px solid #65477e;
+  color: #d8e0ef;
+  border: 1px solid #7589a6;
   border-radius: 7px;
-  background: #2d203b;
+  background: #2b374a;
   padding: 7px 10px;
   font-size: 10px;
   font-weight: 600;
 }
 .github-account-button:hover {
-  border-color: #ad8acf;
-  background: #3b294d;
+  border-color: #b6c4d8;
+  background: #3d4b60;
 }
 .github-account-button.connected {
   color: #deff9f;
   border-color: #78923f;
-  background: #27301b;
+  background: #2b374a;
 }
 .help-dialog {
   max-height: calc(100dvh - 32px);

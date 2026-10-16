@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   ArrowDown,
   ArrowDownToLine,
@@ -57,6 +57,7 @@ import { FirstRunGuide } from './components/onboarding/FirstRunGuide';
 import { GitHubConnectCard } from './components/auth/GitHubConnectCard';
 import { useGitHubAuth } from './hooks/useGitHubAuth';
 import { rememberGuide, shouldShowGuide } from './lib/onboarding';
+import { Magnetic } from './components/registry/animmaster/Magnetic';
 
 const DiffViewer = lazy(() => import('./components/DiffViewer'));
 
@@ -80,6 +81,13 @@ export default function App() {
   const [focusMode, setFocusMode] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(shouldShowGuide);
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [commitSaved, setCommitSaved] = useState(false);
+  const reducedMotion = useReducedMotion();
+  useEffect(() => {
+    if (!commitSaved) return;
+    const timer = window.setTimeout(() => setCommitSaved(false), 2600);
+    return () => window.clearTimeout(timer);
+  }, [commitSaved]);
   const openGettingStarted = (step = 0) => {
     setOnboardingStep(step);
     setOnboardingOpen(true);
@@ -213,7 +221,10 @@ export default function App() {
     }
   };
   const submitCommit = async () => {
-    if (await commit(message.trim())) setMessage('');
+    if (await commit(message.trim())) {
+      setMessage('');
+      setCommitSaved(true);
+    }
   };
   const rescue = async () => {
     try {
@@ -461,10 +472,12 @@ export default function App() {
             whileHover={{ y: -3 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="publish-prompt-icon">
-              <FolderOpen size={20} strokeWidth={1.5} />
-              <ArrowUpRight size={12} />
-            </div>
+            <Magnetic strength={5} style={{ width: '100%' }}>
+              <span className="publish-prompt-icon">
+                <FolderOpen size={20} strokeWidth={1.5} />
+                <ArrowUpRight size={12} />
+              </span>
+            </Magnetic>
             <strong>Start something.</strong>
             <span>Local ideas. Global possibilities.</span>
             <span className="publish-prompt-action">
@@ -534,8 +547,8 @@ export default function App() {
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <span>{tab === 'changes' ? 'Your work,' : 'Every branch,'}</span>
-                  <TextRoll>{tab === 'changes' ? 'in motion.' : 'a possibility.'}</TextRoll>
+                  <span>{tab === 'changes' ? 'Make a little' : 'See how it'}</span>
+                  <TextRoll>{tab === 'changes' ? 'history.' : 'came together.'}</TextRoll>
                 </motion.h1>
                 <p>
                   {tab === 'changes'
@@ -728,10 +741,19 @@ export default function App() {
                 </Suspense>
                 <div className="commit-composer">
                   <div className="commit-composer-top">
-                    <span className="profile-avatar small">{demo ? 'AM' : 'Y'}</span>
+                    <motion.span
+                      key={commitSaved ? 'saved' : 'ready'}
+                      className={`profile-avatar small commit-avatar ${commitSaved ? 'is-saved' : ''}`}
+                      initial={commitSaved && !reducedMotion ? { scale: 0.5, rotate: -25 } : false}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', stiffness: 330, damping: 16 }}
+                      aria-hidden="true"
+                    >
+                      {commitSaved ? <Check size={17} /> : <GitCommitHorizontal size={18} />}
+                    </motion.span>
                     <span>
                       <Zap size={13} />
-                      Make it a milestone.
+                      {commitSaved ? 'A little history, saved.' : 'Make it a milestone.'}
                     </span>
                     <AnimatedTooltip content="Only staged changes are saved in a commit. Your other edits stay in your working folder.">
                       <ShieldCheck size={15} />
@@ -978,6 +1000,14 @@ export default function App() {
               and{' '}
               <a href="https://vengeanceui.com" target="_blank" rel="noreferrer">
                 Vengeance UI
+              </a>
+              . Motion runs on{' '}
+              <a href="https://motion.dev" target="_blank" rel="noreferrer">
+                Motion for React
+              </a>
+              , with original illustrations and interactions inspired by{' '}
+              <a href="https://animmasterlib.dev" target="_blank" rel="noreferrer">
+                AnimMaster
               </a>
               .
             </p>

@@ -4,7 +4,7 @@
  * Free use/modification with attribution. See PROVENANCE.md.
  * Adapted for semantic inline markup, keyboard focus, and reduced motion.
  */
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 interface TextRollProps {

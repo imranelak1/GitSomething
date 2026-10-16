@@ -1,7 +1,7 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { ButtonHTMLAttributes } from 'react';
-import type { MotionProps } from 'framer-motion';
+import type { MotionProps } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { AnimatedButton } from '../registry/vengeance/AnimatedButton';
 

@@ -6,9 +6,9 @@ Branchline makes the next Git action clear for a beginner and keeps expert tools
 
 The project name is **Branchline**. The first project remote is assumed to be private, under the authenticated owner's account; the implementation handoff should report the actual URL and visibility. That project repository is separate from repositories users later publish with the app.
 
-The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Framer Motion, and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
+The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Motion for React (formerly Framer Motion), and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
 
-The interface starts in dark mode with an expressive visual identity: electric lime primary actions, ultraviolet branch context, peach secondary graph lanes, and Manrope typography. Real Skiper TextRoll and Vengeance animated controls make focus and operation progress tangible. The user requested this bolder redesign after reviewing the first restrained milestone.
+The Studio interface combines an ink-blue editor with warm paper panels, a cobalt navigation rail, coral project-creation details, a butter-yellow commit composer, and mint success states. Space Grotesk headings and Manrope controls balance playfulness with a serious editing surface. Motion for React drives stateful SVG drawing and physical feedback alongside the existing attributed Skiper TextRoll and Vengeance controls. Original animation components take direction from AnimMaster's public examples; no paid AnimMaster source is included.
 
 ## First milestone
 

@@ -30,13 +30,13 @@ Do not add a shell plugin to implement Git operations. Console text is an explan
 | `react`, `react-dom`, TypeScript, Vite               | Application composition, types, and development/build tooling.                    |
 | `@tauri-apps/api`, Tauri CLI, dialog plugin          | IPC, native events, native dialogs, and desktop development.                      |
 | `tailwindcss` and its Vite integration               | Utility styling backed by the explicit design tokens in `src/styles.css`.         |
-| `framer-motion`                                      | Layout transitions, accessible state animation, and drag previews.                |
+| `motion` (`motion/react`)                            | Motion for React layout transitions, springs, SVG drawing, and drag previews.     |
 | `@monaco-editor/react`, `monaco-editor`              | Code and diff rendering; editor instances are disposed with their views.          |
 | Radix primitives                                     | Accessible low-level dialog, tooltip, selection, and related behavior where used. |
 | `class-variance-authority`, `clsx`, `tailwind-merge` | Source-owned component variants and consistent class composition.                 |
 | `lucide-react`                                       | One coherent icon family.                                                         |
 | `cmdk`                                               | Command-palette search and keyboard navigation.                                   |
-| Manrope and Geist Mono font packages                 | Local application and monospaced typography.                                      |
+| Space Grotesk, Manrope, and Geist Mono font packages | Local display, application, and monospaced typography.                            |
 | Vitest / Playwright                                  | Focused unit checks and browser interaction verification.                         |
 | Prettier                                             | Consistent source and documentation formatting.                                   |
 
@@ -44,7 +44,7 @@ The project requires Node.js 22.12.0 or newer. Vitest 5.0.5 and the DOMPurify 3.
 
 shadcn/ui, Skiper UI, and Vengeance UI are component source/registry systems in this architecture. They do not imply npm packages literally named `shadcn-ui`, `skiper-ui`, or `vengeance-ui`. Source-owned components live in `src/components/ui`, `src/components/registry/skiper`, and `src/components/registry/vengeance`. Review any imported registry component's dependencies and license before copying it.
 
-The project's `KineticModal` is original Radix/Framer Motion code; its heading now uses an attributed adaptation of Skiper's actual free TextRoll registry component. Its [provenance note](../src/components/registry/skiper/PROVENANCE.md) records that boundary. `AnimatedTooltip` adapts Vengeance's MIT-licensed tooltip composition and preserves the [upstream license](../src/components/registry/vengeance/LICENSE) and [source attribution](../src/components/registry/vengeance/PROVENANCE.md).
+The project's `KineticModal` is original Radix/Motion code; its heading uses an attributed adaptation of Skiper's actual free TextRoll registry component. Its [provenance note](../src/components/registry/skiper/PROVENANCE.md) records that boundary. `AnimatedTooltip` adapts Vengeance's MIT-licensed tooltip composition and preserves the [upstream license](../src/components/registry/vengeance/LICENSE) and [source attribution](../src/components/registry/vengeance/PROVENANCE.md). Motion is installed through `motion` and imported from `motion/react`; the retired direct `framer-motion` dependency is not a second animation runtime. [Motion sources](MOTION_SOURCES.md) documents the original AnimMaster-inspired components and their licensing boundary.
 
 ## Native build considerations
 

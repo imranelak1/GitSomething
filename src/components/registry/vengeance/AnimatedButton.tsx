@@ -4,7 +4,7 @@
  * Preserves the spring press, text mask, and border shine composition.
  * Adaptations: event-driven shine, project classes, strict types, reduced motion.
  */
-import { motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
+import { motion, useReducedMotion, type HTMLMotionProps } from 'motion/react';
 import { cn } from '@/lib/utils';
 import './button.css';
 

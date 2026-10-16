@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -19,6 +19,7 @@ import {
 import { Button } from '../ui/button';
 import { TextRoll } from '../registry/skiper/TextRoll';
 import { GitHubConnectCard } from '../auth/GitHubConnectCard';
+import { BranchBloom } from '../registry/animmaster/BranchBloom';
 import { useGitHubAuth } from '@/hooks/useGitHubAuth';
 import './onboarding.css';
 
@@ -73,6 +74,7 @@ export function FirstRunGuide({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: reduced ? 0 : 0.18 }}
               />
             </Dialog.Overlay>
             <Dialog.Content
@@ -97,172 +99,197 @@ export function FirstRunGuide({
                 className="onboarding-dialog"
                 initial={{ opacity: 0, scale: reduced ? 1 : 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.99 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, scale: reduced ? 1 : 0.99 }}
+                transition={{ duration: reduced ? 0 : 0.25 }}
               >
-                <header className="onboarding-header">
-                  <div className="onboarding-brand">
-                    <img src="/branchline.svg" alt="" />
-                    <span>Welcome to branchline.</span>
+                <aside className="onboarding-illustration" aria-hidden="true">
+                  <div className="onboarding-illustration-caption">
+                    <span>Make a little progress.</span>
+                    <strong>
+                      {
+                        [
+                          'Grow something good.',
+                          'Good work travels.',
+                          'A little practice. A big start.',
+                          'Your next branch starts here.',
+                        ][step]
+                      }
+                    </strong>
                   </div>
-                  <Dialog.Close className="icon-button" aria-label="Close getting started guide">
-                    <X size={18} />
-                  </Dialog.Close>
-                </header>
-                <nav className="onboarding-progress" aria-label="Getting started steps">
-                  {stages.map((stage, index) => (
-                    <button
-                      key={stage}
-                      aria-current={index === step ? 'step' : undefined}
-                      aria-label={`Step ${index + 1}: ${stage}`}
-                      onClick={() => setStep(index)}
-                      className={`${index === step ? 'active' : ''} ${index < step ? 'visited' : ''}`}
+                  <BranchBloom
+                    phase={step === 0 ? 'edit' : step === 2 ? 'commit' : 'share'}
+                    className="onboarding-bloom"
+                  />
+                  <div className="onboarding-illustration-bottom">
+                    <GitCommitHorizontal size={16} />
+                    <span>One checkpoint at a time.</span>
+                  </div>
+                </aside>
+                <div className="onboarding-main">
+                  <header className="onboarding-header">
+                    <div className="onboarding-brand">
+                      <img src="/branchline.svg" alt="" />
+                      <span>Welcome to branchline.</span>
+                    </div>
+                    <Dialog.Close className="icon-button" aria-label="Close getting started guide">
+                      <X size={18} />
+                    </Dialog.Close>
+                  </header>
+                  <nav className="onboarding-progress" aria-label="Getting started steps">
+                    {stages.map((stage, index) => (
+                      <button
+                        key={stage}
+                        aria-current={index === step ? 'step' : undefined}
+                        aria-label={`Step ${index + 1}: ${stage}`}
+                        onClick={() => setStep(index)}
+                        className={`${index === step ? 'active' : ''} ${index < step ? 'visited' : ''}`}
+                      >
+                        <span>{index < step ? <Check size={12} /> : index + 1}</span>
+                        {stage}
+                      </button>
+                    ))}
+                  </nav>
+                  <div className="onboarding-title">
+                    <Dialog.Title>
+                      <TextRoll wrap>{titles[step]}</TextRoll>
+                    </Dialog.Title>
+                    <Dialog.Description id="onboarding-description">
+                      {descriptions[step]}
+                    </Dialog.Description>
+                  </div>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                      key={step}
+                      className="onboarding-content"
+                      initial={{ opacity: 0, x: reduced ? 0 : 12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: reduced ? 0 : 0.18 }}
                     >
-                      <span>{index < step ? <Check size={12} /> : index + 1}</span>
-                      {stage}
+                      {step === 0 && (
+                        <>
+                          <div className="onboarding-path" aria-hidden="true">
+                            <div>
+                              <FolderOpen size={28} />
+                              <span>Your project</span>
+                            </div>
+                            <span className="onboarding-wire" />
+                            <div>
+                              <GitCommitHorizontal size={30} />
+                              <span>A saved checkpoint</span>
+                            </div>
+                            <span className="onboarding-wire" />
+                            <div>
+                              <Github size={30} />
+                              <span>Shared when ready</span>
+                            </div>
+                          </div>
+                          <div className="onboarding-promise">
+                            <ShieldCheck size={20} />
+                            <div>
+                              <strong>Your next step will always be clear.</strong>
+                              <p>
+                                Choose your files, save a checkpoint, then share it. Branchline
+                                shows you what happens along the way.
+                              </p>
+                            </div>
+                          </div>
+                          <div className="onboarding-local">
+                            <Monitor size={15} />
+                            <span>
+                              {desktop
+                                ? 'Your files stay on your computer until you choose to push.'
+                                : 'You’re in the browser preview. Real folders and sign-in are available in the desktop app.'}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                      {step === 1 && (
+                        <>
+                          <GitHubConnectCard />
+                          <p className="onboarding-optional">
+                            <ShieldCheck size={14} />
+                            GitHub is optional for local work. Connect later from your account menu.
+                          </p>
+                        </>
+                      )}
+                      {step === 2 && <PracticeCommit />}
+                      {step === 3 && (
+                        <div className="onboarding-start">
+                          <div className={`onboarding-connection ${connected ? 'connected' : ''}`}>
+                            <Github size={18} />
+                            <span>
+                              {connected
+                                ? `Connected as @${account?.login}`
+                                : 'Working locally for now'}
+                            </span>
+                            {connected && <Check size={15} />}
+                          </div>
+                          <button
+                            className="onboarding-project-option"
+                            onClick={() => choose(onOpenRepository)}
+                          >
+                            <span className="onboarding-option-icon">
+                              <FolderOpen size={24} />
+                            </span>
+                            <span>
+                              <strong>Open an existing repository</strong>
+                              <span>Your history and changes, ready to review.</span>
+                            </span>
+                            <ArrowRight size={17} />
+                          </button>
+                          <button
+                            className="onboarding-project-option publish-option"
+                            onClick={() => choose(onPublish)}
+                          >
+                            <span className="onboarding-option-icon">
+                              <Upload size={24} />
+                            </span>
+                            <span>
+                              <strong>Publish a local folder</strong>
+                              <span>We’ll create its history and first push for you.</span>
+                            </span>
+                            <ArrowRight size={17} />
+                          </button>
+                          <p className="onboarding-return">
+                            <Sparkles size={14} />
+                            You can replay this guide any time from A little help.
+                          </p>
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                  <footer className="onboarding-footer">
+                    <button
+                      className="button button-ghost"
+                      onClick={() => (step ? setStep(step - 1) : onOpenChange(false))}
+                    >
+                      {step ? (
+                        <>
+                          <ArrowLeft size={14} />
+                          Back
+                        </>
+                      ) : (
+                        'Skip for now'
+                      )}
                     </button>
-                  ))}
-                </nav>
-                <div className="onboarding-title">
-                  <Dialog.Title>
-                    <TextRoll wrap>{titles[step]}</TextRoll>
-                  </Dialog.Title>
-                  <Dialog.Description id="onboarding-description">
-                    {descriptions[step]}
-                  </Dialog.Description>
+                    <span className="onboarding-page-count">
+                      {step + 1} / {stages.length}
+                    </span>
+                    <Button onClick={() => (step === 3 ? onOpenChange(false) : setStep(step + 1))}>
+                      {step === 0
+                        ? 'Get started'
+                        : step === 1 && !connected
+                          ? 'Continue locally'
+                          : step === 2
+                            ? 'Choose my project'
+                            : step === 3
+                              ? 'Explore the workspace'
+                              : 'Continue'}
+                      <ArrowRight size={15} />
+                    </Button>
+                  </footer>
                 </div>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={step}
-                    className="onboarding-content"
-                    initial={{ opacity: 0, x: reduced ? 0 : 12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.18 }}
-                  >
-                    {step === 0 && (
-                      <>
-                        <div className="onboarding-path" aria-hidden="true">
-                          <div>
-                            <FolderOpen size={28} />
-                            <span>Your project</span>
-                          </div>
-                          <span className="onboarding-wire" />
-                          <div>
-                            <GitCommitHorizontal size={30} />
-                            <span>A saved checkpoint</span>
-                          </div>
-                          <span className="onboarding-wire" />
-                          <div>
-                            <Github size={30} />
-                            <span>Shared when ready</span>
-                          </div>
-                        </div>
-                        <div className="onboarding-promise">
-                          <ShieldCheck size={20} />
-                          <div>
-                            <strong>Your next step will always be clear.</strong>
-                            <p>
-                              Choose your files, save a checkpoint, then share it. Branchline shows
-                              you what happens along the way.
-                            </p>
-                          </div>
-                        </div>
-                        <div className="onboarding-local">
-                          <Monitor size={15} />
-                          <span>
-                            {desktop
-                              ? 'Your files stay on your computer until you choose to push.'
-                              : 'You’re in the browser preview. Real folders and sign-in are available in the desktop app.'}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                    {step === 1 && (
-                      <>
-                        <GitHubConnectCard />
-                        <p className="onboarding-optional">
-                          <ShieldCheck size={14} />
-                          GitHub is optional for local work. Connect later from your account menu.
-                        </p>
-                      </>
-                    )}
-                    {step === 2 && <PracticeCommit />}
-                    {step === 3 && (
-                      <div className="onboarding-start">
-                        <div className={`onboarding-connection ${connected ? 'connected' : ''}`}>
-                          <Github size={18} />
-                          <span>
-                            {connected
-                              ? `Connected as @${account?.login}`
-                              : 'Working locally for now'}
-                          </span>
-                          {connected && <Check size={15} />}
-                        </div>
-                        <button
-                          className="onboarding-project-option"
-                          onClick={() => choose(onOpenRepository)}
-                        >
-                          <span className="onboarding-option-icon">
-                            <FolderOpen size={24} />
-                          </span>
-                          <span>
-                            <strong>Open an existing repository</strong>
-                            <span>Your history and changes, ready to review.</span>
-                          </span>
-                          <ArrowRight size={17} />
-                        </button>
-                        <button
-                          className="onboarding-project-option publish-option"
-                          onClick={() => choose(onPublish)}
-                        >
-                          <span className="onboarding-option-icon">
-                            <Upload size={24} />
-                          </span>
-                          <span>
-                            <strong>Publish a local folder</strong>
-                            <span>We’ll create its history and first push for you.</span>
-                          </span>
-                          <ArrowRight size={17} />
-                        </button>
-                        <p className="onboarding-return">
-                          <Sparkles size={14} />
-                          You can replay this guide any time from A little help.
-                        </p>
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-                <footer className="onboarding-footer">
-                  <button
-                    className="button button-ghost"
-                    onClick={() => (step ? setStep(step - 1) : onOpenChange(false))}
-                  >
-                    {step ? (
-                      <>
-                        <ArrowLeft size={14} />
-                        Back
-                      </>
-                    ) : (
-                      'Skip for now'
-                    )}
-                  </button>
-                  <span className="onboarding-page-count">
-                    {step + 1} / {stages.length}
-                  </span>
-                  <Button onClick={() => (step === 3 ? onOpenChange(false) : setStep(step + 1))}>
-                    {step === 0
-                      ? 'Get started'
-                      : step === 1 && !connected
-                        ? 'Continue locally'
-                        : step === 2
-                          ? 'Choose my project'
-                          : step === 3
-                            ? 'Explore the workspace'
-                            : 'Continue'}
-                    <ArrowRight size={15} />
-                  </Button>
-                </footer>
               </motion.section>
             </Dialog.Content>
           </Dialog.Portal>

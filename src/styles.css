@@ -3,7 +3,7 @@
 @theme inline {
   --color-background: #101114;
   --color-foreground: #e9e9ed;
-  --color-primary: #b8f2c9;
+  --color-primary: #9fe6c3;
   --color-border: #2a2c32;
   --font-sans: 'Geist', sans-serif;
   --font-mono: 'Geist Mono', monospace;
@@ -21,8 +21,8 @@
   --panel: #17181c;
   --border: #2a2c32;
   --muted: #92959f;
-  --mint: #b8f2c9;
-  --lilac: #c5afff;
+  --mint: #9fe6c3;
+  --lilac: #a9bcff;
   --radius: 8px;
 }
 * {
@@ -61,7 +61,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 2px solid #b8f2c9;
+  outline: 2px solid #9fe6c3;
   outline-offset: 3px;
 }
 button,
@@ -76,7 +76,7 @@ textarea {
   caret-color: var(--mint);
 }
 ::selection {
-  background: #b8f2c92f;
+  background: #9fe6c32f;
   color: #f2fff5;
 }
 ::-webkit-scrollbar {
@@ -306,7 +306,7 @@ kbd {
   text-align: left;
 }
 .repository-nav > button.selected {
-  background: #b8f2c90c;
+  background: #9fe6c30c;
   color: #cce7d5;
 }
 .repository-nav > button.selected > svg {
@@ -551,9 +551,9 @@ kbd {
   border: 1px solid transparent;
 }
 .button-primary {
-  background: #b8f2c9;
+  background: #9fe6c3;
   color: #163c22;
-  border-color: #b8f2c9;
+  border-color: #9fe6c3;
 }
 .button-primary:hover:not(:disabled) {
   background: #ccf7d9;
@@ -829,7 +829,7 @@ h1 {
   position: relative;
 }
 .file-row.selected {
-  background: #b8f2c909;
+  background: #9fe6c309;
 }
 .file-row.selected:before {
   content: '';
@@ -838,7 +838,7 @@ h1 {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #b8f2c9;
+  background: #9fe6c3;
 }
 .file-row:hover {
   background: #ffffff06;
@@ -855,7 +855,7 @@ h1 {
   flex-shrink: 0;
 }
 .stage-checkbox:hover {
-  border-color: #b8f2c9;
+  border-color: #9fe6c3;
 }
 .stage-checkbox.checked {
   background: #a5d8b4;
@@ -1117,7 +1117,7 @@ h1 {
   font-size: 10px;
 }
 .console-toggle > svg:first-child {
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .console-toggle strong {
   color: #d9dae1;
@@ -1187,10 +1187,10 @@ h1 {
   color: #fff;
 }
 .command-git {
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .command-flag {
-  color: #c5afff;
+  color: #a9bcff;
 }
 .command-status {
   margin-left: 6px;
@@ -1311,7 +1311,7 @@ h1 {
   cursor: grabbing;
 }
 .history-row.selected {
-  background: #b8f2c907;
+  background: #9fe6c307;
 }
 .history-row:hover {
   background: #ffffff04;
@@ -1331,7 +1331,7 @@ h1 {
   z-index: 2;
 }
 .history-row:first-child .graph-node {
-  background: #b8f2c9;
+  background: #9fe6c3;
   border: 3px solid #244a31;
   width: 15px;
   height: 15px;
@@ -1385,7 +1385,7 @@ h1 {
   cursor: grab;
 }
 .branch-ref.current {
-  color: #b8f2c9;
+  color: #9fe6c3;
   background: #19291f;
   border-color: #35513e;
 }
@@ -1415,7 +1415,7 @@ h1 {
   align-items: center;
   padding: 18px 22px;
   border-top: 1px solid #2e3039;
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .commit-detail > div {
   flex: 1;
@@ -1473,7 +1473,7 @@ h1 {
   box-shadow: 0 3px 8px #0005;
 }
 .toast > svg {
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .toast > span {
   flex: 1;
@@ -1484,7 +1484,7 @@ h1 {
   z-index: 160;
   background: #101914ec;
   backdrop-filter: blur(10px);
-  border: 1px dashed #b8f2c9;
+  border: 1px dashed #9fe6c3;
   border-radius: 9px;
   display: grid;
   place-items: center;
@@ -1497,7 +1497,7 @@ h1 {
   gap: 20px;
 }
 .global-drop-overlay svg {
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .global-drop-overlay h2 {
   font-size: 26px;
@@ -1545,7 +1545,7 @@ h1 {
   top: 14px;
 }
 .plan-symbol {
-  color: #c5afff;
+  color: #a9bcff;
   margin-bottom: 20px;
 }
 .plan-dialog h2 {
@@ -1592,7 +1592,7 @@ h1 {
   display: flex;
   align-items: flex-start;
   gap: 9px;
-  color: #b8f2c9;
+  color: #9fe6c3;
   margin-bottom: 22px;
 }
 .plan-warning p {
@@ -1620,11 +1620,11 @@ h1 {
   margin: 15px 0;
 }
 .guide-list svg {
-  color: #b8f2c9;
+  color: #9fe6c3;
   margin-top: 2px;
 }
 .mint {
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .command-dialog {
   width: 540px;
@@ -1638,7 +1638,7 @@ h1 {
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid #353741;
-  color: #b8f2c9;
+  color: #9fe6c3;
 }
 .command-search input {
   flex: 1;
@@ -1676,7 +1676,7 @@ h1 {
   cursor: pointer;
 }
 [cmdk-item][data-selected='true'] {
-  background: #b8f2c90d;
+  background: #9fe6c30d;
   color: #d8f1e1;
 }
 [cmdk-item] > span:first-of-type {

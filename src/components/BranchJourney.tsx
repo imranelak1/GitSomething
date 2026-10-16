@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight, GitBranch, GitCommitHorizontal } from 'lucide-react';
 import type { RepositorySnapshot } from '@/lib/types';
 import { AnimatedTooltip } from '@/components/registry/vengeance/AnimatedTooltip';
@@ -20,7 +20,7 @@ export function BranchJourney({
     (a, b) => a - b,
   );
   const laneY = (lane: number) =>
-    49 + visibleLanes.indexOf(lane) * Math.min(18, 30 / Math.max(1, visibleLanes.length - 1));
+    53 + visibleLanes.indexOf(lane) * Math.min(16, 26 / Math.max(1, visibleLanes.length - 1));
   const nodeX = (index: number) =>
     visible.length === 1 ? 370 : 46 + index * (588 / Math.max(1, visible.length - 1));
   const colorFor = (id: string) => graphColors[(lanes.get(id) ?? 0) % graphColors.length];
@@ -50,12 +50,11 @@ export function BranchJourney({
                       d={`M ${parentX} ${parentY} C ${parentX + (x - parentX) * 0.5} ${parentY}, ${x - (x - parentX) * 0.5} ${y}, ${x} ${y}`}
                       fill="none"
                       stroke={colorFor(commit.id)}
-                      strokeWidth="3"
+                      strokeWidth="3.5"
                       strokeLinecap="round"
-                      vectorEffect="non-scaling-stroke"
                       initial={reducedMotion ? false : { pathLength: 0 }}
                       animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.9, delay: index * 0.045, ease: [0.22, 1, 0.36, 1] }}
+                      transition={{ duration: 0.95, delay: index * 0.055, ease: [0.16, 1, 0.3, 1] }}
                     />
                   );
                 }),
@@ -83,6 +82,7 @@ export function BranchJourney({
                       initial={reducedMotion ? false : { opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.15 + index * 0.06 }}
+                      whileHover={reducedMotion ? {} : { y: -2, rotate: newest ? -2 : 1 }}
                       aria-label={`View ${branches.map((branch) => branch.name).join(', ')} in history`}
                     >
                       <GitBranch size={12} />
@@ -116,6 +116,7 @@ export function BranchJourney({
                         damping: 25,
                       }}
                       whileHover={reducedMotion ? {} : { scale: 1.35 }}
+                      whileTap={reducedMotion ? {} : { scale: 0.9 }}
                     >
                       {isHead && (
                         <motion.span
@@ -139,14 +140,21 @@ export function BranchJourney({
           </div>
         )}
       </div>
-      <button className="journey-open" onClick={onViewHistory} aria-label="Explore commit history">
+      <motion.button
+        className="journey-open"
+        onClick={onViewHistory}
+        aria-label="Explore commit history"
+        whileHover={reducedMotion ? {} : 'hover'}
+      >
         <span>
-          Explore
+          The full
           <br />
-          history
+          story
         </span>
-        <ArrowUpRight size={18} />
-      </button>
+        <motion.span className="journey-open-arrow" variants={{ hover: { x: 2, y: -2 } }}>
+          <ArrowUpRight size={18} />
+        </motion.span>
+      </motion.button>
     </section>
   );
 }
