@@ -9,7 +9,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "tauri": "tauri",
     "test": "vitest run",
-    "check": "tsc -b && vitest run"
+    "check": "tsc -b && vitest run",
+    "test:ui": "node scripts/verify-ui.mjs",
+    "format": "prettier --write src scripts *.json *.ts docs README.md PRODUCT.md DESIGN.md"
   },
   "dependencies": {
     "@fontsource/geist": "^5.2.6",
@@ -38,9 +40,16 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.1.16",
     "typescript": "~5.9.3",
     "vite": "^7.1.12",
-    "vitest": "^3.2.4"
+    "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "dompurify": "^3.4.17"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

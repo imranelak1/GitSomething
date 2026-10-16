@@ -1,0 +1,28 @@
+.vengeance-tooltip-trigger {
+  display: inline;
+  cursor: help;
+  border-radius: 3px;
+}
+.vengeance-tooltip-trigger:focus-visible {
+  outline: 2px solid #c5afff;
+  outline-offset: 3px;
+}
+.vengeance-tooltip {
+  z-index: 160;
+  max-width: min(290px, calc(100vw - 24px));
+  border: 1px solid #41434b;
+  border-radius: 8px;
+  background: #24262d;
+  padding: 10px 12px;
+  color: #e9e9ed;
+  font-family: 'Geist', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  box-shadow: 0 4px 8px #0003;
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  overflow-wrap: anywhere;
+}
+.vengeance-tooltip-arrow {
+  fill: #41434b;
+}
