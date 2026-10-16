@@ -1,0 +1,30 @@
+[package]
+name = "branchline"
+version = "0.1.0"
+description = "A thoughtful desktop Git client"
+authors = ["Branchline contributors"]
+edition = "2021"
+rust-version = "1.88"
+
+[lib]
+name = "branchline_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+git2 = { version = "0.21", default-features = false, features = ["https", "ssh", "vendored-libgit2"] }
+notify = "8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "time"] }
+uuid = { version = "1", features = ["v4"] }
+ignore = "0.4"
+zeroize = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+tempfile = "3"

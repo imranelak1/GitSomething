@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-capability",
+  "description": "Local desktop window, repository picker, and event subscriptions.",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:allow-open"]
+}
