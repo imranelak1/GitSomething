@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 // authorizes GitHub, accesses a credential store, or changes a real repository.
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
-const screenshots = new URL('onboarding/', artifacts);
+const screenshots = new URL('studio-onboarding/', artifacts);
 await mkdir(screenshots, { recursive: true });
 const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const browser = await chromium.launch({
@@ -44,7 +44,7 @@ async function capture(page, name) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(350);
   await page.screenshot({ path: fileURLToPath(new URL(name, screenshots)), fullPage: true });
-  report.screenshots.push(`artifacts/onboarding/${name}`);
+  report.screenshots.push(`artifacts/studio-onboarding/${name}`);
 }
 async function expectText(page, text) {
   await page.getByText(text, { exact: true }).waitFor({ timeout: 15_000 });
@@ -103,7 +103,12 @@ async function nativePage({ configured = true } = {}) {
           callbacks.delete(id);
         },
         async invoke(command, args) {
-          state.commands.push({ command, args, calledAt: Date.now() });
+          state.commands.push({
+            command,
+            args,
+            calledAt: Date.now(),
+            pollMode: command === 'github_auth_poll' ? state.mode : undefined,
+          });
           if (command === 'plugin:event|listen') {
             const id = ++nextId;
             listeners.set(id, args);
@@ -187,6 +192,18 @@ try {
   monitor(first, 'first-launch-browser');
   await first.goto(baseURL);
   await first.getByRole('dialog', { name: 'A good place to start.', exact: true }).waitFor();
+  assert.equal(
+    await first
+      .locator('.onboarding-illustration [data-motion="branch-bloom"]')
+      .getAttribute('data-phase'),
+    'edit',
+  );
+  assert.equal(
+    await first
+      .locator('.onboarding-illustration [data-motion="branch-bloom"]')
+      .getAttribute('aria-hidden'),
+    'true',
+  );
   await capture(first, 'desktop-welcome.png');
   assert.equal(
     await first.getByRole('button', { name: 'Step 1: Welcome' }).getAttribute('aria-current'),
@@ -208,6 +225,12 @@ try {
   check('Browser sign-in is explicitly a desktop feature and requests no token');
 
   await first.getByRole('button', { name: 'Continue locally', exact: true }).click();
+  assert.equal(
+    await first
+      .locator('.onboarding-illustration [data-motion="branch-bloom"]')
+      .getAttribute('data-phase'),
+    'commit',
+  );
   const continueFiles = first.getByRole('button', {
     name: 'Continue with your files',
     exact: true,
@@ -282,6 +305,10 @@ try {
     monitor(narrow, `guide-${width}px-reduced-motion`);
     await narrow.goto(baseURL);
     await narrow.locator('.onboarding-dialog').waitFor();
+    assert.equal(
+      await narrow.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
+      true,
+    );
     for (const stage of [
       'Step 1: Welcome',
       'Step 2: Connect',
@@ -308,13 +335,14 @@ try {
         geometry.scrollWidth <= geometry.clientWidth + 1,
         `${width}px ${stage}: no horizontal content overflow`,
       );
+      const stageName = stage.split(': ')[1].toLowerCase().replaceAll(' ', '-');
+      await capture(narrow, `mobile-${width}-${stageName}.png`);
     }
-    await capture(narrow, `mobile-${width}-choose-project.png`);
     await narrow.getByRole('button', { name: 'Explore the workspace', exact: true }).click();
     await narrow.locator('.onboarding-dialog').waitFor({ state: 'hidden' });
     await narrow.close();
   }
-  check('Every guide step remains usable at 320px and 390px with reduced motion');
+  check('Every guide step and BranchBloom remain usable at 320px and 390px with reduced motion');
 
   const unavailable = await nativePage({ configured: false });
   await openAccount(unavailable);
@@ -349,6 +377,16 @@ try {
   );
   assert.equal(await native.locator('.onboarding-dialog input[type="password"]').count(), 0);
   await capture(native, 'desktop-github-approval.png');
+  await native.setViewportSize({ width: 320, height: 844 });
+  await capture(native, 'mobile-320-github-approval.png');
+  assert.equal(
+    await native
+      .locator('.onboarding-dialog')
+      .evaluate((dialog) => dialog.scrollWidth <= dialog.clientWidth + 1),
+    true,
+    '320px native approval has no horizontal overflow',
+  );
+  await native.setViewportSize({ width: 1440, height: 960 });
   await native.getByRole('button', { name: 'Cancel', exact: true }).click();
   await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).waitFor();
   const canceledCommands = await native.evaluate(() => window.__BRANCHLINE_AUTH_TEST__.commands);
@@ -388,7 +426,19 @@ try {
       window.__BRANCHLINE_AUTH_TEST__.mode = mode;
     }, mode);
     await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
-    await expectText(native, expected);
+    await expectText(native, 'TEST-CODE');
+    try {
+      await expectText(native, expected);
+    } catch (error) {
+      report.authFailure = {
+        mode,
+        actualAlerts: await native.getByRole('alert').allTextContents(),
+        commands: await native.evaluate(() => window.__BRANCHLINE_AUTH_TEST__.commands),
+        visibleContent: await native.locator('.onboarding-dialog').innerText(),
+      };
+      await capture(native, 'failed-consent-state.png');
+      throw error;
+    }
     assert.equal(await native.getByText('TEST-CODE', { exact: true }).count(), 0);
     assert.equal(
       await native.getByRole('button', { name: 'Continue locally', exact: true }).isEnabled(),
@@ -401,6 +451,7 @@ try {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'defer';
   });
   await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
+  await expectText(native, 'TEST-CODE');
   await native.waitForFunction(
     () => typeof window.__BRANCHLINE_AUTH_TEST__.resolvePoll === 'function',
     { timeout: 15_000 },
@@ -417,66 +468,75 @@ try {
   await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).waitFor();
   check('A late successful poll cannot reconnect the interface after cancellation');
 
-  const pollsBefore = await native.evaluate(
-    () =>
-      window.__BRANCHLINE_AUTH_TEST__.commands.filter(
-        ({ command }) => command === 'github_auth_poll',
-      ).length,
-  );
-  await native.evaluate(() => {
+  // Use real browser time and tag responses, rather than relying on an exact
+  // global poll count. Extra legitimate pending polls are allowed; the delays
+  // before the next stage must still honor GitHub's minimum intervals.
+  const timing = await nativePage();
+  await openAccount(timing);
+  report.pollingClock = 'Real browser time; mode-tagged 5s/10s frontend polling checks';
+  await timing.evaluate(() => {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'pending';
   });
-  await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
-  await native.waitForFunction(
-    (previous) =>
-      window.__BRANCHLINE_AUTH_TEST__.commands.filter(
-        ({ command }) => command === 'github_auth_poll',
-      ).length ===
-      previous + 1,
-    pollsBefore,
-    { timeout: 15_000 },
+  await timing.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
+  await timing.waitForFunction(
+    () =>
+      window.__BRANCHLINE_AUTH_TEST__.commands.some(
+        ({ command, pollMode }) => command === 'github_auth_poll' && pollMode === 'pending',
+      ),
+    null,
+    { timeout: 30_000 },
   );
-  await native.evaluate(() => {
+  await timing.evaluate(() => {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'slow_down';
   });
-  await native.waitForFunction(
-    (previous) =>
-      window.__BRANCHLINE_AUTH_TEST__.commands.filter(
-        ({ command }) => command === 'github_auth_poll',
-      ).length ===
-      previous + 2,
-    pollsBefore,
-    { timeout: 15_000 },
+  await timing.waitForFunction(
+    () =>
+      window.__BRANCHLINE_AUTH_TEST__.commands.some(
+        ({ command, pollMode }) => command === 'github_auth_poll' && pollMode === 'slow_down',
+      ),
+    null,
+    { timeout: 30_000 },
   );
-  await native.evaluate(() => {
+  await timing.evaluate(() => {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'connected';
   });
-  await native
+  await timing
     .getByRole('button', { name: 'Disconnect', exact: true })
-    .waitFor({ timeout: 15_000 });
-  const pendingPolls = await native.evaluate(
-    (previous) =>
-      window.__BRANCHLINE_AUTH_TEST__.commands
-        .filter(({ command }) => command === 'github_auth_poll')
-        .slice(previous),
-    pollsBefore,
-  );
-  assert.equal(pendingPolls.length, 3);
+    .waitFor({ timeout: 30_000 });
+  const timingCommands = await timing.evaluate(() => window.__BRANCHLINE_AUTH_TEST__.commands);
+  const timingPolls = timingCommands.filter(({ command }) => command === 'github_auth_poll');
+  const firstPending = timingPolls.findIndex(({ pollMode }) => pollMode === 'pending');
+  const firstSlow = timingPolls.findIndex(({ pollMode }) => pollMode === 'slow_down');
+  const firstConnected = timingPolls.findIndex(({ pollMode }) => pollMode === 'connected');
   assert.ok(
-    pendingPolls[1].calledAt - pendingPolls[0].calledAt >= 4_900,
+    firstPending >= 0 && firstSlow > firstPending && firstConnected > firstSlow,
+    'Consent must progress pending ? slow_down ? connected',
+  );
+  const firstDelayMs =
+    timingPolls[0].calledAt -
+    timingCommands.find(({ command }) => command === 'github_auth_start').calledAt;
+  const pendingDelayMs = timingPolls[firstSlow].calledAt - timingPolls[firstSlow - 1].calledAt;
+  const slowDownDelayMs =
+    timingPolls[firstConnected].calledAt - timingPolls[firstConnected - 1].calledAt;
+  assert.ok(firstDelayMs >= 4_900, 'The first authorization poll must wait at least 5 seconds');
+  assert.ok(
+    pendingDelayMs >= 4_900,
     'Pending authorization must respect the 5-second poll interval',
   );
-  assert.ok(
-    pendingPolls[2].calledAt - pendingPolls[1].calledAt >= 9_900,
-    'Slow-down must raise the poll interval to 10 seconds',
+  assert.ok(slowDownDelayMs >= 9_900, 'Slow-down must raise the poll interval to 10 seconds');
+  report.frontendPolling = { firstDelayMs, pendingDelayMs, slowDownDelayMs, polls: timingPolls };
+  console.log(
+    `Real-time polling gaps: first=${firstDelayMs}ms pending=${pendingDelayMs}ms slow_down=${slowDownDelayMs}ms`,
   );
-  await native.getByRole('button', { name: 'Disconnect', exact: true }).click();
-  await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).waitFor();
+  await timing.getByRole('button', { name: 'Disconnect', exact: true }).click();
+  await timing.getByRole('button', { name: 'Sign in with GitHub', exact: true }).waitFor();
   check(
     'Pending consent respects its polling interval and GitHub slow-down postpones the next request',
   );
+  await timing.close();
 
   await closeGuide(native);
+  await native.setViewportSize({ width: 320, height: 844 });
   await openPublish(native);
   assert.equal(await native.locator('.publish-dialog input[type="password"]').count(), 0);
   assert.equal(
@@ -494,11 +554,22 @@ try {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'connected';
   });
   await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
+  await expectText(native, 'TEST-CODE');
   await native
     .getByRole('button', { name: 'Disconnect', exact: true })
     .waitFor({ timeout: 15_000 });
+  await native.locator('.publish-dialog').evaluate((dialog) => {
+    dialog.scrollTop = dialog.scrollHeight;
+  });
   await native.getByRole('button', { name: 'Create & push', exact: true }).click();
   await native.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
+  assert.equal(
+    await native.locator('.publish-dialog').evaluate((dialog) => dialog.scrollTop),
+    0,
+    'Switching to publish progress returns the dialog to its header',
+  );
+  await capture(native, 'mobile-320-publish-complete.png');
+  check('Publishing progress restores the narrow dialog header after submitting a scrolled form');
   const publishes = await native.evaluate(() => window.__BRANCHLINE_AUTH_TEST__.publishes);
   assert.equal(publishes.length, 1);
   assert.equal(publishes[0].provider, 'github');
@@ -524,7 +595,7 @@ try {
   process.exitCode = 1;
 } finally {
   await writeFile(
-    new URL('onboarding-browser-report.json', artifacts),
+    new URL('studio-onboarding-browser-report.json', artifacts),
     `${JSON.stringify(report, null, 2)}\n`,
   );
   await browser.close();

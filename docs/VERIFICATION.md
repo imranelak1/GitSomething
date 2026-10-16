@@ -2,7 +2,28 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
-## Current results: October 16, 2026
+## Current Studio results: October 16, 2026
+
+The Studio redesign replaces the previous lime/violet palette with an ink editor, warm paper panels, cobalt navigation, coral project creation, butter-yellow committing, and mint success states. Motion for React powers the actual SVG, layout, spring, and gesture interactions. [Source ownership](MOTION_SOURCES.md) distinguishes original AnimMaster-inspired components from the paid catalog.
+
+| Check                                              | Studio result                                                                                                                                             |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                                    | TypeScript and 2 frontend unit tests passed.                                                                                                              |
+| `npm run build`                                    | Final production bundle passed. Monaco remains a separate local chunk.                                                                                    |
+| `cargo build --manifest-path src-tauri/Cargo.toml` | Native debug build passed with the updated application icon.                                                                                              |
+| Workspace browser verification                     | 24 checks passed, zero browser errors and zero provider requests. [Report](../artifacts/studio-browser-report.json).                                      |
+| Guide and consent verification                     | 16 checks passed on the production preview, zero browser errors and zero provider requests. [Report](../artifacts/studio-onboarding-browser-report.json). |
+| Real native WebView/Rust smoke                     | 5 checks passed, zero errors. [Report](../artifacts/studio-native-report.json).                                                                           |
+
+The final visual batch covered the [workspace](../artifacts/studio/desktop-working-directory.png), [history ledger](../artifacts/studio/desktop-history.png), [focus mode](../artifacts/studio/desktop-focus-mode.png), [illustrated guide](../artifacts/studio-onboarding/desktop-welcome.png), and narrow publishing/auth layouts. The confirmation fixed a clipped sidebar action, preserved visible mobile preview headers by resetting dialog scroll on screen changes, and corrected SVG path scaling in the expanded focus graph. HEAD is checked against a fixture where the current branch target is the second commit rather than the newest row.
+
+Consent uses native IPC mocks rather than real credentials. The guide suite verifies first launch, practice, persistence, replay, focus restoration, reduced motion, cancellation, denial, expiry, interrupted transport, late approvals, connected identity, and credential-free publishing IPC. Measured frontend polling gaps were **5018 ms** before the first poll, **5002 ms** after pending, and **10004 ms** after slow-down. A 320px regression scrolls setup to the bottom before submitting and confirms progress restores the header at scroll position zero.
+
+The native smoke reads the actual repository, changes and restores the index for a temporary file, and receives Rust command events. It checks native account-status serialization and a missing Client ID rejecting sign-in with owner guidance. Live OAuth consent, secure-store round trips, refresh, native folder selection/drop, and actual GitHub publication remain outside this automated proof. The backend engine and OAuth implementation were unchanged in this visual pass; their 18 tests and strict Clippy result below are retained from the preceding milestone.
+
+For stable final browser verification, build first, start `npm run preview -- --port 1430`, then run both suites with `BRANCHLINE_TEST_URL=http://127.0.0.1:1430`. This avoids development hot reload during long consent scenarios. The native smoke still targets the prepared debug WebView on port 9223.
+
+## Previous GitHub sign-in milestone: October 16, 2026
 
 The first-use guide and GitHub OAuth milestone passed these checks. [GitHub sign-in setup](GITHUB_AUTH.md) records the application owner's one-time OAuth registration; this build still needs the owner's Client ID before real account consent is available.
 
@@ -64,7 +85,7 @@ The frontend production build verifies bundled TypeScript and Monaco assets. Rus
 
 Useful focused engine coverage includes initial repository state, stage/unstage including deletions, commit parent/identity behavior, invalid paths, secret-file rejection during automatic publishing, command redaction, and progress/result correlation. Do not count a unit test of a fixture as proof of provider integration.
 
-Start the development server with `npm run dev` in another terminal, then run `npm run test:ui` and `npm run test:onboarding`. The default URL is `http://127.0.0.1:1420`; override it with `BRANCHLINE_TEST_URL` when needed. The runners use installed Microsoft Edge on Windows when available and otherwise Playwright's Chromium (`npx playwright install chromium`). The baseline runner writes `artifacts/workflow-browser-report.json` and screenshots under `artifacts/workflow/`; the guide runner writes `artifacts/onboarding-browser-report.json` and screenshots under `artifacts/onboarding/`. Earlier milestone artifacts are retained separately.
+Start the development server with `npm run dev` in another terminal, then run `npm run test:ui` and `npm run test:onboarding`. The default URL is `http://127.0.0.1:1420`; override it with `BRANCHLINE_TEST_URL` when needed. The runners use installed Microsoft Edge on Windows when available and otherwise Playwright's Chromium (`npx playwright install chromium`). The baseline runner writes `artifacts/studio-browser-report.json` and screenshots under `artifacts/studio/`; the guide runner writes `artifacts/studio-onboarding-browser-report.json` and screenshots under `artifacts/studio-onboarding/`. Earlier milestone artifacts are retained separately.
 
 ## Desktop checks
 

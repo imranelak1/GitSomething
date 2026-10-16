@@ -1,0 +1,13 @@
+{
+  "testedAt": "2026-10-16T23:55:00.382Z",
+  "checks": [
+    "Native GitHub status exposes account state without credential fields",
+    "Unconfigured native builds reject sign-in with an owner setup message",
+    "Actual Rust IPC opens this local repository and returns its real branch and history",
+    "Actual native stage/unstage IPC changes the Git index and preserves the working file exactly",
+    "Rust-generated equivalent commands reach the actual WebView console"
+  ],
+  "errors": [],
+  "boundary": "Real Tauri IPC and Rust Git engine. Native folder selection and provider publishing require manual verification.",
+  "status": "passed"
+}

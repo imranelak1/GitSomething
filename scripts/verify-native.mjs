@@ -76,11 +76,11 @@ try {
   );
   report.checks.push('Rust-generated equivalent commands reach the actual WebView console');
   await page.evaluate(() => document.fonts.ready);
-  await mkdir('artifacts/screenshots', { recursive: true });
-  await page.screenshot({ path: 'artifacts/screenshots/native-window.png' });
+  await mkdir('artifacts/studio-native', { recursive: true });
+  await page.screenshot({ path: 'artifacts/studio-native/native-window.png' });
   assert.equal(report.errors.length, 0, JSON.stringify(report.errors));
   report.status = 'passed';
-  await writeFile('artifacts/native-report.json', JSON.stringify(report, null, 2));
+  await writeFile('artifacts/studio-native-report.json', JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));
 } finally {
   if (created) {

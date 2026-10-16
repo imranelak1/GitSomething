@@ -58,8 +58,8 @@ branchline/
 │   │   ├── CommandPalette.tsx          # Progressive disclosure with Ctrl/Cmd+K
 │   │   ├── ui/                        # Source-owned shadcn-style primitives
 │   │   └── registry/
-│   │       ├── skiper/                 # Source-owned animated inputs/drop surfaces
-│   │       └── vengeance/              # Source-owned animated tooltip surfaces
+│   │       ├── skiper/                 # Attributed TextRoll and original kinetic modal
+│   │       └── vengeance/              # Attributed animated buttons and tooltips
 │   ├── hooks/useRepository.ts         # Native IPC, event lifecycle, demo boundary
 │   ├── hooks/useGitHubAuth.tsx         # Account state and device authorization lifecycle
 │   └── lib/

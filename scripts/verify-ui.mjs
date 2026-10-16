@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
-const screenshots = new URL('workflow/', artifacts);
+const screenshots = new URL('studio/', artifacts);
 await mkdir(screenshots, { recursive: true });
 const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const browser = await chromium.launch({
@@ -27,12 +27,13 @@ const check = (name) => {
   console.log(`PASS ${name}`);
 };
 const capture = async (page, name) => {
-  await page.waitForTimeout(450);
+  // Let path drawing and spring entrances settle before the visual proof.
+  await page.waitForTimeout(1300);
   await page.screenshot({
     path: new URL(name, screenshots).pathname.replace(/^\/([A-Z]:)/, '$1'),
     fullPage: true,
   });
-  report.screenshots.push(`artifacts/workflow/${name}`);
+  report.screenshots.push(`artifacts/studio/${name}`);
 };
 function monitor(page, surface) {
   page.on('pageerror', (error) =>
@@ -68,7 +69,13 @@ async function assertPublishHeader(page, surface) {
     if (!title || !close || !dialog) return null;
     const rectangle = (element) => {
       const bounds = element.getBoundingClientRect();
-      return { left: bounds.left, right: bounds.right, width: bounds.width };
+      return {
+        left: bounds.left,
+        right: bounds.right,
+        width: bounds.width,
+        top: bounds.top,
+        bottom: bounds.bottom,
+      };
     };
     return {
       viewportWidth: window.innerWidth,
@@ -99,6 +106,10 @@ async function assertPublishHeader(page, surface) {
       geometry.close.right <= geometry.viewportWidth,
     `${surface}: publishing close button must remain inside its dialog and viewport`,
   );
+  assert.ok(
+    geometry.title.top >= geometry.dialog.top - 1 && geometry.close.top >= geometry.dialog.top - 1,
+    `${surface}: publishing title and close button must stay visible after a form transition`,
+  );
 }
 
 try {
@@ -124,6 +135,30 @@ try {
     'The commit CTA must render the actual Vengeance UI integration',
   );
   check('Skiper UI TextRoll and Vengeance UI AnimatedButton render in the working directory');
+  report.palette = await desktop.evaluate(() => ({
+    rail: getComputedStyle(document.querySelector('.activity-rail')).backgroundColor,
+    files: getComputedStyle(document.querySelector('.changes-panel')).backgroundColor,
+    composer: getComputedStyle(document.querySelector('.commit-composer')).backgroundColor,
+  }));
+  assert.deepEqual(report.palette, {
+    rail: 'rgb(66, 99, 235)',
+    files: 'rgb(244, 241, 232)',
+    composer: 'rgb(242, 215, 92)',
+  });
+  const publishPrompt = await desktop.locator('.publish-prompt').boundingBox();
+  const publishPromptAction = await desktop.locator('.publish-prompt-action').boundingBox();
+  assert.ok(
+    publishPrompt &&
+      publishPromptAction &&
+      publishPromptAction.y + publishPromptAction.height <=
+        publishPrompt.y + publishPrompt.height - 4,
+    'The sidebar publishing action must fit fully inside its coral tile',
+  );
+  check(
+    'Cobalt navigation, paper files, and butter composer render; the sidebar publishing action stays visible',
+  );
+  assert.equal(await desktop.locator('.journey-node').count(), 5);
+  assert.equal(await desktop.locator('.journey-lines path').count(), 4);
   await capture(desktop, 'desktop-working-directory.png');
   const standardEditor = await desktop.locator('.diff-panel').boundingBox();
   assert.ok(standardEditor);
@@ -148,6 +183,12 @@ try {
   );
   await desktop.getByRole('tab', { name: 'History', exact: true }).click();
   await desktop.locator('.history-row').first().waitFor();
+  assert.equal(await desktop.locator('.history-row').count(), 7);
+  assert.equal(await desktop.locator('.commit-connections path').count(), 7);
+  assert.equal(await desktop.locator('.graph-node-head').count(), 1);
+  check(
+    'Compact and full graphs draw only the fixture commits and their actual visible parent connections',
+  );
   await capture(desktop, 'desktop-history.png');
   await desktop.getByRole('tab', { name: /^Changes/ }).click();
   await waitForEditor(desktop);
@@ -190,6 +231,10 @@ try {
   await desktop
     .getByText('Demo commit saved. Your real files are unchanged.', { exact: true })
     .waitFor();
+  await desktop.locator('.commit-avatar.is-saved').waitFor();
+  await desktop.getByText('A little history, saved.', { exact: true }).waitFor();
+  await capture(desktop, 'desktop-commit-saved.png');
+  check('Successful commits show the saved checkmark and confirmation in the commit composer');
   assert.equal(await desktop.locator('.file-row').count(), 3);
   assert.equal(await desktop.locator('.stage-checkbox[aria-pressed="true"]').count(), 0);
   assert.equal(
@@ -420,6 +465,36 @@ try {
           return;
         }
         if (command === 'plugin:dialog|open') return 'C:\\test-fixture\\orbit';
+        if (command === 'open_repository') {
+          const now = Math.floor(Date.now() / 1000);
+          return {
+            path: 'C:\\test-fixture\\orbit',
+            name: 'orbit',
+            branch: 'stable',
+            guardian: null,
+            files: [],
+            commits: [
+              {
+                id: 'parallel123456789',
+                summary: 'Newer work on another branch',
+                author: 'Test Fixture',
+                timestamp: now - 60,
+                parents: ['current1234567890'],
+              },
+              {
+                id: 'current1234567890',
+                summary: 'Current branch checkpoint',
+                author: 'Test Fixture',
+                timestamp: now - 120,
+                parents: [],
+              },
+            ],
+            branches: [
+              { name: 'parallel', target: 'parallel123456789', current: false },
+              { name: 'stable', target: 'current1234567890', current: true },
+            ],
+          };
+        }
         if (command === 'publish_repository') {
           const subscriptions = [...listeners.entries()].filter(
             ([, listener]) => listener.event === 'publish:progress',
@@ -531,6 +606,42 @@ try {
     'Mocked native success accepts trusted HTTPS URL, keeps GitHub credentials out of publish IPC, and unregisters each listener once',
   );
 
+  await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).click();
+  await mockedNative.getByRole('tab', { name: 'History', exact: true }).click();
+  await mockedNative.getByRole('button', { name: 'Current branch checkpoint, current' }).waitFor();
+  assert.equal(await mockedNative.locator('.history-row').count(), 2);
+  assert.equal(
+    await mockedNative.locator('.history-row').first().locator('.graph-node-head').count(),
+    0,
+  );
+  assert.equal(
+    await mockedNative
+      .locator('.history-row')
+      .filter({ hasText: 'Current branch checkpoint' })
+      .locator('.graph-node-head')
+      .count(),
+    1,
+  );
+  assert.equal(await mockedNative.locator('.commit-connections path').count(), 1);
+  assert.equal(
+    await mockedNative.locator('.journey-position-current .journey-branch').innerText(),
+    'stable',
+  );
+  await mockedNative.locator('.history-row').last().focus();
+  await mockedNative.keyboard.press('Enter');
+  assert.equal(
+    await mockedNative.locator('.history-row').last().getAttribute('aria-pressed'),
+    'true',
+  );
+  await mockedNative
+    .locator('.commit-detail strong')
+    .filter({ hasText: 'Current branch checkpoint' })
+    .waitFor();
+  check(
+    'History marks the actual current branch target when a newer commit exists elsewhere, and keyboard selection updates its details',
+  );
+  await capture(mockedNative, 'desktop-history-native-topology.png');
+
   assert.equal(
     report.providerRequests.length,
     0,
@@ -547,7 +658,7 @@ try {
   process.exitCode = 1;
 } finally {
   await writeFile(
-    new URL('workflow-browser-report.json', artifacts),
+    new URL('studio-browser-report.json', artifacts),
     `${JSON.stringify(report, null, 2)}\n`,
   );
   await browser.close();
