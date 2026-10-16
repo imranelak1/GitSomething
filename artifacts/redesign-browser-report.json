@@ -1,0 +1,132 @@
+{
+  "baseURL": "http://127.0.0.1:1420",
+  "testedAt": "2026-10-16T23:04:08.884Z",
+  "browser": "155.0.4283.62",
+  "checks": [
+    "Monaco mounts locally; initial commit requires a message and staged files",
+    "Skiper UI TextRoll and Vengeance UI AnimatedButton render in the working directory",
+    "Focus mode expands Monaco, makes the hidden sidebar inert, and restores from Ctrl+Shift+F",
+    "Repeated file changes and history navigation safely reset Monaco models",
+    "Stage and unstage move the exact selected file and update staged count",
+    "Changed-file filtering restores the complete list when cleared",
+    "Demo commit saves only the 3 staged files and retains 3 unstaged changes",
+    "Ctrl+K search and Enter navigate to history containing the new commit",
+    "Dragging a commit opens a consequence preview and cannot mutate history",
+    "Publishing defaults private; provider and visibility controls work; browser cannot publish or capture credentials",
+    "Preview completes five simulated steps with no false success URL or repository link",
+    "Console toggles from palette and keyboard; explanations are keyboard accessible",
+    "390px layout stacks usable files, Monaco, and the composer without overlap",
+    "Mobile publishing dialog stays within viewport and preview remains usable",
+    "Mobile history is accessible from tabs without horizontal document overflow",
+    "320px and 390px publishing titles fit fully and preserve the close button",
+    "Mocked native contract validates required fields, clears tokens on provider change, subscribes before invoking, and rejects unsafe result links",
+    "Mocked native success accepts trusted HTTPS URL, clears submitted token, and unregisters each listener once",
+    "Browser demo makes zero GitHub or GitLab API requests",
+    "No React, Monaco, worker, or other browser console errors"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "screenshots": [
+    "artifacts/redesign/desktop-working-directory.png",
+    "artifacts/redesign/desktop-focus-mode.png",
+    "artifacts/redesign/desktop-history.png",
+    "artifacts/redesign/desktop-history-after-commit.png",
+    "artifacts/redesign/desktop-history-preview.png",
+    "artifacts/redesign/desktop-publish.png",
+    "artifacts/redesign/desktop-publish-preview.png",
+    "artifacts/redesign/mobile-working-directory.png",
+    "artifacts/redesign/mobile-publish.png",
+    "artifacts/redesign/mobile-publish-preview.png",
+    "artifacts/redesign/mobile-history.png",
+    "artifacts/redesign/mobile-320-publish.png",
+    "artifacts/redesign/mobile-320-publish-preview.png",
+    "artifacts/redesign/desktop-publish-native-form.png"
+  ],
+  "publishHeaders": [
+    {
+      "surface": "390px form",
+      "viewportWidth": 390,
+      "title": {
+        "left": 35,
+        "right": 313,
+        "width": 278
+      },
+      "close": {
+        "left": 325,
+        "right": 355,
+        "width": 30
+      },
+      "dialog": {
+        "left": 12,
+        "right": 378,
+        "width": 366
+      },
+      "titleScrollWidth": 278,
+      "titleClientWidth": 278
+    },
+    {
+      "surface": "390px progress",
+      "viewportWidth": 390,
+      "title": {
+        "left": 35,
+        "right": 313,
+        "width": 278
+      },
+      "close": {
+        "left": 325,
+        "right": 355,
+        "width": 30
+      },
+      "dialog": {
+        "left": 12,
+        "right": 378,
+        "width": 366
+      },
+      "titleScrollWidth": 278,
+      "titleClientWidth": 278
+    },
+    {
+      "surface": "320px form",
+      "viewportWidth": 320,
+      "title": {
+        "left": 30,
+        "right": 248,
+        "width": 218
+      },
+      "close": {
+        "left": 260,
+        "right": 290,
+        "width": 30
+      },
+      "dialog": {
+        "left": 12,
+        "right": 308,
+        "width": 296
+      },
+      "titleScrollWidth": 218,
+      "titleClientWidth": 218
+    },
+    {
+      "surface": "320px progress",
+      "viewportWidth": 320,
+      "title": {
+        "left": 30,
+        "right": 248,
+        "width": 218
+      },
+      "close": {
+        "left": 260,
+        "right": 290,
+        "width": 30
+      },
+      "dialog": {
+        "left": 12,
+        "right": 308,
+        "width": 296
+      },
+      "titleScrollWidth": 218,
+      "titleClientWidth": 218
+    }
+  ],
+  "status": "passed"
+}

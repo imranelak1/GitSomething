@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
-const screenshots = new URL('screenshots/', artifacts);
+const screenshots = new URL('redesign/', artifacts);
 await mkdir(screenshots, { recursive: true });
 const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const browser = await chromium.launch({
@@ -20,6 +20,7 @@ const report = {
   errors: [],
   providerRequests: [],
   screenshots: [],
+  publishHeaders: [],
 };
 const check = (name) => {
   report.checks.push(name);
@@ -31,7 +32,7 @@ const capture = async (page, name) => {
     path: new URL(name, screenshots).pathname.replace(/^\/([A-Z]:)/, '$1'),
     fullPage: true,
   });
-  report.screenshots.push(`artifacts/screenshots/${name}`);
+  report.screenshots.push(`artifacts/redesign/${name}`);
 };
 function monitor(page, surface) {
   page.on('pageerror', (error) =>
@@ -56,7 +57,48 @@ async function openPublishWithPalette(page) {
   await page.getByRole('dialog', { name: 'Command palette' }).waitFor();
   await page.getByPlaceholder('What would you like to do?').fill('Create');
   await page.keyboard.press('Enter');
-  await page.getByRole('dialog').filter({ hasText: 'From local to launched.' }).waitFor();
+  await page.getByRole('dialog', { name: 'From local to launched.', exact: true }).waitFor();
+}
+async function assertPublishHeader(page, surface) {
+  const viewportWidth = page.viewportSize().width;
+  const geometry = await page.evaluate(() => {
+    const title = document.querySelector('.publish-title');
+    const close = document.querySelector('.publish-close');
+    const dialog = document.querySelector('.publish-dialog');
+    if (!title || !close || !dialog) return null;
+    const rectangle = (element) => {
+      const bounds = element.getBoundingClientRect();
+      return { left: bounds.left, right: bounds.right, width: bounds.width };
+    };
+    return {
+      viewportWidth: window.innerWidth,
+      title: rectangle(title),
+      close: rectangle(close),
+      dialog: rectangle(dialog),
+      titleScrollWidth: title.scrollWidth,
+      titleClientWidth: title.clientWidth,
+    };
+  });
+  report.publishHeaders.push({ surface, ...geometry });
+  assert.ok(geometry, `${surface}: publishing header must render`);
+  assert.equal(
+    geometry.viewportWidth,
+    viewportWidth,
+    `${surface}: layout viewport must match the configured device width`,
+  );
+  assert.ok(
+    geometry.titleScrollWidth <= geometry.titleClientWidth + 1,
+    `${surface}: publishing title must fit fully inside its available width`,
+  );
+  assert.ok(
+    geometry.title.right <= geometry.close.left - 5,
+    `${surface}: publishing title must leave space for the close button`,
+  );
+  assert.ok(
+    geometry.close.right <= geometry.dialog.right + 1 &&
+      geometry.close.right <= geometry.viewportWidth,
+    `${surface}: publishing close button must remain inside its dialog and viewport`,
+  );
 }
 
 try {
@@ -71,7 +113,38 @@ try {
   assert.equal(await desktop.locator('.stage-checkbox[aria-pressed="true"]').count(), 2);
   assert.equal(await desktop.getByRole('button', { name: 'Commit changes' }).isDisabled(), true);
   check('Monaco mounts locally; initial commit requires a message and staged files');
+  assert.ok(
+    (await desktop.locator('[data-ui-source="skiper-ui"]').count()) > 0,
+    'The working directory must render the actual Skiper UI integration',
+  );
+  assert.equal(
+    await desktop.getByRole('button', { name: 'Commit changes' }).getAttribute('data-ui-source'),
+    'vengeance-ui',
+    'The commit CTA must render the actual Vengeance UI integration',
+  );
+  check('Skiper UI TextRoll and Vengeance UI AnimatedButton render in the working directory');
   await capture(desktop, 'desktop-working-directory.png');
+  const standardEditor = await desktop.locator('.diff-panel').boundingBox();
+  assert.ok(standardEditor);
+  const focusToggle = desktop.getByRole('button', { name: 'Focus mode', exact: true });
+  assert.equal(await focusToggle.getAttribute('aria-pressed'), 'false');
+  await focusToggle.click();
+  await desktop.waitForTimeout(450);
+  const focusedEditor = await desktop.locator('.diff-panel').boundingBox();
+  const focusedSidebar = await desktop.locator('.sidebar').boundingBox();
+  assert.equal(await focusToggle.getAttribute('aria-pressed'), 'true');
+  assert.ok(focusedEditor && focusedEditor.width > standardEditor.width + 80);
+  assert.ok(focusedSidebar && focusedSidebar.width < 1);
+  assert.notEqual(await desktop.locator('.sidebar').getAttribute('inert'), null);
+  await capture(desktop, 'desktop-focus-mode.png');
+  await desktop.keyboard.press('Control+Shift+f');
+  await desktop.waitForTimeout(450);
+  const restoredEditor = await desktop.locator('.diff-panel').boundingBox();
+  assert.equal(await focusToggle.getAttribute('aria-pressed'), 'false');
+  assert.ok(restoredEditor && Math.abs(restoredEditor.width - standardEditor.width) <= 2);
+  check(
+    'Focus mode expands Monaco, makes the hidden sidebar inert, and restores from Ctrl+Shift+F',
+  );
   await desktop.getByRole('tab', { name: 'History', exact: true }).click();
   await desktop.locator('.history-row').first().waitFor();
   await capture(desktop, 'desktop-history.png');
@@ -151,7 +224,7 @@ try {
   await desktop.getByRole('button', { name: 'Close preview', exact: true }).click();
 
   await openPublishWithPalette(desktop);
-  const publishing = desktop.getByRole('dialog').filter({ hasText: 'From local to launched.' });
+  const publishing = desktop.getByRole('dialog', { name: 'From local to launched.', exact: true });
   assert.equal(
     await publishing
       .getByRole('button', { name: 'Private', exact: true })
@@ -217,33 +290,41 @@ try {
   assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
   const mobileFiles = await mobile.locator('.file-list').boundingBox();
   const mobileComposer = await mobile.locator('.commit-composer').boundingBox();
-  const mobileChanges = await mobile.locator('.changes-panel').boundingBox();
+  const mobileFilesPanel = await mobile.locator('.changes-panel').boundingBox();
+  const mobileChangesView = await mobile.locator('.changes-view').boundingBox();
   const mobileEditor = await mobile.locator('.diff-panel').boundingBox();
   assert.ok(
     mobileFiles && mobileFiles.width >= 150,
     'Mobile changed-file list must have a usable width',
   );
   assert.ok(
-    mobileComposer &&
-      mobileChanges &&
-      mobileComposer.y + mobileComposer.height <= mobileChanges.y + mobileChanges.height + 1,
-    'Mobile composer must remain inside the changes panel',
+    mobileEditor &&
+      mobileFilesPanel &&
+      mobileEditor.y >= mobileFilesPanel.y + mobileFilesPanel.height - 1,
+    'Mobile editor must sit below the changed-file panel without overlap',
   );
   assert.ok(
-    mobileEditor && mobileChanges && mobileEditor.y >= mobileChanges.y + mobileChanges.height - 1,
-    'Mobile editor must sit below the changes panel',
+    mobileComposer && mobileEditor && mobileComposer.y >= mobileEditor.y + mobileEditor.height - 1,
+    'Mobile composer must sit below Monaco without overlap',
   );
-  check(
-    '390px layout shows usable files and composer beside one another above Monaco without overlap',
+  assert.ok(
+    mobileComposer &&
+      mobileChangesView &&
+      mobileComposer.y + mobileComposer.height <=
+        mobileChangesView.y + mobileChangesView.height + 1,
+    'Mobile composer must remain inside the complete changes view',
   );
+  check('390px layout stacks usable files, Monaco, and the composer without overlap');
   await openPublishWithPalette(mobile);
   const mobileDialog = mobile.locator('.publish-dialog');
   const mobileBox = await mobileDialog.boundingBox();
   assert.ok(mobileBox && mobileBox.x >= 0 && mobileBox.x + mobileBox.width <= 390);
   await capture(mobile, 'mobile-publish.png');
+  await assertPublishHeader(mobile, '390px form');
   await mobileDialog.getByRole('button', { name: 'Preview flow', exact: true }).click();
   await mobile.getByRole('button', { name: 'Done', exact: true }).waitFor({ timeout: 15_000 });
   await capture(mobile, 'mobile-publish-preview.png');
+  await assertPublishHeader(mobile, '390px progress');
   check('Mobile publishing dialog stays within viewport and preview remains usable');
   await mobile.getByRole('button', { name: 'Done', exact: true }).click();
   await mobile.getByRole('tab', { name: 'History', exact: true }).click();
@@ -251,6 +332,25 @@ try {
   await capture(mobile, 'mobile-history.png');
   assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
   check('Mobile history is accessible from tabs without horizontal document overflow');
+
+  const narrow = await browser.newPage({
+    viewport: { width: 320, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  });
+  monitor(narrow, '320px-mobile');
+  await narrow.goto(baseURL);
+  await waitForEditor(narrow);
+  await openPublishWithPalette(narrow);
+  await capture(narrow, 'mobile-320-publish.png');
+  await assertPublishHeader(narrow, '320px form');
+  await narrow.getByRole('button', { name: 'Preview flow', exact: true }).click();
+  await narrow.getByRole('button', { name: 'Done', exact: true }).waitFor({ timeout: 15_000 });
+  await capture(narrow, 'mobile-320-publish-preview.png');
+  await assertPublishHeader(narrow, '320px progress');
+  check('320px and 390px publishing titles fit fully and preserve the close button');
+  await narrow.close();
 
   // This is a frontend IPC contract test. It does not execute Rust, touch files,
   // create remote repositories, or claim native integration coverage.
@@ -381,7 +481,7 @@ try {
   process.exitCode = 1;
 } finally {
   await writeFile(
-    new URL('browser-report.json', artifacts),
+    new URL('redesign-browser-report.json', artifacts),
     `${JSON.stringify(report, null, 2)}\n`,
   );
   await browser.close();

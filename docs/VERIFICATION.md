@@ -4,6 +4,12 @@ Use this checklist to assess the first milestone. Record actual command results 
 
 ## Recorded results: October 16, 2026
 
+### Kinetic redesign
+
+The user-requested redesign is recorded in [the redesign browser report](../artifacts/redesign-browser-report.json): **20 checks passed, zero browser errors, zero provider requests**. It verifies actual Skiper/Vengeance source integration, animated focus mode and its keyboard restore, staging/commit behavior, history gestures, publishing previews, transient credentials through mocked native IPC, and full dialog-title/close-button geometry at 320px and 390px.
+
+The updated [workspace](../artifacts/redesign/desktop-working-directory.png), [focus mode](../artifacts/redesign/desktop-focus-mode.png), [history](../artifacts/redesign/desktop-history.png), and [publishing dialog](../artifacts/redesign/desktop-publish.png) capture the new lime/violet interface. The check runner now writes new evidence into `artifacts/redesign/` and preserves the first milestone's screenshots separately. The frontend TypeScript/unit checks and production build also pass. The native Git engine was unchanged by this design pass; live provider publishing remains outside browser verification.
+
 | Check                                                                            | Result                                                                                       |
 | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | `npm run check`                                                                  | Passed TypeScript checking and 2 frontend unit tests.                                        |
