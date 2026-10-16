@@ -1,0 +1,35 @@
+{
+  "baseURL": "http://127.0.0.1:1420",
+  "testedAt": "2026-10-16T23:23:33.349Z",
+  "browser": "155.0.4283.62",
+  "scope": "Browser guide interactions and mocked native GitHub OAuth IPC only",
+  "checks": [
+    "A fresh profile opens the first-use guide with clear progress and a skip action",
+    "Browser sign-in is explicitly a desktop feature and requests no token",
+    "Practice teaches file selection, a named local commit, and an explicitly simulated push",
+    "Completing the guide keeps local work available and remembers the choice after reload",
+    "The guide can be replayed from both the command palette and A little help",
+    "Escape closes the account guide and returns keyboard focus to its launcher",
+    "Every guide step remains usable at 320px and 390px with reduced motion",
+    "A build without an OAuth Client ID still supports the guide and local work",
+    "Sign-in shows a one-time code, opens the trusted backend browser action, and cancels cleanly",
+    "Mocked consent connects the account across the interface and disconnect removes it",
+    "Denied, expired, and interrupted consent give retry guidance and preserve local access",
+    "A late successful poll cannot reconnect the interface after cancellation",
+    "Pending consent respects its polling interval and GitHub slow-down postpones the next request",
+    "Publishing requires connected GitHub, autofills author identity, and sends no GitHub credential through IPC",
+    "Guide and mocked consent produce no browser errors or real provider requests"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "screenshots": [
+    "artifacts/onboarding/desktop-welcome.png",
+    "artifacts/onboarding/desktop-connect-browser.png",
+    "artifacts/onboarding/desktop-practice-complete.png",
+    "artifacts/onboarding/mobile-320-choose-project.png",
+    "artifacts/onboarding/mobile-390-choose-project.png",
+    "artifacts/onboarding/desktop-github-approval.png",
+    "artifacts/onboarding/desktop-github-connected.png"
+  ],
+  "status": "passed"
+}

@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
-const screenshots = new URL('redesign/', artifacts);
+const screenshots = new URL('workflow/', artifacts);
 await mkdir(screenshots, { recursive: true });
 const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const browser = await chromium.launch({
@@ -32,7 +32,7 @@ const capture = async (page, name) => {
     path: new URL(name, screenshots).pathname.replace(/^\/([A-Z]:)/, '$1'),
     fullPage: true,
   });
-  report.screenshots.push(`artifacts/redesign/${name}`);
+  report.screenshots.push(`artifacts/workflow/${name}`);
 };
 function monitor(page, surface) {
   page.on('pageerror', (error) =>
@@ -106,6 +106,7 @@ try {
     viewport: { width: 1440, height: 960 },
     deviceScaleFactor: 1,
   });
+  await desktop.addInitScript(() => localStorage.setItem('branchline.guide.v1', 'seen'));
   monitor(desktop, 'desktop');
   await desktop.goto(baseURL);
   await waitForEditor(desktop);
@@ -232,7 +233,12 @@ try {
     'true',
   );
   assert.equal(
-    await publishing.getByText('Desktop app required to publish', { exact: true }).isVisible(),
+    await publishing
+      .getByText(
+        'GitHub sign-in is available in the desktop app. This browser preview stays local.',
+        { exact: true },
+      )
+      .isVisible(),
     true,
   );
   assert.equal(
@@ -246,8 +252,17 @@ try {
     0,
   );
   assert.equal(await publishing.locator('input[type="password"]').count(), 0);
+  assert.equal(
+    await publishing.getByRole('button', { name: 'Sign in with GitHub', exact: true }).count(),
+    0,
+  );
   await publishing.getByRole('textbox', { name: 'Repository name', exact: true }).fill('orbit-lab');
   await publishing.getByRole('combobox', { name: 'Git provider' }).selectOption('gitlab');
+  assert.equal(
+    await publishing.getByText('Desktop app required to publish', { exact: true }).isVisible(),
+    true,
+  );
+  assert.equal(await publishing.locator('input[type="password"]').count(), 0);
   await publishing.getByRole('button', { name: 'Public', exact: true }).click();
   await publishing.getByText('Anyone can see your files and history.', { exact: true }).waitFor();
   await publishing.getByRole('button', { name: 'Private', exact: true }).click();
@@ -283,6 +298,7 @@ try {
     isMobile: true,
     hasTouch: true,
   });
+  await mobile.addInitScript(() => localStorage.setItem('branchline.guide.v1', 'seen'));
   monitor(mobile, 'mobile');
   await mobile.goto(baseURL);
   await waitForEditor(mobile);
@@ -339,6 +355,7 @@ try {
     isMobile: true,
     hasTouch: true,
   });
+  await narrow.addInitScript(() => localStorage.setItem('branchline.guide.v1', 'seen'));
   monitor(narrow, '320px-mobile');
   await narrow.goto(baseURL);
   await waitForEditor(narrow);
@@ -353,10 +370,12 @@ try {
   await narrow.close();
 
   // This is a frontend IPC contract test. It does not execute Rust, touch files,
-  // create remote repositories, or claim native integration coverage.
+  // create remote repositories, authenticate with GitHub, or claim native integration coverage.
+  // The connected account is a frontend contract fixture, not a live OAuth session.
   const mockedNative = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   monitor(mockedNative, 'mocked-native-ipc');
   await mockedNative.addInitScript(() => {
+    localStorage.setItem('branchline.guide.v1', 'seen');
     let id = 0;
     const callbacks = new Map();
     const listeners = new Map();
@@ -377,6 +396,19 @@ try {
         callbacks.delete(callbackId);
       },
       async invoke(command, args) {
+        if (command === 'github_auth_status') {
+          return {
+            configured: true,
+            connected: true,
+            account: {
+              login: 'test-fixture',
+              name: 'Test Fixture',
+              email: 'test@example.invalid',
+              avatarUrl: '',
+            },
+            scopes: ['repo', 'workflow', 'read:user', 'user:email'],
+          };
+        }
         if (command === 'plugin:event|listen') {
           const listenerId = ++id;
           listeners.set(listenerId, args);
@@ -397,6 +429,9 @@ try {
             name: request.name,
             provider: request.provider,
             private: request.private,
+            token: request.token,
+            authorName: request.authorName,
+            authorEmail: request.authorEmail,
             subscribedBeforeInvoke: subscriptions.length === 1,
           });
           for (const step of ['validate', 'init', 'commit', 'remote', 'push']) {
@@ -417,7 +452,11 @@ try {
   await mockedNative.goto(baseURL);
   await waitForEditor(mockedNative);
   await openPublishWithPalette(mockedNative);
+  await mockedNative.getByText('Signed in as @test-fixture', { exact: true }).waitFor();
+  assert.equal(await mockedNative.locator('input[type="password"]').count(), 0);
+  await mockedNative.getByLabel('Repository name', { exact: true }).fill('pending-folder');
   await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await mockedNative.getByText('Choose the folder you want to publish.', { exact: true }).waitFor();
   assert.equal(
     await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__.publishes.length),
     0,
@@ -425,13 +464,32 @@ try {
   await mockedNative
     .getByRole('button', { name: 'Drop a folder here, or choose one', exact: false })
     .click();
-  await mockedNative.getByLabel('GitHub access token').fill('test-only-token-not-a-secret');
+  await mockedNative.getByLabel('Repository name', { exact: true }).fill('');
+  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  assert.equal(
+    await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__.publishes.length),
+    0,
+  );
+  await mockedNative.getByLabel('Repository name', { exact: true }).fill('orbit');
+  assert.equal(await mockedNative.locator('.publish-identity').getAttribute('open'), null);
+  await mockedNative.locator('.publish-identity summary').click();
+  assert.equal(
+    await mockedNative.getByLabel('Commit author', { exact: true }).inputValue(),
+    'Test Fixture',
+  );
+  assert.equal(
+    await mockedNative.getByLabel('Commit email', { exact: true }).inputValue(),
+    'test@example.invalid',
+  );
+  await mockedNative.locator('.publish-identity summary').click();
+  await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('gitlab');
+  assert.equal(await mockedNative.locator('input[type="password"]').inputValue(), '');
+  await mockedNative.getByLabel('GitLab access token').fill('test-only-token-not-a-secret');
+  await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('github');
+  assert.equal(await mockedNative.locator('input[type="password"]').count(), 0);
   await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('gitlab');
   assert.equal(await mockedNative.locator('input[type="password"]').inputValue(), '');
   await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('github');
-  await mockedNative.getByLabel('GitHub access token').fill('test-only-token-not-a-secret');
-  await mockedNative.getByLabel('Commit author', { exact: true }).fill('Test Fixture');
-  await mockedNative.getByLabel('Commit email', { exact: true }).fill('test@example.invalid');
   await capture(mockedNative, 'desktop-publish-native-form.png');
   await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
   await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
@@ -440,18 +498,25 @@ try {
   assert.equal(await unsafeLink.getAttribute('aria-disabled'), 'true');
   let ipc = await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__);
   assert.deepEqual(ipc.publishes, [
-    { name: 'orbit', provider: 'github', private: true, subscribedBeforeInvoke: true },
+    {
+      name: 'orbit',
+      provider: 'github',
+      private: true,
+      token: '',
+      authorName: 'Test Fixture',
+      authorEmail: 'test@example.invalid',
+      subscribedBeforeInvoke: true,
+    },
   ]);
   check(
-    'Mocked native contract validates required fields, clears tokens on provider change, subscribes before invoking, and rejects unsafe result links',
+    'Mocked native contract validates folder and name, uses GitHub account identity without a token field, clears GitLab tokens on provider change, subscribes before invoking, and rejects unsafe result links',
   );
   await mockedNative.getByRole('button', { name: 'Close publishing dialog', exact: true }).click();
   await mockedNative.evaluate(() => {
     window.__BRANCHLINE_TEST_IPC__.url = 'https://github.com/test-fixture/orbit';
   });
   await openPublishWithPalette(mockedNative);
-  assert.equal(await mockedNative.locator('input[type="password"]').inputValue(), '');
-  await mockedNative.getByLabel('GitHub access token').fill('test-only-token-not-a-secret');
+  assert.equal(await mockedNative.locator('input[type="password"]').count(), 0);
   await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
   await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
   assert.equal(
@@ -460,9 +525,10 @@ try {
   );
   ipc = await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__);
   assert.equal(ipc.publishes.length, 2);
+  assert.equal(ipc.publishes[1].token, '');
   assert.equal(ipc.unsubscribed.length, new Set(ipc.unsubscribed).size);
   check(
-    'Mocked native success accepts trusted HTTPS URL, clears submitted token, and unregisters each listener once',
+    'Mocked native success accepts trusted HTTPS URL, keeps GitHub credentials out of publish IPC, and unregisters each listener once',
   );
 
   assert.equal(
@@ -481,7 +547,7 @@ try {
   process.exitCode = 1;
 } finally {
   await writeFile(
-    new URL('redesign-browser-report.json', artifacts),
+    new URL('workflow-browser-report.json', artifacts),
     `${JSON.stringify(report, null, 2)}\n`,
   );
   await browser.close();

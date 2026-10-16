@@ -27,10 +27,14 @@ npm run tauri build
 
 ## First-use flow
 
-1. Open an existing local repository in the desktop app, or drop an unversioned folder onto it.
-2. Review the folder, repository name, visibility, and provider in the publishing dialog. Supply a provider token for this operation; it is not saved as an application preference.
-3. Publish. The native workflow validates the folder, authenticates the provider account, checks name availability, initializes Git, creates an initial commit, creates the remote through the provider API, configures `origin`, pushes `main`, and establishes its upstream.
-4. Follow the progress and equivalent Git commands in the Glass-Box console. The API creation step is identified as an API action rather than disguised as a Git command.
+The first launch opens a short interactive guide. It explains each step in plain language and can be reopened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account.
+
+1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
+2. **Connect GitHub.** Approve access in your browser using the one-time code shown in Branchline. There is no GitHub token field. The app owner configures the public OAuth Client ID once; see [GitHub sign-in setup](docs/GITHUB_AUTH.md).
+3. **Review before sharing.** Choose a repository name and Public or Private visibility. Publishing creates the initial local commit, creates the hosted repository, and pushes the first version. GitLab keeps its operation-specific token flow.
+4. **Save your next change.** Review a changed file, pick the files for this save (**stage**), and describe the change before creating a **commit**. A commit saves a version on your computer; **Push** uploads saved versions to GitHub.
+
+Local review, staging, and commits work offline. Connecting accounts and synchronizing with a remote require the network. The Glass-Box console explains each equivalent Git command, with hosted repository creation clearly labeled as an API action.
 
 Publishing changes the selected local folder and creates a remote repository. Account and name checks happen before initialization. A later provider race, network failure, or failed push can leave the local commit and remote in place. Recovery after initialization is currently manual: inspect the provider account, open the preserved local repository, and configure the appropriate remote/credentials before retrying synchronization. The publishing dialog does not automatically resume an existing repository. [The runtime ADR](docs/adr/0001-native-git-runtime.md) describes this boundary.
 
@@ -46,6 +50,8 @@ branchline/
 │   │   ├── publish/
 │   │   │   ├── DropzoneToGitHub.tsx     # Folder-to-provider publishing flow
 │   │   │   └── publish.css             # Publishing dialog and step presentation
+│   │   ├── auth/GitHubConnectCard.tsx   # Browser sign-in and connected-account surface
+│   │   ├── onboarding/FirstRunGuide.tsx # Welcome, account connection, and Git practice
 │   │   ├── DiffViewer.tsx              # Monaco diff surface
 │   │   ├── HistoryGraph.tsx            # Commit graph and guarded drag previews
 │   │   ├── GlassBox.tsx                # Equivalent CLI operation log
@@ -55,6 +61,7 @@ branchline/
 │   │       ├── skiper/                 # Source-owned animated inputs/drop surfaces
 │   │       └── vengeance/              # Source-owned animated tooltip surfaces
 │   ├── hooks/useRepository.ts         # Native IPC, event lifecycle, demo boundary
+│   ├── hooks/useGitHubAuth.tsx         # Account state and device authorization lifecycle
 │   └── lib/
 │       ├── types.ts                    # Frontend DTOs and operation types
 │       ├── console.ts                  # Command token explanations
@@ -64,6 +71,7 @@ branchline/
 │   ├── src/main.rs                    # Desktop binary entry point
 │   ├── src/lib.rs                     # Tauri builder, state, and command registration
 │   ├── src/git_engine.rs              # libgit2 operations and repository state
+│   ├── src/github_auth.rs             # GitHub OAuth and OS credential storage
 │   ├── Cargo.toml                     # Rust dependency manifest
 │   ├── tauri.conf.json                # Window, bundle, and CSP configuration
 │   ├── capabilities/                 # Native access granted to the main window
@@ -71,11 +79,13 @@ branchline/
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── DEPENDENCIES.md
+│   ├── GITHUB_AUTH.md                 # One-time app owner setup and user sign-in
 │   ├── VERIFICATION.md
 │   └── adr/0001-native-git-runtime.md
 ├── components.json                    # shadcn CLI paths and component conventions
 ├── scripts/
 │   ├── verify-ui.mjs                  # Browser interactions and mocked IPC contracts
+│   ├── verify-onboarding.mjs          # First launch, Git practice, and mocked GitHub consent
 │   └── verify-native.mjs              # Prepared real-WebView IPC smoke check
 ├── artifacts/                         # Recorded reports and review screenshots
 ├── package.json
@@ -101,17 +111,18 @@ With `npm run dev` running in another terminal, run the browser checks:
 
 ```powershell
 npm run test:ui
+npm run test:onboarding
 ```
 
 The runner uses Microsoft Edge when available on Windows; otherwise install Playwright's Chromium with `npx playwright install chromium`. Set `BRANCHLINE_TEST_URL` to test a different development-server URL. Reports and screenshots are written to `artifacts/`.
 
-The first publishing flow accepts an unversioned folder and GitHub.com or GitLab.com personal access tokens. It rejects existing/nested repositories, obvious credential files, individual files above 50 MiB, and scans above 100,000 files. Publishing credentials are restricted to the selected provider's HTTPS host and checked again at each credential request. Subsequent synchronization uses libgit2's existing SSH-agent/default credential support; operation-scoped publishing tokens are not retained for later pushes. Pull is fast-forward only and refuses dirty or divergent state. Text diffs currently require UTF-8 and are limited to 2 MiB per file.
+The publishing flow accepts an unversioned folder, a connected GitHub.com account, or an operation-scoped GitLab.com token. GitHub credentials stay in the native backend and the OS credential store, and are reused for GitHub HTTPS synchronization. It rejects existing/nested repositories, obvious credential files, individual files above 50 MiB, and scans above 100,000 files. Provider credentials are restricted to their provider's HTTPS host and checked again at each credential request; existing SSH-agent/default credential support remains available. GitLab publishing tokens are not retained for later pushes. Pull is fast-forward only and refuses dirty or divergent state. Text diffs currently require UTF-8 and are limited to 2 MiB per file.
 
 A file with staged and unstaged changes appears in both groups, with a separate diff for each version. File counts use unique paths. The detached-HEAD Guardian can create a new rescue branch without changing working files; merge/rebase conflicts must currently be completed outside the app.
 
 ## Architecture boundaries
 
-Git commands shown in the console are explanations of `git2` calls. The application does not execute those strings or spawn a Git child process. Git hosting uses `reqwest` HTTPS requests. Tokens must never appear in command strings, events, errors, persisted app state, or credential-bearing remote URLs.
+Git commands shown in the console are explanations of `git2` calls. The application does not execute those strings or spawn a Git child process. Git hosting uses `reqwest` HTTPS requests. Tokens must never appear in command strings, events, errors, frontend preferences, or credential-bearing remote URLs. Remembered GitHub credentials belong in the OS credential store.
 
 Native work executes off the UI runtime; mutations are serialized so status refreshes and filesystem events cannot race index changes. `notify` invalidates repository snapshots, with refresh coalescing instead of one full scan per filesystem event. These choices avoid process startup overhead but do not imply every Git operation, large diff, filesystem scan, or network request takes less than a millisecond.
 

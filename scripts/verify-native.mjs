@@ -32,6 +32,22 @@ page.on('pageerror', (error) => report.errors.push(error.message));
 try {
   await page.reload();
   await page.locator('.monaco-diff-editor').waitFor();
+  const auth = await ipc('github_auth_status');
+  assert.equal(typeof auth.configured, 'boolean');
+  assert.equal(typeof auth.connected, 'boolean');
+  assert.deepEqual(
+    Object.keys(auth)
+      .filter((key) => key !== 'error')
+      .sort(),
+    ['account', 'configured', 'connected', 'scopes'],
+  );
+  report.checks.push('Native GitHub status exposes account state without credential fields');
+  if (!auth.configured) {
+    await assert.rejects(ipc('github_auth_start'), /client id|configured|configuration/i);
+    report.checks.push('Unconfigured native builds reject sign-in with an owner setup message');
+  }
+  const closeGuide = page.getByRole('button', { name: 'Close getting started guide' });
+  if (await closeGuide.isVisible()) await closeGuide.click();
   const snapshot = await ipc('open_repository', { path: root });
   canonicalPath = snapshot.path;
   assert.equal(snapshot.name, basename(root));

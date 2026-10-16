@@ -1,6 +1,8 @@
 {
-  "testedAt": "2026-10-16T22:43:15.346Z",
+  "testedAt": "2026-10-16T23:25:01.350Z",
   "checks": [
+    "Native GitHub status exposes account state without credential fields",
+    "Unconfigured native builds reject sign-in with an owner setup message",
     "Actual Rust IPC opens this local repository and returns its real branch and history",
     "Actual native stage/unstage IPC changes the Git index and preserves the working file exactly",
     "Rust-generated equivalent commands reach the actual WebView console"

@@ -13,6 +13,8 @@ The committed `package.json`, lockfile, and `src-tauri/Cargo.toml` define the ex
 | `notify` 8                     | Platform filesystem events used to invalidate repository snapshots.                                                                                                   |
 | `serde` / `serde_json`         | Explicit command, result, error, and progress DTO serialization.                                                                                                      |
 | `reqwest` 0.12                 | Provider HTTPS APIs, JSON, and Rustls TLS. It is separate from libgit2 remote transport.                                                                              |
+| `keyring`                      | Native GitHub credential storage in Windows Credential Manager, macOS Keychain, or Linux Secret Service. No plaintext preference fallback.                            |
+| `tauri-plugin-opener` 2        | Open the validated GitHub device-authorization page in the system browser. It is not a Git command transport.                                                         |
 | `tokio` 1                      | Async coordination, synchronization, timers, and blocking-work dispatch.                                                                                              |
 | `uuid` 1                       | Operation identifiers that correlate command invocation and streamed events.                                                                                          |
 | `ignore` 0.4                   | Ignore-aware folder inspection and candidate-file enumeration.                                                                                                        |

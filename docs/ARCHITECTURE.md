@@ -1,6 +1,6 @@
 # Application architecture
 
-Branchline separates interface intent, native repository work, provider APIs, and explanatory output. React owns presentation and user intent. Rust owns filesystem access, Git state, validation, mutations, and network credentials during an operation. The Glass-Box console describes what the engine did using equivalent CLI syntax.
+Branchline separates interface intent, native repository work, provider APIs, and explanatory output. React owns presentation and user intent. Rust owns filesystem access, Git state, validation, mutations, and provider credentials. The Glass-Box console describes what the engine did using equivalent CLI syntax.
 
 ## Data and control flow
 
@@ -20,7 +20,7 @@ The event path is informational. An event carrying a command string must not bec
 
 ## Native engine
 
-`src-tauri/src/main.rs` is the small platform binary entry point. `lib.rs` configures the Tauri builder, manages the engine state, and registers the explicit IPC surface. `git_engine.rs` contains the first milestone's repository operations. As complexity grows, split it by responsibility into repository sessions, status/diff reads, index operations, history, remotes/providers, watcher lifecycle, and safety planning. Keep DTOs independent of borrowed libgit2 handles.
+`src-tauri/src/main.rs` is the small platform binary entry point. `lib.rs` configures the Tauri builder, manages the engine state, and registers the explicit IPC surface. `git_engine.rs` contains the repository operations; `github_auth.rs` owns device authorization and native credential storage. As complexity grows, split the Git engine by responsibility into repository sessions, status/diff reads, index operations, history, remotes/providers, watcher lifecycle, and safety planning. Keep DTOs independent of borrowed libgit2 handles.
 
 Do not store `Commit<'repo>`, `Tree<'repo>`, `Diff<'repo>`, or borrowed credential data outside the repository lifetime that created them. Open the `Repository` inside the blocking closure, produce owned DTOs, and release handles before returning to the async runtime. This keeps non-`Sync` handles and borrowed C data out of shared UI-facing state.
 
@@ -47,6 +47,12 @@ The first milestone registers these commands:
 | `create_rescue_branch`                                     | `path`, `name`                | Create a new branch at the current commit and attach HEAD without changing working files. |
 | `fetch_repository` / `push_repository` / `pull_repository` | `path`                        | Synchronize the configured remote; pull accepts only a safe fast-forward.                 |
 | `publish_repository`                                       | `request`                     | Validate, initialize, commit, create a hosted repository, connect, and push.              |
+| `github_auth_status`                                       | none                          | Report configured/connected state and account details without credentials.                |
+| `github_auth_start`                                        | none                          | Request a one-time user code and keep the private device code in Rust.                    |
+| `github_auth_poll`                                         | `sessionId`                   | Poll a valid session while respecting the provider's minimum interval.                    |
+| `github_auth_open_browser`                                 | `sessionId`                   | Open the fixed GitHub approval page for the active native session.                        |
+| `github_auth_cancel`                                       | `sessionId`                   | Cancel the local sign-in session and prevent later completion.                            |
+| `github_auth_disconnect`                                   | none                          | Remove the saved local GitHub credential and connected account.                           |
 
 The publishing request uses camelCase:
 
@@ -56,7 +62,7 @@ type PublishRequest = {
   name: string;
   private: boolean;
   provider: 'github' | 'gitlab';
-  token: string;
+  token: string; // Empty for GitHub; supplied only for an operation-scoped GitLab token.
   authorName: string;
   authorEmail: string;
   operationId: string;
@@ -73,13 +79,21 @@ A snapshot can contain two rows with the same path: `{ path, staged: true }` for
 2. Canonicalize and inspect the directory in Rust. The starter rejects existing/nested repositories, invalid names, obvious credential filenames, files above 50 MiB, and scans above 100,000 files before creating a hosted repository.
 3. Authenticate the selected provider account and check that the requested repository name is available before mutating the folder. These checks reduce avoidable failures; they cannot reserve the name or prove a later create request will succeed.
 4. Initialize the local repository and create the initial commit using explicit identity. Respect ignored files and do not create a nested repository accidentally.
-5. Create the hosted repository through the selected provider's HTTPS API using an operation-scoped credential.
+5. Create the hosted repository through the selected provider's HTTPS API. For GitHub, the native backend retrieves the remembered OAuth credential; for GitLab, it uses the token supplied for that operation.
 6. Retain the returned hosted URL in progress/recovery messages, add `origin`, push the initial branch, and set upstream tracking only after push success. Validate the effective push URL and each credential callback against the selected provider's HTTPS host, disallowing other ports, userinfo, query strings, and fragments; publishing transport disables redirects.
 7. Return `{ path, branch, url }` on success. If starting the watcher fails after a completed push, retain success and explain how to reopen the repository to retry automatic refresh. If an earlier phase fails, preserve completed phases and show recovery context. Resuming a partially published repository is currently manual; the dialog does not reinitialize or adopt an existing repository.
 
-The privacy selection is explicit; a project can default to private without removing the choice. Keep tokens out of localStorage, frontend persistence, URLs, telemetry, and command explanations. The starter's manual token entry is not a complete OAuth sign-in system.
+The privacy selection is explicit; a project can default to private without removing the choice. Keep tokens out of localStorage, frontend persistence, URLs, telemetry, and command explanations. The frontend sends an empty token field for GitHub publication and never receives the OAuth access token.
 
-GitHub.com and GitLab.com are the supported first-milestone hosts. Subsequent synchronization uses existing libgit2 SSH-agent/default credential support; manual publishing credentials are not a remembered account connection. The initial text diff endpoint accepts UTF-8 files up to 2 MiB and reports unsupported binary/large content rather than sending it to Monaco.
+GitHub.com and GitLab.com are the supported hosts. Subsequent GitHub HTTPS synchronization uses the native OAuth credential with the same destination validation; SSH-agent/default credential support remains available for other configured transports. GitLab's manual publishing credential is not a remembered account connection. The initial text diff endpoint accepts UTF-8 files up to 2 MiB and reports unsupported binary/large content rather than sending it to Monaco.
+
+## First-use guide and GitHub account state
+
+`FirstRunGuide` introduces the workspace in four steps: Welcome, Connect, Try it, and Your project. Practice staging, committing, and pushing changes only local React state and is labeled as a simulation. Closing or completing the guide records `branchline.guide.v1=seen` in frontend storage so it does not reopen on every launch; this preference is independent of authentication. The guide can be replayed from Help or the command palette, and the account launcher opens its Connect step directly.
+
+`GitHubAuthProvider` shares account state across the guide, account launcher, and publishing dialog. It invokes the native auth commands, schedules polls using the returned interval, and discards responses from canceled or superseded sessions. The native backend also enforces session identity and polling intervals; frontend timers alone cannot enforce these boundaries. React receives only account details, scopes, the public user code, and flow status. Rust owns the private device code, access token, refresh token when issued, and credential-store lifecycle. The sign-in URL is fixed in Rust rather than accepting an arbitrary URL from the webview.
+
+The owner's `BRANCHLINE_GITHUB_CLIENT_ID` is a public identifier, read at runtime or embedded during the native build. A missing identifier leaves local Git work available and shows sign-in as unavailable. Registration is the application owner's responsibility, not an end-user onboarding step. [GitHub sign-in setup](GITHUB_AUTH.md) documents registration, permissions, and the live verification boundary.
 
 ## Git Guardian and destructive plans
 

@@ -11,6 +11,7 @@
     "test": "vitest run",
     "check": "tsc -b && vitest run",
     "test:ui": "node scripts/verify-ui.mjs",
+    "test:onboarding": "node scripts/verify-onboarding.mjs",
     "format": "prettier --write src scripts *.json *.ts docs README.md PRODUCT.md DESIGN.md"
   },
   "dependencies": {

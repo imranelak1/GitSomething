@@ -1,14 +1,37 @@
 # Verification and handoff
 
-Use this checklist to assess the first milestone. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
+Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
-## Recorded results: October 16, 2026
+## Current results: October 16, 2026
+
+The first-use guide and GitHub OAuth milestone passed these checks. [GitHub sign-in setup](GITHUB_AUTH.md) records the application owner's one-time OAuth registration; this build still needs the owner's Client ID before real account consent is available.
+
+| Check                                                                            | Current result                                                                                                           |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `npm run check`                                                                  | Passed TypeScript checking and 2 frontend unit tests.                                                                    |
+| `npm run build`                                                                  | Passed the production frontend build.                                                                                    |
+| `cargo test --manifest-path src-tauri/Cargo.toml`                                | 18 tests passed.                                                                                                         |
+| `cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings` | Passed with warnings denied.                                                                                             |
+| Native debug build                                                               | Passed.                                                                                                                  |
+| `npm run test:ui`                                                                | 20 checks passed; zero browser errors and zero provider requests. [Report](../artifacts/workflow-browser-report.json).   |
+| `npm run test:onboarding`                                                        | 15 checks passed; zero browser errors and zero provider requests. [Report](../artifacts/onboarding-browser-report.json). |
+| `node scripts/verify-native.mjs`                                                 | 5 real WebView/Rust IPC checks passed; zero errors. [Report](../artifacts/native-report.json).                           |
+
+The guide suite verifies first launch, local-only continuation, practice file selection/commit/push, completion persistence, replay from Help and the command palette, and Escape returning focus to the account launcher. It checks every guide step at 320px and 390px with reduced motion. The captured [welcome](../artifacts/onboarding/desktop-welcome.png), [practice result](../artifacts/onboarding/desktop-practice-complete.png), and [320px project chooser](../artifacts/onboarding/mobile-320-choose-project.png) were visually inspected for readability and clipping.
+
+The consent checks use mocked native IPC: they verify [one-time code presentation](../artifacts/onboarding/desktop-github-approval.png), [connected account presentation](../artifacts/onboarding/desktop-github-connected.png), denial, expiry, interrupted requests, cancellation, disconnect, and a late poll that cannot reconnect after cancellation. Pending polls respect the five-second interval; a slow-down response raises the next interval to ten seconds. Authenticated publication fills the commit identity and sends an empty GitHub token field. The baseline suite also checks GitLab token clearing, subscription lifecycles, safe result URLs, staging/commit behavior, and responsive publishing.
+
+The current native smoke check proves credential-free auth status, a missing Client ID rejecting sign-in with owner setup guidance, real repository/history reads, stage/unstage preserving working content, and Rust command events reaching the actual WebView. It does not approve GitHub consent or exercise a credential-store round trip. The Rust tests include device polling gates, interval increases, expiry/cancellation, scope normalization, token-response redaction, destination restrictions, and local Git behavior.
+
+Live consent, keychain persistence, token refresh, and GitHub publication remain manual checks requiring a configured owner Client ID and real account approval. Use a disposable project; verify a private initial publication and a later push after restarting the app. Confirm that denied, revoked, or expired access gives a useful reconnect action. Disconnect should remove the local credential while provider-side revocation remains available through GitHub settings. No automated browser result establishes these provider operations.
+
+## Previous milestone evidence
 
 ### Kinetic redesign
 
 The user-requested redesign is recorded in [the redesign browser report](../artifacts/redesign-browser-report.json): **20 checks passed, zero browser errors, zero provider requests**. It verifies actual Skiper/Vengeance source integration, animated focus mode and its keyboard restore, staging/commit behavior, history gestures, publishing previews, transient credentials through mocked native IPC, and full dialog-title/close-button geometry at 320px and 390px.
 
-The updated [workspace](../artifacts/redesign/desktop-working-directory.png), [focus mode](../artifacts/redesign/desktop-focus-mode.png), [history](../artifacts/redesign/desktop-history.png), and [publishing dialog](../artifacts/redesign/desktop-publish.png) capture the new lime/violet interface. The check runner now writes new evidence into `artifacts/redesign/` and preserves the first milestone's screenshots separately. The frontend TypeScript/unit checks and production build also pass. The native Git engine was unchanged by this design pass; live provider publishing remains outside browser verification.
+The [workspace](../artifacts/redesign/desktop-working-directory.png), [focus mode](../artifacts/redesign/desktop-focus-mode.png), [history](../artifacts/redesign/desktop-history.png), and [publishing dialog](../artifacts/redesign/desktop-publish.png) capture the lime/violet redesign. At that milestone, the check runner wrote evidence into `artifacts/redesign/` and preserved the first milestone's screenshots separately. The frontend TypeScript/unit checks and production build also passed. The native Git engine was unchanged by that design pass; live provider publishing remained outside browser verification.
 
 | Check                                                                            | Result                                                                                       |
 | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -25,7 +48,7 @@ The [browser report](../artifacts/browser-report.json) records the individual ch
 
 The Rust tests cover real temporary repositories, staged/unstaged versions of the same file, commit/diff behavior, publishing preflight, detached-HEAD rescue with working edits preserved, provider-token destination restrictions and hostile push URLs, and fetch/push/fast-forward pull against a local bare remote.
 
-The [native report](../artifacts/native-report.json) records three real WebView checks: opening this workspace through Rust IPC and reading its branch/history, staging then unstaging a temporary test file while preserving its working content, and rendering Rust-generated command events in the native console. The [native smoke script](../scripts/verify-native.mjs) targets a prepared development instance with WebView2 inspection on loopback; it is separate from the browser fixture suite. Native folder selection, native drag/drop, and live GitHub/GitLab publication still require manual verification; no live provider publication is claimed.
+The original native smoke milestone recorded three checks: opening this workspace through Rust IPC and reading its branch/history, staging then unstaging a temporary test file while preserving its working content, and rendering Rust-generated command events in the native console. The current native report extends those checks to five, as recorded above. The [native smoke script](../scripts/verify-native.mjs) targets a prepared development instance with WebView2 inspection on loopback; it is separate from the browser fixture suite. Native folder selection, native drag/drop, and live GitHub/GitLab publication still require manual verification; no live provider publication is claimed.
 
 ## Automated checks
 
@@ -41,7 +64,7 @@ The frontend production build verifies bundled TypeScript and Monaco assets. Rus
 
 Useful focused engine coverage includes initial repository state, stage/unstage including deletions, commit parent/identity behavior, invalid paths, secret-file rejection during automatic publishing, command redaction, and progress/result correlation. Do not count a unit test of a fixture as proof of provider integration.
 
-Start the development server with `npm run dev` in another terminal, then run `npm run test:ui`. The default URL is `http://127.0.0.1:1420`; override it with `BRANCHLINE_TEST_URL` when needed. The runner uses installed Microsoft Edge on Windows when available and otherwise Playwright's Chromium (`npx playwright install chromium`). It writes `artifacts/browser-report.json` and screenshots under `artifacts/screenshots/`.
+Start the development server with `npm run dev` in another terminal, then run `npm run test:ui` and `npm run test:onboarding`. The default URL is `http://127.0.0.1:1420`; override it with `BRANCHLINE_TEST_URL` when needed. The runners use installed Microsoft Edge on Windows when available and otherwise Playwright's Chromium (`npx playwright install chromium`). The baseline runner writes `artifacts/workflow-browser-report.json` and screenshots under `artifacts/workflow/`; the guide runner writes `artifacts/onboarding-browser-report.json` and screenshots under `artifacts/onboarding/`. Earlier milestone artifacts are retained separately.
 
 ## Desktop checks
 
