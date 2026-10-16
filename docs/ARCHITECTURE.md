@@ -24,7 +24,7 @@ The event path is informational. An event carrying a command string must not bec
 
 Do not store `Commit<'repo>`, `Tree<'repo>`, `Diff<'repo>`, or borrowed credential data outside the repository lifetime that created them. Open the `Repository` inside the blocking closure, produce owned DTOs, and release handles before returning to the async runtime. This keeps non-`Sync` handles and borrowed C data out of shared UI-facing state.
 
-A repository session owns the selected canonical path, a mutation gate, the watcher and refresh worker, operation metadata, and snapshot revision. The starter may use a conservative application-wide gate while one repository is active. Multiple simultaneous repositories should move to gates keyed by canonical repository identity and shared Git directory, especially for worktrees.
+`AppState` stores async mutation gates keyed by canonical worktree root. Git commands acquire the repository's gate; publishing holds it across its local and provider phases. This serializes work on one repository without blocking unrelated repositories. Watchers are also keyed by canonical root and retained until application shutdown. For future worktrees, extend gate identity to account for the shared Git directory as well as separate indexes; add explicit repository-session closing to release watchers earlier.
 
 ## IPC and events
 
@@ -38,40 +38,44 @@ Repository invalidation is different from operation progress. Coalesce watcher e
 
 The first milestone registers these commands:
 
-| Command | Inputs | Purpose |
-| --- | --- | --- |
-| `open_repository` | `path` | Open a repository and return a snapshot. |
-| `get_diff` | `path`, `filePath` | Return the selected file's owned text diff data. |
-| `stage_file` / `unstage_file` | `path`, `filePath` | Mutate the selected file's index state. |
-| `commit_changes` | `path`, `message` | Commit the staged index. |
-| `fetch_repository` / `push_repository` / `pull_repository` | `path` | Synchronize the configured remote; pull accepts only a safe fast-forward. |
-| `publish_repository` | `request` | Validate, initialize, commit, create a hosted repository, connect, and push. |
+| Command                                                    | Inputs                        | Purpose                                                                                   |
+| ---------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `open_repository`                                          | `path`                        | Open a repository and return a snapshot.                                                  |
+| `get_diff`                                                 | `path`, `filePath`, `staged?` | Return the selected side's owned text diff data; omitted `staged` defaults to `false`.    |
+| `stage_file` / `unstage_file`                              | `path`, `filePath`            | Mutate the selected file's index state.                                                   |
+| `commit_changes`                                           | `path`, `message`             | Commit the staged index.                                                                  |
+| `create_rescue_branch`                                     | `path`, `name`                | Create a new branch at the current commit and attach HEAD without changing working files. |
+| `fetch_repository` / `push_repository` / `pull_repository` | `path`                        | Synchronize the configured remote; pull accepts only a safe fast-forward.                 |
+| `publish_repository`                                       | `request`                     | Validate, initialize, commit, create a hosted repository, connect, and push.              |
 
 The publishing request uses camelCase:
 
 ```ts
 type PublishRequest = {
-  path: string
-  name: string
-  private: boolean
-  provider: 'github' | 'gitlab'
-  token: string
-  authorName: string
-  authorEmail: string
-  operationId: string
-}
+  path: string;
+  name: string;
+  private: boolean;
+  provider: 'github' | 'gitlab';
+  token: string;
+  authorName: string;
+  authorEmail: string;
+  operationId: string;
+};
 ```
 
 `git:log` carries `{ id, operationId, tokens: [{ text, explanation }], status, message?, timestamp }`. `publish:progress` carries `{ operationId, step, status, message?, url? }`, with `step` one of `validate`, `init`, `commit`, `remote`, `push`, or `done`. `repo:changed` carries `{ path }` and requests a fresh snapshot rather than sending borrowed native state. A successful publish returns `{ url, path, branch }`.
+
+A snapshot can contain two rows with the same path: `{ path, staged: true }` for HEAD→index and `{ path, staged: false }` for index→worktree. Additions and deletions are calculated for that side. Selection and row identity include both path and staged state; the workspace's changed-file count deduplicates paths. `get_diff(path, filePath, true)` previews exactly the staged content that a commit includes. The explicit unstaged request preserves visibility of edits made after staging.
 
 ## Folder to cloud
 
 1. Receive a native folder drop or directory-dialog selection. Browser drag data is not a trusted native path.
 2. Canonicalize and inspect the directory in Rust. The starter rejects existing/nested repositories, invalid names, obvious credential filenames, files above 50 MiB, and scans above 100,000 files before creating a hosted repository.
-3. Initialize the local repository and create the initial commit using explicit identity. Respect ignored files and do not create a nested repository accidentally.
-4. Create the hosted repository through the selected provider's HTTPS API using an operation-scoped credential.
-5. Record the returned remote identity for the operation, add or verify `origin`, push the initial branch, and set upstream tracking only after push success.
-6. Return an owned result containing local path, branch, hosted URL, and completed steps. If a later phase fails, preserve successful phases and provide a recovery explanation.
+3. Authenticate the selected provider account and check that the requested repository name is available before mutating the folder. These checks reduce avoidable failures; they cannot reserve the name or prove a later create request will succeed.
+4. Initialize the local repository and create the initial commit using explicit identity. Respect ignored files and do not create a nested repository accidentally.
+5. Create the hosted repository through the selected provider's HTTPS API using an operation-scoped credential.
+6. Retain the returned hosted URL in progress/recovery messages, add `origin`, push the initial branch, and set upstream tracking only after push success. Validate the effective push URL and each credential callback against the selected provider's HTTPS host, disallowing other ports, userinfo, query strings, and fragments; publishing transport disables redirects.
+7. Return `{ path, branch, url }` on success. If starting the watcher fails after a completed push, retain success and explain how to reopen the repository to retry automatic refresh. If an earlier phase fails, preserve completed phases and show recovery context. Resuming a partially published repository is currently manual; the dialog does not reinitialize or adopt an existing repository.
 
 The privacy selection is explicit; a project can default to private without removing the choice. Keep tokens out of localStorage, frontend persistence, URLs, telemetry, and command explanations. The starter's manual token entry is not a complete OAuth sign-in system.
 
@@ -81,7 +85,7 @@ GitHub.com and GitLab.com are the supported first-milestone hosts. Subsequent sy
 
 Read repository state using libgit2, then derive concise advice for detached HEAD, merge/rebase state, conflicts, ahead/behind state, and unborn HEAD. Some reads can fail on corrupt or inaccessible repositories; show that failure instead of deriving a fabricated healthy state.
 
-Safe rescue actions have backend preconditions. Before creating a branch from detached HEAD, for example, re-read HEAD and ensure it still matches the state the user reviewed. A state banner is not authorization to force checkout, discard files, or rewrite history.
+The starter's `create_rescue_branch` re-reads the current commit under the repository gate, validates the complete branch reference, refuses to overwrite an existing branch, and attaches HEAD to the new branch without checking out different files. Working edits are preserved. Merge/rebase conflicts must currently be completed outside the app; three-way resolution and merge-commit creation are not implemented. A state banner does not authorize discarding files or rewriting history.
 
 Future destructive operations use a two-phase plan. The backend computes affected files/commits and records the relevant HEAD, index, worktree, and remote expectations. The UI presents that plan. Execution rechecks its preconditions and rejects stale plans. A force push uses an expected remote OID equivalent to a lease; a confirmation alone does not make an unrestricted force push safe.
 

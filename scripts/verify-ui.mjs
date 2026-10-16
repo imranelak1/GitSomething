@@ -1,0 +1,388 @@
+import { chromium } from '@playwright/test';
+import assert from 'node:assert/strict';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+
+const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
+const artifacts = new URL('../artifacts/', import.meta.url);
+const screenshots = new URL('screenshots/', artifacts);
+await mkdir(screenshots, { recursive: true });
+const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
+const browser = await chromium.launch({
+  headless: true,
+  ...(existsSync(executablePath) ? { executablePath } : {}),
+});
+const report = {
+  baseURL,
+  testedAt: new Date().toISOString(),
+  browser: await browser.version(),
+  checks: [],
+  errors: [],
+  providerRequests: [],
+  screenshots: [],
+};
+const check = (name) => {
+  report.checks.push(name);
+  console.log(`PASS ${name}`);
+};
+const capture = async (page, name) => {
+  await page.waitForTimeout(450);
+  await page.screenshot({
+    path: new URL(name, screenshots).pathname.replace(/^\/([A-Z]:)/, '$1'),
+    fullPage: true,
+  });
+  report.screenshots.push(`artifacts/screenshots/${name}`);
+};
+function monitor(page, surface) {
+  page.on('pageerror', (error) =>
+    report.errors.push({ surface, type: 'pageerror', message: error.message }),
+  );
+  page.on('console', (message) => {
+    if (message.type() === 'error')
+      report.errors.push({ surface, type: 'console', message: message.text() });
+  });
+  page.on('request', (request) => {
+    if (/https:\/\/(?:api\.)?(?:github\.com|gitlab\.com)/.test(request.url()))
+      report.providerRequests.push(request.url());
+  });
+}
+async function waitForEditor(page) {
+  await page.locator('.monaco-diff-editor').waitFor({ state: 'visible', timeout: 45_000 });
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(750);
+}
+async function openPublishWithPalette(page) {
+  await page.keyboard.press('Control+k');
+  await page.getByRole('dialog', { name: 'Command palette' }).waitFor();
+  await page.getByPlaceholder('What would you like to do?').fill('Create');
+  await page.keyboard.press('Enter');
+  await page.getByRole('dialog').filter({ hasText: 'From local to launched.' }).waitFor();
+}
+
+try {
+  const desktop = await browser.newPage({
+    viewport: { width: 1440, height: 960 },
+    deviceScaleFactor: 1,
+  });
+  monitor(desktop, 'desktop');
+  await desktop.goto(baseURL);
+  await waitForEditor(desktop);
+  assert.equal(await desktop.locator('.file-row').count(), 6);
+  assert.equal(await desktop.locator('.stage-checkbox[aria-pressed="true"]').count(), 2);
+  assert.equal(await desktop.getByRole('button', { name: 'Commit changes' }).isDisabled(), true);
+  check('Monaco mounts locally; initial commit requires a message and staged files');
+  await capture(desktop, 'desktop-working-directory.png');
+  await desktop.getByRole('tab', { name: 'History', exact: true }).click();
+  await desktop.locator('.history-row').first().waitFor();
+  await capture(desktop, 'desktop-history.png');
+  await desktop.getByRole('tab', { name: /^Changes/ }).click();
+  await waitForEditor(desktop);
+  for (const file of ['package.json', 'README.md', 'src/components/Dropzone.tsx']) {
+    await desktop.locator(`.file-select[title="${file}"]`).click();
+    await desktop.locator('.diff-file').filter({ hasText: file }).waitFor();
+    await desktop.locator('.monaco-diff-editor').waitFor();
+  }
+  check('Repeated file changes and history navigation safely reset Monaco models');
+
+  await desktop
+    .getByRole('button', { name: 'Stage src/components/Dropzone.tsx', exact: true })
+    .click();
+  await desktop
+    .getByRole('button', { name: 'Unstage src/components/Dropzone.tsx', exact: true })
+    .waitFor();
+  assert.equal(await desktop.locator('.stage-checkbox[aria-pressed="true"]').count(), 3);
+  await desktop
+    .getByRole('button', { name: 'Unstage src/components/Dropzone.tsx', exact: true })
+    .click();
+  await desktop
+    .getByRole('button', { name: 'Stage src/components/Dropzone.tsx', exact: true })
+    .waitFor();
+  assert.equal(await desktop.locator('.stage-checkbox[aria-pressed="true"]').count(), 2);
+  check('Stage and unstage move the exact selected file and update staged count');
+
+  await desktop.getByRole('textbox', { name: 'Filter changed files' }).fill('package');
+  assert.equal(await desktop.locator('.file-row').count(), 1);
+  await desktop.getByRole('textbox', { name: 'Filter changed files' }).fill('');
+  assert.equal(await desktop.locator('.file-row').count(), 6);
+  check('Changed-file filtering restores the complete list when cleared');
+
+  await desktop
+    .getByRole('button', { name: 'Stage src/components/Dropzone.tsx', exact: true })
+    .click();
+  await desktop
+    .getByRole('textbox', { name: 'Commit message', exact: true })
+    .fill('Verify staged-only demo commit');
+  await desktop.getByRole('button', { name: 'Commit changes' }).click();
+  await desktop
+    .getByText('Demo commit saved. Your real files are unchanged.', { exact: true })
+    .waitFor();
+  assert.equal(await desktop.locator('.file-row').count(), 3);
+  assert.equal(await desktop.locator('.stage-checkbox[aria-pressed="true"]').count(), 0);
+  assert.equal(
+    await desktop.getByRole('textbox', { name: 'Commit message', exact: true }).inputValue(),
+    '',
+  );
+  check('Demo commit saves only the 3 staged files and retains 3 unstaged changes');
+
+  await desktop.keyboard.press('Control+k');
+  await desktop.getByPlaceholder('What would you like to do?').fill('history');
+  await desktop.keyboard.press('Enter');
+  await desktop.locator('.history-row').first().waitFor();
+  assert.match(
+    await desktop.locator('.history-row').first().innerText(),
+    /Verify staged-only demo commit/,
+  );
+  check('Ctrl+K search and Enter navigate to history containing the new commit');
+  await desktop.getByRole('button', { name: 'Dismiss notification' }).click();
+  await capture(desktop, 'desktop-history-after-commit.png');
+  const firstRow = await desktop.locator('.history-row').first().boundingBox();
+  assert.ok(firstRow);
+  await desktop.mouse.move(firstRow.x + 220, firstRow.y + 25);
+  await desktop.mouse.down();
+  await desktop.mouse.move(firstRow.x + 220, firstRow.y + 99, { steps: 12 });
+  await desktop.mouse.up();
+  await desktop.getByRole('dialog').filter({ hasText: 'This is a history preview.' }).waitFor();
+  assert.equal(
+    await desktop.getByRole('button', { name: 'History editing · planned milestone' }).isDisabled(),
+    true,
+  );
+  check('Dragging a commit opens a consequence preview and cannot mutate history');
+  await capture(desktop, 'desktop-history-preview.png');
+  await desktop.getByRole('button', { name: 'Close preview', exact: true }).click();
+
+  await openPublishWithPalette(desktop);
+  const publishing = desktop.getByRole('dialog').filter({ hasText: 'From local to launched.' });
+  assert.equal(
+    await publishing
+      .getByRole('button', { name: 'Private', exact: true })
+      .getAttribute('aria-pressed'),
+    'true',
+  );
+  assert.equal(
+    await publishing.getByText('Desktop app required to publish', { exact: true }).isVisible(),
+    true,
+  );
+  assert.equal(
+    await publishing
+      .getByRole('button', { name: 'Your local folder goes here', exact: false })
+      .isDisabled(),
+    true,
+  );
+  assert.equal(
+    await publishing.getByRole('button', { name: 'Create & push', exact: true }).count(),
+    0,
+  );
+  assert.equal(await publishing.locator('input[type="password"]').count(), 0);
+  await publishing.getByRole('textbox', { name: 'Repository name', exact: true }).fill('orbit-lab');
+  await publishing.getByRole('combobox', { name: 'Git provider' }).selectOption('gitlab');
+  await publishing.getByRole('button', { name: 'Public', exact: true }).click();
+  await publishing.getByText('Anyone can see your files and history.', { exact: true }).waitFor();
+  await publishing.getByRole('button', { name: 'Private', exact: true }).click();
+  check(
+    'Publishing defaults private; provider and visibility controls work; browser cannot publish or capture credentials',
+  );
+  await capture(desktop, 'desktop-publish.png');
+  await publishing.getByRole('button', { name: 'Preview flow', exact: true }).click();
+  await desktop
+    .getByText('Preview only · no files or repositories are changed', { exact: true })
+    .waitFor();
+  await desktop.getByRole('button', { name: 'Done', exact: true }).waitFor({ timeout: 15_000 });
+  await desktop
+    .getByText('Preview complete. No files or remote repositories were changed.', { exact: true })
+    .waitFor();
+  assert.equal(await desktop.locator('.publish-step.success').count(), 5);
+  assert.equal(await desktop.locator('.publish-dialog a').count(), 0);
+  check('Preview completes five simulated steps with no false success URL or repository link');
+  await capture(desktop, 'desktop-publish-preview.png');
+  await desktop.getByRole('button', { name: 'Done', exact: true }).click();
+  await desktop.keyboard.press('Control+k');
+  await desktop.getByPlaceholder('What would you like to do?').fill('console');
+  await desktop.keyboard.press('Enter');
+  assert.equal(await desktop.locator('.console-toggle').getAttribute('aria-expanded'), 'false');
+  await desktop.keyboard.press('Control+j');
+  await desktop.locator('.console-line code .vengeance-tooltip-trigger').first().focus();
+  await desktop.getByRole('tooltip').first().waitFor();
+  check('Console toggles from palette and keyboard; explanations are keyboard accessible');
+
+  const mobile = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  });
+  monitor(mobile, 'mobile');
+  await mobile.goto(baseURL);
+  await waitForEditor(mobile);
+  await capture(mobile, 'mobile-working-directory.png');
+  assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+  const mobileFiles = await mobile.locator('.file-list').boundingBox();
+  const mobileComposer = await mobile.locator('.commit-composer').boundingBox();
+  const mobileChanges = await mobile.locator('.changes-panel').boundingBox();
+  const mobileEditor = await mobile.locator('.diff-panel').boundingBox();
+  assert.ok(
+    mobileFiles && mobileFiles.width >= 150,
+    'Mobile changed-file list must have a usable width',
+  );
+  assert.ok(
+    mobileComposer &&
+      mobileChanges &&
+      mobileComposer.y + mobileComposer.height <= mobileChanges.y + mobileChanges.height + 1,
+    'Mobile composer must remain inside the changes panel',
+  );
+  assert.ok(
+    mobileEditor && mobileChanges && mobileEditor.y >= mobileChanges.y + mobileChanges.height - 1,
+    'Mobile editor must sit below the changes panel',
+  );
+  check(
+    '390px layout shows usable files and composer beside one another above Monaco without overlap',
+  );
+  await openPublishWithPalette(mobile);
+  const mobileDialog = mobile.locator('.publish-dialog');
+  const mobileBox = await mobileDialog.boundingBox();
+  assert.ok(mobileBox && mobileBox.x >= 0 && mobileBox.x + mobileBox.width <= 390);
+  await capture(mobile, 'mobile-publish.png');
+  await mobileDialog.getByRole('button', { name: 'Preview flow', exact: true }).click();
+  await mobile.getByRole('button', { name: 'Done', exact: true }).waitFor({ timeout: 15_000 });
+  await capture(mobile, 'mobile-publish-preview.png');
+  check('Mobile publishing dialog stays within viewport and preview remains usable');
+  await mobile.getByRole('button', { name: 'Done', exact: true }).click();
+  await mobile.getByRole('tab', { name: 'History', exact: true }).click();
+  await mobile.locator('.history-row').first().waitFor();
+  await capture(mobile, 'mobile-history.png');
+  assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+  check('Mobile history is accessible from tabs without horizontal document overflow');
+
+  // This is a frontend IPC contract test. It does not execute Rust, touch files,
+  // create remote repositories, or claim native integration coverage.
+  const mockedNative = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  monitor(mockedNative, 'mocked-native-ipc');
+  await mockedNative.addInitScript(() => {
+    let id = 0;
+    const callbacks = new Map();
+    const listeners = new Map();
+    window.__BRANCHLINE_TEST_IPC__ = {
+      publishes: [],
+      unsubscribed: [],
+      url: 'javascript:alert(1)',
+    };
+    window.__TAURI_EVENT_PLUGIN_INTERNALS__ = { unregisterListener() {} };
+    window.__TAURI_INTERNALS__ = {
+      metadata: { currentWebview: { label: 'main' }, currentWindow: { label: 'main' } },
+      transformCallback(callback) {
+        const callbackId = ++id;
+        callbacks.set(callbackId, callback);
+        return callbackId;
+      },
+      unregisterCallback(callbackId) {
+        callbacks.delete(callbackId);
+      },
+      async invoke(command, args) {
+        if (command === 'plugin:event|listen') {
+          const listenerId = ++id;
+          listeners.set(listenerId, args);
+          return listenerId;
+        }
+        if (command === 'plugin:event|unlisten') {
+          window.__BRANCHLINE_TEST_IPC__.unsubscribed.push(args.eventId);
+          listeners.delete(args.eventId);
+          return;
+        }
+        if (command === 'plugin:dialog|open') return 'C:\\test-fixture\\orbit';
+        if (command === 'publish_repository') {
+          const subscriptions = [...listeners.entries()].filter(
+            ([, listener]) => listener.event === 'publish:progress',
+          );
+          const request = args.request;
+          window.__BRANCHLINE_TEST_IPC__.publishes.push({
+            name: request.name,
+            provider: request.provider,
+            private: request.private,
+            subscribedBeforeInvoke: subscriptions.length === 1,
+          });
+          for (const step of ['validate', 'init', 'commit', 'remote', 'push']) {
+            for (const status of ['running', 'success'])
+              for (const [listenerId, listener] of subscriptions)
+                callbacks.get(listener.handler)?.({
+                  event: 'publish:progress',
+                  id: listenerId,
+                  payload: { operationId: request.operationId, step, status },
+                });
+          }
+          return { url: window.__BRANCHLINE_TEST_IPC__.url, path: request.path, branch: 'main' };
+        }
+        throw new Error(`Unexpected mocked IPC command: ${command}`);
+      },
+    };
+  });
+  await mockedNative.goto(baseURL);
+  await waitForEditor(mockedNative);
+  await openPublishWithPalette(mockedNative);
+  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  assert.equal(
+    await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__.publishes.length),
+    0,
+  );
+  await mockedNative
+    .getByRole('button', { name: 'Drop a folder here, or choose one', exact: false })
+    .click();
+  await mockedNative.getByLabel('GitHub access token').fill('test-only-token-not-a-secret');
+  await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('gitlab');
+  assert.equal(await mockedNative.locator('input[type="password"]').inputValue(), '');
+  await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('github');
+  await mockedNative.getByLabel('GitHub access token').fill('test-only-token-not-a-secret');
+  await mockedNative.getByLabel('Commit author', { exact: true }).fill('Test Fixture');
+  await mockedNative.getByLabel('Commit email', { exact: true }).fill('test@example.invalid');
+  await capture(mockedNative, 'desktop-publish-native-form.png');
+  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
+  const unsafeLink = mockedNative.locator('a.publish-secondary-button');
+  assert.equal(await unsafeLink.getAttribute('href'), null);
+  assert.equal(await unsafeLink.getAttribute('aria-disabled'), 'true');
+  let ipc = await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__);
+  assert.deepEqual(ipc.publishes, [
+    { name: 'orbit', provider: 'github', private: true, subscribedBeforeInvoke: true },
+  ]);
+  check(
+    'Mocked native contract validates required fields, clears tokens on provider change, subscribes before invoking, and rejects unsafe result links',
+  );
+  await mockedNative.getByRole('button', { name: 'Close publishing dialog', exact: true }).click();
+  await mockedNative.evaluate(() => {
+    window.__BRANCHLINE_TEST_IPC__.url = 'https://github.com/test-fixture/orbit';
+  });
+  await openPublishWithPalette(mockedNative);
+  assert.equal(await mockedNative.locator('input[type="password"]').inputValue(), '');
+  await mockedNative.getByLabel('GitHub access token').fill('test-only-token-not-a-secret');
+  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
+  assert.equal(
+    await mockedNative.getByRole('link', { name: 'Open on GitHub' }).getAttribute('href'),
+    'https://github.com/test-fixture/orbit',
+  );
+  ipc = await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__);
+  assert.equal(ipc.publishes.length, 2);
+  assert.equal(ipc.unsubscribed.length, new Set(ipc.unsubscribed).size);
+  check(
+    'Mocked native success accepts trusted HTTPS URL, clears submitted token, and unregisters each listener once',
+  );
+
+  assert.equal(
+    report.providerRequests.length,
+    0,
+    `Unexpected provider requests: ${report.providerRequests.join(', ')}`,
+  );
+  check('Browser demo makes zero GitHub or GitLab API requests');
+  assert.equal(report.errors.length, 0, `Browser errors: ${JSON.stringify(report.errors)}`);
+  check('No React, Monaco, worker, or other browser console errors');
+  report.status = 'passed';
+} catch (error) {
+  report.status = 'failed';
+  report.failure = error.stack || String(error);
+  console.error(report.failure);
+  process.exitCode = 1;
+} finally {
+  await writeFile(
+    new URL('browser-report.json', artifacts),
+    `${JSON.stringify(report, null, 2)}\n`,
+  );
+  await browser.close();
+}

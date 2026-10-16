@@ -12,27 +12,27 @@ The interface starts in dark mode. Mint marks successful and primary work; laven
 
 ## First milestone
 
-The starter establishes the application architecture, Rust IPC engine, filesystem observation, visual workspace, Monaco diff surface, equivalent-command console, and a native folder-to-cloud publishing flow. The native commands support repository opening, file staging/unstaging, committing, fetch, push, and fast-forward-only pull. The delivered manifest and command registration are the source of truth for the available operations.
+The starter establishes the application architecture, Rust IPC engine, filesystem observation, visual workspace, Monaco diff surface, equivalent-command console, and a native folder-to-cloud publishing flow. The native commands support repository opening, file staging/unstaging, committing, fetch, push, fast-forward-only pull, and safe rescue-branch creation. Files with both staged and unstaged edits have separate rows and diffs; displayed file counts deduplicate paths. The delivered manifest and command registration are the source of truth for the available operations.
 
-The publishing interaction collects an unversioned folder, repository name, visibility, operation-scoped personal access token, and commit identity. It explains local initialization, initial commit, remote creation, and first push as separate steps. GitHub.com and GitLab.com use provider-specific API adapters; a provider API request is shown honestly as an API action. Each successful step remains visible if a later step fails. OAuth, self-hosted instances, and remembered provider authentication are subsequent work.
+The publishing interaction collects an unversioned folder, repository name, visibility, operation-scoped personal access token, and commit identity. It authenticates the account and checks name availability before initializing the folder, then explains local initialization, initial commit, remote creation, and first push as separate steps. GitHub.com and GitLab.com use provider-specific API adapters; a provider API request is shown honestly as an API action. Each successful step remains visible if a later step fails. Credentials are bound to the selected provider's HTTPS destination. Recovery after partial publication is currently manual. OAuth, automatic resume, self-hosted instances, and remembered provider authentication are subsequent work.
 
 The history graph supports direct manipulation as a preview of future rebase and squash operations. A drag must not silently rewrite history. The starter may display the proposed relationship and explain the operation, but confirmation remains unavailable until the underlying safe mutation engine exists.
 
-The Guardian derives advice from real repository state in the native application. Advice must identify the state and a meaningful next step; a banner must not claim a rescue action was performed unless the backend completed it.
+The Guardian derives advice from real repository state in the native application. A detached-HEAD rescue creates a new branch at the current commit and preserves working edits. Existing branch names are never overwritten. Merge/rebase conflicts must currently be finished outside the app. Advice identifies the state and a meaningful next step; a banner does not claim a rescue action was performed unless the backend completed it.
 
 ## Subsequent milestones
 
-| Capability | Expected behavior before release |
-| --- | --- |
-| Hunk staging | Apply selected hunks to the index against a checked baseline; show changed selection if the file changes underneath the user. |
-| Line staging | Build and validate a patch containing only selected lines; handle context, newline, deletion, and rename cases explicitly. |
-| Three-way merge | Show base, ours, theirs, and result; write the resolved file and resolve the index only after the user accepts it. |
-| Worktrees | Create, open, lock, prune, and remove worktrees with separate working-directory state and shared-repository coordination. |
-| Interactive rebase | Plan, preview, execute, pause for conflicts, continue, and abort; preserve a recovery reference before rewriting commits. |
-| Destructive actions | Show affected files and commits from a fresh backend plan; require confirmation and reject a plan if the repository changed. |
-| Submodules | Expose initialized/uninitialized state, nested status, and explicit update behavior through the command palette. |
-| Provider sign-in | Replace operation-scoped manual credentials with a complete OAuth/device flow and OS credential storage. |
-| Large repositories | Virtualize changes/history, page diffs, cancel superseded reads, and measure real repository workloads. |
+| Capability          | Expected behavior before release                                                                                              |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Hunk staging        | Apply selected hunks to the index against a checked baseline; show changed selection if the file changes underneath the user. |
+| Line staging        | Build and validate a patch containing only selected lines; handle context, newline, deletion, and rename cases explicitly.    |
+| Three-way merge     | Show base, ours, theirs, and result; write the resolved file and resolve the index only after the user accepts it.            |
+| Worktrees           | Create, open, lock, prune, and remove worktrees with separate working-directory state and shared-repository coordination.     |
+| Interactive rebase  | Plan, preview, execute, pause for conflicts, continue, and abort; preserve a recovery reference before rewriting commits.     |
+| Destructive actions | Show affected files and commits from a fresh backend plan; require confirmation and reject a plan if the repository changed.  |
+| Submodules          | Expose initialized/uninitialized state, nested status, and explicit update behavior through the command palette.              |
+| Provider sign-in    | Replace operation-scoped manual credentials with a complete OAuth/device flow and OS credential storage.                      |
+| Large repositories  | Virtualize changes/history, page diffs, cancel superseded reads, and measure real repository workloads.                       |
 
 These are roadmap capabilities, not promises that the starter already implements safe history rewriting or merge resolution.
 

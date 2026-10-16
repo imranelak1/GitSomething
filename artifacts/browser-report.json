@@ -1,0 +1,40 @@
+{
+  "baseURL": "http://127.0.0.1:1420",
+  "testedAt": "2026-10-16T22:35:53.326Z",
+  "browser": "155.0.4283.62",
+  "checks": [
+    "Monaco mounts locally; initial commit requires a message and staged files",
+    "Repeated file changes and history navigation safely reset Monaco models",
+    "Stage and unstage move the exact selected file and update staged count",
+    "Changed-file filtering restores the complete list when cleared",
+    "Demo commit saves only the 3 staged files and retains 3 unstaged changes",
+    "Ctrl+K search and Enter navigate to history containing the new commit",
+    "Dragging a commit opens a consequence preview and cannot mutate history",
+    "Publishing defaults private; provider and visibility controls work; browser cannot publish or capture credentials",
+    "Preview completes five simulated steps with no false success URL or repository link",
+    "Console toggles from palette and keyboard; explanations are keyboard accessible",
+    "390px layout shows usable files and composer beside one another above Monaco without overlap",
+    "Mobile publishing dialog stays within viewport and preview remains usable",
+    "Mobile history is accessible from tabs without horizontal document overflow",
+    "Mocked native contract validates required fields, clears tokens on provider change, subscribes before invoking, and rejects unsafe result links",
+    "Mocked native success accepts trusted HTTPS URL, clears submitted token, and unregisters each listener once",
+    "Browser demo makes zero GitHub or GitLab API requests",
+    "No React, Monaco, worker, or other browser console errors"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "screenshots": [
+    "artifacts/screenshots/desktop-working-directory.png",
+    "artifacts/screenshots/desktop-history.png",
+    "artifacts/screenshots/desktop-history-after-commit.png",
+    "artifacts/screenshots/desktop-history-preview.png",
+    "artifacts/screenshots/desktop-publish.png",
+    "artifacts/screenshots/desktop-publish-preview.png",
+    "artifacts/screenshots/mobile-working-directory.png",
+    "artifacts/screenshots/mobile-publish.png",
+    "artifacts/screenshots/mobile-publish-preview.png",
+    "artifacts/screenshots/mobile-history.png",
+    "artifacts/screenshots/desktop-publish-native-form.png"
+  ],
+  "status": "passed"
+}

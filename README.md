@@ -6,7 +6,7 @@ This is the first implementation milestone of a larger product. Advanced history
 
 ## Run locally
 
-Install a current Node.js LTS release, npm, and the Rust toolchain. Native development also needs the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/); on Windows these include Microsoft C++ build tools and WebView2.
+Install Node.js **22.12.0 or newer**, npm, and Rust **1.88 or newer**. Native development also needs the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/); on Windows these include Microsoft C++ build tools and WebView2.
 
 ```powershell
 npm install
@@ -29,10 +29,10 @@ npm run tauri build
 
 1. Open an existing local repository in the desktop app, or drop an unversioned folder onto it.
 2. Review the folder, repository name, visibility, and provider in the publishing dialog. Supply a provider token for this operation; it is not saved as an application preference.
-3. Publish. The native workflow validates the folder, initializes Git when needed, creates an initial commit, creates the remote through the provider API, configures `origin`, pushes `main`, and establishes its upstream.
+3. Publish. The native workflow validates the folder, authenticates the provider account, checks name availability, initializes Git, creates an initial commit, creates the remote through the provider API, configures `origin`, pushes `main`, and establishes its upstream.
 4. Follow the progress and equivalent Git commands in the Glass-Box console. The API creation step is identified as an API action rather than disguised as a Git command.
 
-Publishing changes the selected local folder and creates a remote repository. A failed push can leave the local commit and remote in place; the application must retain enough information to explain recovery. Do not delete an already-created remote automatically. [The runtime ADR](docs/adr/0001-native-git-runtime.md) describes this boundary.
+Publishing changes the selected local folder and creates a remote repository. Account and name checks happen before initialization. A later provider race, network failure, or failed push can leave the local commit and remote in place. Recovery after initialization is currently manual: inspect the provider account, open the preserved local repository, and configure the appropriate remote/credentials before retrying synchronization. The publishing dialog does not automatically resume an existing repository. [The runtime ADR](docs/adr/0001-native-git-runtime.md) describes this boundary.
 
 ## Repository layout
 
@@ -74,6 +74,10 @@ branchline/
 │   ├── VERIFICATION.md
 │   └── adr/0001-native-git-runtime.md
 ├── components.json                    # shadcn CLI paths and component conventions
+├── scripts/
+│   ├── verify-ui.mjs                  # Browser interactions and mocked IPC contracts
+│   └── verify-native.mjs              # Prepared real-WebView IPC smoke check
+├── artifacts/                         # Recorded reports and review screenshots
 ├── package.json
 ├── PRODUCT.md
 └── DESIGN.md
@@ -88,11 +92,22 @@ npm run check
 npm run test
 npm run build
 cargo test --manifest-path src-tauri/Cargo.toml
+cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 ```
 
 `npm run check` already includes the frontend unit tests; `npm run test` is available separately for a focused rerun. Native integration and remote publishing require a desktop session and an account with suitable permissions. Use a disposable folder and private test repository to verify publishing. [VERIFICATION.md](docs/VERIFICATION.md) separates automated checks, manual desktop checks, and the deferred plugin installation.
 
-The first publishing flow accepts an unversioned folder and GitHub.com or GitLab.com personal access tokens. It rejects existing/nested repositories, obvious credential files, individual files above 50 MiB, and scans above 100,000 files. Subsequent synchronization uses libgit2's existing SSH-agent/default credential support; operation-scoped publishing tokens are not retained for later pushes. Pull is fast-forward only and refuses dirty or divergent state. Text diffs currently require UTF-8 and are limited to 2 MiB per file.
+With `npm run dev` running in another terminal, run the browser checks:
+
+```powershell
+npm run test:ui
+```
+
+The runner uses Microsoft Edge when available on Windows; otherwise install Playwright's Chromium with `npx playwright install chromium`. Set `BRANCHLINE_TEST_URL` to test a different development-server URL. Reports and screenshots are written to `artifacts/`.
+
+The first publishing flow accepts an unversioned folder and GitHub.com or GitLab.com personal access tokens. It rejects existing/nested repositories, obvious credential files, individual files above 50 MiB, and scans above 100,000 files. Publishing credentials are restricted to the selected provider's HTTPS host and checked again at each credential request. Subsequent synchronization uses libgit2's existing SSH-agent/default credential support; operation-scoped publishing tokens are not retained for later pushes. Pull is fast-forward only and refuses dirty or divergent state. Text diffs currently require UTF-8 and are limited to 2 MiB per file.
+
+A file with staged and unstaged changes appears in both groups, with a separate diff for each version. File counts use unique paths. The detached-HEAD Guardian can create a new rescue branch without changing working files; merge/rebase conflicts must currently be completed outside the app.
 
 ## Architecture boundaries
 

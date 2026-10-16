@@ -4,15 +4,15 @@ Branchline is a focused desktop workbench. Its strongest visual element is the c
 
 ## Color and typography
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `background` | `#101114` | Application canvas |
-| `surface` | `#131417` | Primary workspace surfaces |
-| `surface-raised` | `#17181c` | Raised controls, dialogs, and active areas |
-| `border` | `#2a2c32` | Separators and control boundaries |
-| `text` | `#e9e9ed` | Main text and code |
-| `text-muted` | `#92959f` | Secondary labels and metadata |
-| `accent-mint` | `#b8f2c9` | Primary action, additions, and successful work |
+| Token             | Value     | Use                                             |
+| ----------------- | --------- | ----------------------------------------------- |
+| `background`      | `#101114` | Application canvas                              |
+| `surface`         | `#131417` | Primary workspace surfaces                      |
+| `surface-raised`  | `#17181c` | Raised controls, dialogs, and active areas      |
+| `border`          | `#2a2c32` | Separators and control boundaries               |
+| `text`            | `#e9e9ed` | Main text and code                              |
+| `text-muted`      | `#92959f` | Secondary labels and metadata                   |
+| `accent-mint`     | `#b8f2c9` | Primary action, additions, and successful work  |
 | `accent-lavender` | `#c5afff` | Branches, selection context, and advanced focus |
 
 Use **Geist** for the application and **Geist Mono** for paths, branch references, command tokens, commit IDs, and code. Font sizes and letter spacing should support dense reading at normal desktop scaling. Use weight and spacing before adding more colors. Uppercase micro-labels are sparse; controls and errors use sentence case.
