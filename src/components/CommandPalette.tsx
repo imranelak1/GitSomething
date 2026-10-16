@@ -12,6 +12,8 @@ import {
   Clock3,
   ArrowUpRight,
   X,
+  Sparkles,
+  Github,
 } from 'lucide-react';
 
 export function CommandPalette({
@@ -63,6 +65,20 @@ export function CommandPalette({
                   <Command.List>
                     <Command.Empty>No actions found. Try “repository” or “history”.</Command.Empty>
                     <Command.Group heading="Your workspace">
+                      <Command.Item
+                        value="Getting started guide tutorial help first time"
+                        onSelect={() => run('guide')}
+                      >
+                        <Sparkles size={17} />
+                        <span>Getting started guide</span>
+                      </Command.Item>
+                      <Command.Item
+                        value="GitHub account sign in connect authentication"
+                        onSelect={() => run('github')}
+                      >
+                        <Github size={17} />
+                        <span>Connect GitHub account</span>
+                      </Command.Item>
                       <Command.Item value="Open repository" onSelect={() => run('open')}>
                         <FolderOpen size={17} />
                         <span>Open repository</span>

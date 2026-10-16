@@ -12,12 +12,16 @@ import '@fontsource/manrope/800.css';
 import '@fontsource/geist-mono/400.css';
 import './styles.css';
 import './workspace.css';
+import './onboarding-integration.css';
 import App from './App';
+import { GitHubAuthProvider } from './hooks/useGitHubAuth';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <MotionConfig reducedMotion="user">
-      <App />
+      <GitHubAuthProvider>
+        <App />
+      </GitHubAuthProvider>
     </MotionConfig>
   </React.StrictMode>,
 );

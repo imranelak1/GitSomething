@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { KineticModal } from '../registry/skiper/KineticModal';
 import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
+import { GitHubConnectCard } from '../auth/GitHubConnectCard';
+import { useGitHubAuth } from '../../hooks/useGitHubAuth';
 import { Button } from '../ui/button';
 import './publish.css';
 
@@ -247,9 +249,23 @@ export function DropzoneToGitHub({
   const activeOperation = useRef<string | null>(null);
   const activeUnlisten = useRef<UnlistenFn | null>(null);
   const lastExternalPath = useRef('');
+  const lastGitHubIdentity = useRef({ name: '', email: '' });
   const reducedMotion = useReducedMotion();
   const desktop = isDesktop();
+  const github = useGitHubAuth();
   const hasProgress = Object.keys(progress).length > 0;
+
+  useEffect(() => {
+    if (provider !== 'github' || !github.account) return;
+    const previous = lastGitHubIdentity.current;
+    const next = {
+      name: github.account.name || github.account.login,
+      email: github.account.email || '',
+    };
+    setAuthorName((value) => (!value || value === previous.name ? next.name : value));
+    setAuthorEmail((value) => (!value || value === previous.email ? next.email : value));
+    lastGitHubIdentity.current = next;
+  }, [provider, github.account]);
 
   useEffect(() => {
     mounted.current = true;
@@ -311,6 +327,10 @@ export function DropzoneToGitHub({
       setError('Choose the folder you want to publish.');
       return;
     }
+    if (provider === 'github' && !github.connected) {
+      setError('Sign in with GitHub before creating your cloud repository.');
+      return;
+    }
     const operationId = crypto.randomUUID();
     activeOperation.current = operationId;
     setBusy(true);
@@ -345,7 +365,7 @@ export function DropzoneToGitHub({
           name: name.trim(),
           private: privateRepo,
           provider,
-          token,
+          token: provider === 'github' ? '' : token,
           authorName: authorName.trim(),
           authorEmail: authorEmail.trim(),
           operationId,
@@ -695,18 +715,14 @@ export function DropzoneToGitHub({
                 ))}
               </div>
             </div>
-            {desktop ? (
+            {provider === 'github' ? (
+              <GitHubConnectCard compact />
+            ) : desktop ? (
               <div className="publish-auth-fields">
                 <label className="publish-label">
                   <span className="publish-field-label">
-                    <span>{provider === 'github' ? 'GitHub' : 'GitLab'} access token</span>
-                    <AnimatedTooltip
-                      content={
-                        provider === 'github'
-                          ? 'Use a token that can create repositories and push contents. Your token is sent only to the Rust backend and GitHub, and is cleared after publishing.'
-                          : 'Use a GitLab token with api and write_repository access. Your token is used for this publish only and is never saved.'
-                      }
-                    >
+                    <span>GitLab access token</span>
+                    <AnimatedTooltip content="Use a GitLab token with api and write_repository access. Your token is used for this publish only and is never saved.">
                       <KeyRound size={12} />
                     </AnimatedTooltip>
                   </span>
@@ -717,36 +733,13 @@ export function DropzoneToGitHub({
                     required
                     autoComplete="off"
                     spellCheck={false}
-                    placeholder={provider === 'github' ? 'github_pat_…' : 'glpat-…'}
+                    placeholder="glpat-…"
                   />
                   <span className="publish-field-hint">
                     <LockKeyhole size={10} />
                     Used once. Never stored.
                   </span>
                 </label>
-                <div className="publish-author-row">
-                  <label className="publish-label">
-                    Commit author
-                    <input
-                      value={authorName}
-                      onChange={(event) => setAuthorName(event.target.value)}
-                      placeholder="Your name"
-                      required
-                      autoComplete="name"
-                    />
-                  </label>
-                  <label className="publish-label">
-                    Commit email
-                    <input
-                      type="email"
-                      value={authorEmail}
-                      onChange={(event) => setAuthorEmail(event.target.value)}
-                      placeholder="you@example.com"
-                      required
-                      autoComplete="email"
-                    />
-                  </label>
-                </div>
               </div>
             ) : (
               <div className="publish-desktop-note">
@@ -757,6 +750,46 @@ export function DropzoneToGitHub({
                 </span>
               </div>
             )}
+            {desktop && (
+              <details className="publish-identity" key={provider} open={provider === 'gitlab'}>
+                <summary>
+                  <GitCommitHorizontal size={13} />
+                  Commit identity
+                  <span>
+                    {provider === 'github'
+                      ? authorName || 'From your GitHub profile'
+                      : 'Your name and email'}
+                  </span>
+                  <ChevronDown size={13} />
+                </summary>
+                <p>Your name and email appear in the first commit. You can change them here.</p>
+                <div className="publish-author-row">
+                  <label className="publish-label">
+                    Commit author
+                    <input
+                      value={authorName}
+                      onChange={(event) => setAuthorName(event.target.value)}
+                      placeholder="Your name"
+                      required={provider === 'gitlab'}
+                      autoComplete="name"
+                    />
+                  </label>
+                  <label className="publish-label">
+                    Commit email
+                    <input
+                      type="email"
+                      value={authorEmail}
+                      onChange={(event) => setAuthorEmail(event.target.value)}
+                      placeholder={
+                        provider === 'github' ? 'Use my GitHub commit email' : 'you@example.com'
+                      }
+                      required={provider === 'gitlab'}
+                      autoComplete="email"
+                    />
+                  </label>
+                </div>
+              </details>
+            )}
             {error && (
               <div className="publish-error" role="alert">
                 <CircleAlert size={16} />
@@ -766,10 +799,16 @@ export function DropzoneToGitHub({
             <footer className="publish-form-footer">
               <span className="publish-footer-note">
                 <GitCommitHorizontal size={13} />
-                One folder. First commit. First push.
+                {desktop && provider === 'github' && !github.connected
+                  ? 'Sign in above to create & push.'
+                  : 'One folder. First commit. First push.'}
               </span>
               {desktop ? (
-                <Button type="submit" className="publish-primary-button">
+                <Button
+                  type="submit"
+                  className="publish-primary-button"
+                  disabled={busy || (provider === 'github' && !github.connected)}
+                >
                   Create & push
                   <Upload size={15} />
                 </Button>

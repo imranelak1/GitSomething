@@ -1,0 +1,72 @@
+.titlebar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.github-account-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #dfd0ed;
+  border: 1px solid #65477e;
+  border-radius: 7px;
+  background: #2d203b;
+  padding: 7px 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.github-account-button:hover {
+  border-color: #ad8acf;
+  background: #3b294d;
+}
+.github-account-button.connected {
+  color: #deff9f;
+  border-color: #78923f;
+  background: #27301b;
+}
+.help-dialog {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+.help-dialog > .button:first-of-type {
+  margin: 0 0 19px;
+}
+.help-github {
+  margin-top: 8px;
+}
+.help-dialog .guide-list {
+  margin: 20px 0;
+}
+.help-dialog .guide-list p {
+  margin: 11px 0;
+}
+@media (max-width: 900px) {
+  .titlebar-center {
+    display: none;
+  }
+  .titlebar-controls {
+    gap: 8px;
+  }
+  .github-account-button {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+}
+@media (max-width: 700px) {
+  .titlebar-controls {
+    gap: 8px;
+  }
+  .github-account-button {
+    padding: 5px 7px;
+    height: 27px;
+  }
+  .github-account-button > span {
+    display: none;
+  }
+  .github-account-button > svg:last-child:not(:first-child) {
+    display: none;
+  }
+  .help-dialog {
+    padding: 23px;
+  }
+}

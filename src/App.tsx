@@ -53,10 +53,15 @@ import { DropzoneToGitHub } from './components/publish/DropzoneToGitHub';
 import { AnimatedTooltip } from './components/registry/vengeance/AnimatedTooltip';
 import { TextRoll } from './components/registry/skiper/TextRoll';
 import { BranchJourney } from './components/BranchJourney';
+import { FirstRunGuide } from './components/onboarding/FirstRunGuide';
+import { GitHubConnectCard } from './components/auth/GitHubConnectCard';
+import { useGitHubAuth } from './hooks/useGitHubAuth';
+import { rememberGuide, shouldShowGuide } from './lib/onboarding';
 
 const DiffViewer = lazy(() => import('./components/DiffViewer'));
 
 export default function App() {
+  const auth = useGitHubAuth();
   const { repository, demo, logs, busy, notice, setNotice, open, stage, commit, sync, refresh } =
     useRepository();
   const [tab, setTab] = useState<'changes' | 'history'>('changes');
@@ -73,6 +78,16 @@ export default function App() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [branchesOpen, setBranchesOpen] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
+  const [onboardingOpen, setOnboardingOpen] = useState(shouldShowGuide);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const openGettingStarted = (step = 0) => {
+    setOnboardingStep(step);
+    setOnboardingOpen(true);
+  };
+  const changeGettingStarted = (value: boolean) => {
+    if (!value) rememberGuide();
+    setOnboardingOpen(value);
+  };
   const changedFileCount = new Set(repository.files.map((file) => file.path)).size;
   const staged = repository.files.filter((file) => file.staged);
   const unstaged = repository.files.filter((file) => !file.staged);
@@ -179,6 +194,8 @@ export default function App() {
     else if (action === 'publish') startPublish();
     else if (action === 'history') setTab('history');
     else if (action === 'console') setConsoleOpen((value) => !value);
+    else if (action === 'guide') openGettingStarted();
+    else if (action === 'github') openGettingStarted(1);
     else {
       if (action === 'rebase') setTab('history');
       setNotice(
@@ -252,11 +269,22 @@ export default function App() {
           <span className="titlebar-slash">/</span>
           <span>Your workspace</span>
         </div>
-        <button className="titlebar-shortcut" onClick={() => setPaletteOpen(true)}>
-          <Command size={12} />
-          <span>Command menu</span>
-          <kbd>⌘ K</kbd>
-        </button>
+        <div className="titlebar-controls">
+          <button
+            className={`github-account-button ${auth.connected ? 'connected' : ''}`}
+            aria-label="GitHub account"
+            onClick={() => openGettingStarted(1)}
+          >
+            <Github size={14} />
+            <span>{auth.connected ? `@${auth.account?.login}` : 'Sign in with GitHub'}</span>
+            {auth.connected && <Check size={12} />}
+          </button>
+          <button className="titlebar-shortcut" onClick={() => setPaletteOpen(true)}>
+            <Command size={12} />
+            <span>Command menu</span>
+            <kbd>⌘ K</kbd>
+          </button>
+        </div>
       </header>
       <div className="app-body">
         <nav className="activity-rail" aria-label="Quick navigation" inert={focusMode}>
@@ -326,9 +354,17 @@ export default function App() {
         </nav>
         <aside className="sidebar" inert={focusMode}>
           <div className="workspace-switch">
-            <div className="workspace-avatar">{demo ? 'A' : 'Y'}</div>
+            <div className="workspace-avatar">
+              {auth.account?.login.slice(0, 1).toUpperCase() || (demo ? 'A' : 'Y')}
+            </div>
             <div>
-              <strong>{demo ? 'Alex’s workspace' : 'Your workspace'}</strong>
+              <strong>
+                {auth.account
+                  ? `${auth.account.login}’s workspace`
+                  : demo
+                    ? 'Alex’s workspace'
+                    : 'Your workspace'}
+              </strong>
               <span>Personal workspace</span>
             </div>
             <button
@@ -436,10 +472,12 @@ export default function App() {
             </span>
           </motion.button>
           <div className="sidebar-bottom">
-            <button onClick={() => setGuideOpen(true)}>
-              <span className="profile-avatar">{demo ? 'AM' : 'YOU'}</span>
-              <span>{demo ? 'Alex Morgan' : 'Local developer'}</span>
-              <Settings2 size={14} />
+            <button onClick={() => openGettingStarted(1)}>
+              <span className="profile-avatar">
+                {auth.account?.login.slice(0, 2).toUpperCase() || <Github size={14} />}
+              </span>
+              <span>{auth.account?.login || 'Connect GitHub'}</span>
+              {auth.connected ? <Check size={14} /> : <ArrowUpRight size={14} />}
             </button>
             <button className="sidebar-help" onClick={() => setGuideOpen(true)}>
               <Keyboard size={14} />
@@ -829,6 +867,13 @@ export default function App() {
         }}
       />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} onAction={handleAction} />
+      <FirstRunGuide
+        open={onboardingOpen}
+        onOpenChange={changeGettingStarted}
+        initialStep={onboardingStep}
+        onOpenRepository={() => void openLocal()}
+        onPublish={startPublish}
+      />
       <Dialog.Root
         open={!!plan}
         onOpenChange={(value) => {
@@ -880,7 +925,7 @@ export default function App() {
       <Dialog.Root open={guideOpen} onOpenChange={setGuideOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="dialog-overlay" />
-          <Dialog.Content className="plan-dialog">
+          <Dialog.Content className="plan-dialog help-dialog">
             <Dialog.Close className="dialog-close icon-button" aria-label="Close help">
               <X size={17} />
             </Dialog.Close>
@@ -889,6 +934,20 @@ export default function App() {
             <Dialog.Description>
               Branchline keeps your next step clear, and the details within reach.
             </Dialog.Description>
+            <Button
+              className="full-width"
+              onClick={() => {
+                setGuideOpen(false);
+                openGettingStarted();
+              }}
+            >
+              <Sparkles size={15} />
+              Getting started guide
+              <ArrowRight size={14} />
+            </Button>
+            <div className="help-github">
+              <GitHubConnectCard compact />
+            </div>
             <div className="guide-list">
               <p>
                 <Check size={15} />

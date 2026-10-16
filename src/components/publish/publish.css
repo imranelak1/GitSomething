@@ -26,6 +26,56 @@
   outline: none;
   color-scheme: dark;
 }
+.publish-identity {
+  border-top: 1px solid #383742;
+  padding-top: 14px;
+}
+.publish-identity summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  color: #d6d1e2;
+  font-size: 12px;
+  cursor: pointer;
+}
+.publish-identity summary::-webkit-details-marker {
+  display: none;
+}
+.publish-identity summary > span {
+  color: #b5afc5;
+  margin-left: auto;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.publish-identity summary > svg {
+  flex: none;
+}
+.publish-identity summary > svg:last-child {
+  transition: rotate 0.15s ease;
+}
+.publish-identity[open] summary > svg:last-child {
+  rotate: 180deg;
+}
+.publish-identity summary:focus-visible {
+  outline: 2px solid #d7ff63;
+  outline-offset: 4px;
+}
+.publish-identity > p {
+  margin: 12px 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #b7b0c8;
+}
+.publish-primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (prefers-reduced-motion: reduce) {
+  .publish-identity summary > svg:last-child {
+    transition: none;
+  }
+}
 .publish-dialog *,
 .publish-dialog *::before,
 .publish-dialog *::after {
