@@ -34,7 +34,7 @@ Do not add a shell plugin to implement Git operations. Console text is an explan
 | `class-variance-authority`, `clsx`, `tailwind-merge` | Source-owned component variants and consistent class composition.                 |
 | `lucide-react`                                       | One coherent icon family.                                                         |
 | `cmdk`                                               | Command-palette search and keyboard navigation.                                   |
-| Geist font package                                   | Local application and monospaced typography.                                      |
+| Manrope and Geist Mono font packages                 | Local application and monospaced typography.                                      |
 | Vitest / Playwright                                  | Focused unit checks and browser interaction verification.                         |
 | Prettier                                             | Consistent source and documentation formatting.                                   |
 
@@ -42,7 +42,7 @@ The project requires Node.js 22.12.0 or newer. Vitest 5.0.5 and the DOMPurify 3.
 
 shadcn/ui, Skiper UI, and Vengeance UI are component source/registry systems in this architecture. They do not imply npm packages literally named `shadcn-ui`, `skiper-ui`, or `vengeance-ui`. Source-owned components live in `src/components/ui`, `src/components/registry/skiper`, and `src/components/registry/vengeance`. Review any imported registry component's dependencies and license before copying it.
 
-The starter's `KineticModal` is original Radix/Framer Motion code inspired by the Skiper aesthetic; no commercial Skiper source is redistributed. Its [provenance note](../src/components/registry/skiper/PROVENANCE.md) records that boundary. `AnimatedTooltip` adapts Vengeance's MIT-licensed tooltip composition and preserves the [upstream license](../src/components/registry/vengeance/LICENSE) and [source attribution](../src/components/registry/vengeance/PROVENANCE.md).
+The project's `KineticModal` is original Radix/Framer Motion code; its heading now uses an attributed adaptation of Skiper's actual free TextRoll registry component. Its [provenance note](../src/components/registry/skiper/PROVENANCE.md) records that boundary. `AnimatedTooltip` adapts Vengeance's MIT-licensed tooltip composition and preserves the [upstream license](../src/components/registry/vengeance/LICENSE) and [source attribution](../src/components/registry/vengeance/PROVENANCE.md).
 
 ## Native build considerations
 

@@ -8,7 +8,7 @@ The project name is **Branchline**. The first project remote is assumed to be pr
 
 The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Framer Motion, and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
 
-The interface starts in dark mode. Mint marks successful and primary work; lavender marks branch context and advanced focus. The surface stays quiet enough for dense code, while movement makes focus and operation progress legible.
+The interface starts in dark mode with an expressive visual identity: electric lime primary actions, ultraviolet branch context, peach secondary graph lanes, and Manrope typography. Real Skiper TextRoll and Vengeance animated controls make focus and operation progress tangible. The user requested this bolder redesign after reviewing the first restrained milestone.
 
 ## First milestone
 

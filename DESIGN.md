@@ -1,56 +1,50 @@
 # Branchline design system
 
-Branchline is a focused desktop workbench. Its strongest visual element is the code and the relationship between changes, branches, and commits. The interface uses precise borders, restrained color, and physical motion to make those relationships readable.
+The October redesign replaces the restrained first milestone with a vivid, kinetic desktop interface. The user explicitly requested a much bolder, modern UI using Vengeance and Skiper. Preserve Git behavior while making selection, branches, and publishing visible through color, spatial organization, and movement.
 
-## Color and typography
+## Visual identity
 
-| Token             | Value     | Use                                             |
-| ----------------- | --------- | ----------------------------------------------- |
-| `background`      | `#101114` | Application canvas                              |
-| `surface`         | `#131417` | Primary workspace surfaces                      |
-| `surface-raised`  | `#17181c` | Raised controls, dialogs, and active areas      |
-| `border`          | `#2a2c32` | Separators and control boundaries               |
-| `text`            | `#e9e9ed` | Main text and code                              |
-| `text-muted`      | `#92959f` | Secondary labels and metadata                   |
-| `accent-mint`     | `#b8f2c9` | Primary action, additions, and successful work  |
-| `accent-lavender` | `#c5afff` | Branches, selection context, and advanced focus |
+| Token         | Value     | Purpose                                             |
+| ------------- | --------- | --------------------------------------------------- |
+| Canvas        | `#0a0b0e` | Deep black application ground                       |
+| Surface       | `#15151c` | Working panels                                      |
+| Text          | `#f5f5f7` | Readable primary text                               |
+| Muted         | `#a1a1af` | Supporting metadata                                 |
+| Electric lime | `#d7ff63` | Primary actions, staged changes, current graph lane |
+| Ultraviolet   | `#a68bff` | Branch context, selection, spatial focus            |
+| Peach         | `#ffb88c` | Secondary branches and changed-file markers         |
 
-Use **Geist** for the application and **Geist Mono** for paths, branch references, command tokens, commit IDs, and code. Font sizes and letter spacing should support dense reading at normal desktop scaling. Use weight and spacing before adding more colors. Uppercase micro-labels are sparse; controls and errors use sentence case.
+Use self-hosted **Manrope**, including its 700 and 800 weights, for application typography. Geist Mono remains for code, paths, command tokens, and commit hashes. Titles use a distinct scale and compact leading. Do not shrink interaction text into decorative microtype.
 
-## Workspace
+## Composition
 
-The navigation rail establishes the repository and destination. The changes column contains grouped files and the commit composer. The central diff surface receives the most horizontal space. History and the Glass-Box console are useful secondary views, revealed in place without turning the main workspace into a card grid.
+The activity rail makes major destinations immediate. The repository sidebar establishes context through a saturated violet project selector, while the main workspace stays dark enough for code. The masthead pairs expressive typography with a compact graph built from actual commit parent relationships.
 
-Keep repeated rows aligned, use fixed icon slots, and place file status close to its filename. A selected file has one clear selection treatment. The commit action remains visually connected to the staged selection. Branch and synchronization controls retain stable positions as counts change.
+Changed files and Monaco share the central working surface. The commit composer spans their combined width at the bottom, preserving space for reviewing the file list. The Glass-Box console remains attached to the workspace and uses lime and violet token colors.
 
-The first screen should look like an application already being used: readable file changes, an informative diff, and a current branch. Native onboarding and empty states use the same typography and surface system. Avoid a marketing hero inside the workbench.
+On narrow screens, the activity rail, sidebar, and compact graph yield to the task: changed files, diff, then commit composer. Controls must fit without overlapping the editor. Dialogs remain independently scrollable.
+
+`src/styles.css` retains base styles for shared primitives. `src/workspace.css` defines the new workspace composition and palette. History and publishing use scoped style files alongside their components.
 
 ## Motion
 
-Framer Motion handles short state transitions, dialogs, tooltips, and drag feedback. Use motion to show origin, destination, selection, and progress. A dialog can enter with a small translation and opacity transition; a tooltip can arrive with a short delay and a subtle scale change. Large decorative loops do not belong behind code.
+- Actual **Skiper TextRoll** animates headline and dialog-title characters on hover or keyboard focus.
+- Actual **Vengeance AnimatedButton** provides the primary action's spring press and animated highlight.
+- File selection moves with shared Framer Motion layout; staging gives direct checkbox feedback.
+- Branch paths draw from their real topology. Selection and expanded commit details animate in place.
+- The publishing pipeline moves transfer particles only during actual native progress or its explicitly labeled preview.
+- Console entries animate when commands arrive. Tooltips explain tokens on focus and hover.
 
-Drag previews attach to the dragged object and show a valid target. Branch-to-branch and commit-to-commit interactions explain the proposed operation before any history mutation becomes available. Escape and pointer cancellation return the object to its original position.
+Respect `prefers-reduced-motion`. Spatial movement must be removable without losing status, focus, progress, or access to a control. Motion never changes Git state by itself.
 
-Respect `prefers-reduced-motion` through a shared motion configuration. Remove spatial travel and spring overshoot; preserve progress, focus, selection, and success through static state or a brief opacity change. Animation must never delay keyboard focus or hide a failure.
+## Registry source and credit
 
-## Registry ownership
+`src/components/registry/skiper/TextRoll.tsx` is adapted from Skiper's free `skiper58` registry source. The registry's free-use attribution is preserved in its provenance file and the application's help dialog. The surrounding Radix modal is project-owned code.
 
-`src/components/ui` holds the accessible source-owned primitives used by the application. The shadcn configuration defines their paths; this is an editable component system, not a required runtime package called `shadcn-ui`.
+`src/components/registry/vengeance` includes attributed, MIT-licensed AnimatedButton and tooltip adaptations. Keep their original license and source links. Source-owned shadcn Button composition delegates the primary variant to the Vengeance component.
 
-`src/components/registry/skiper` contains reviewed Skiper-style motion patterns for the folder publishing dialog, drop target, and kinetic inputs. `src/components/registry/vengeance` contains reviewed Vengeance-style animated explanations used by the console. Preserve source provenance and applicable license requirements beside any copied third-party component. A hand-built implementation inspired by a pattern must say so; do not claim it is upstream source.
+## Truth and interaction
 
-These registries stay local so motion behavior, accessibility, dependency cost, and reduced-motion support can be reviewed with the application. Adding a component should not introduce unrelated gallery dependencies or an unreviewed remote registry into the production build.
+The browser remains an explicit demo. History gestures explain proposed operations without pretending unsupported mutations are implemented. Publishing tokens remain transient. New visual components display real repository facts; no invented metrics or decorative commits are added.
 
-## Interaction requirements
-
-Folder publishing uses one focused dialog with a readable folder path, repository name, privacy selection, and a primary publish action. Errors remain near the relevant input or step. During publishing, progress explains initialization, commit creation, provider creation, remote configuration, and push. Closing a dialog cannot pretend an in-flight native operation was cancelled.
-
-Command tokens receive individual explanations. A tooltip must appear on keyboard focus as well as hover, stay readable near a viewport edge, and close on Escape. Do not put an entire sentence inside an inaccessible hover-only wrapper.
-
-Guardian banners use direct language: the repository state, its consequence, and a safe next action. A destructive-operation preview lists the actual affected files and commits from a backend plan, with a clearly labeled confirmation button. A future plan preview must be visually distinguishable from an executable operation.
-
-## Accessibility and desktop behavior
-
-Use semantic buttons and labels, visible focus rings, sufficient contrast, and complete dialog focus management. Avoid color as the sole file-status cue. Keyboard shortcuts should display the platform modifier, with Ctrl+K on Windows/Linux and Cmd+K on macOS.
-
-The workspace supports narrow windows through progressive collapse rather than compressing every column into unreadable text. Preserve the active diff and current action. Resize Monaco with its container and dispose editor models/listeners when their views close.
+Keyboard focus must remain visible. Disabled controls must communicate their state. A native operation's errors and completed steps remain readable even when an animation is active.

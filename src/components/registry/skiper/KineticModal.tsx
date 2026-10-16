@@ -1,9 +1,10 @@
-/** Original project component, inspired by Skiper UI interaction principles.
- * No proprietary Skiper source is included. See PROVENANCE.md. */
+/** Original Radix Dialog composition with Skiper UI's free TextRoll heading.
+ * Source attribution and component permissions are in PROVENANCE.md. */
 import type { ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { TextRoll } from './TextRoll';
 
 interface KineticModalProps {
   open: boolean;
@@ -66,7 +67,11 @@ export function KineticModal({
               >
                 <header className="publish-dialog-header">
                   <div>
-                    <Dialog.Title className="publish-title">{title}</Dialog.Title>
+                    <Dialog.Title className="publish-title">
+                      <TextRoll center wrap>
+                        {title}
+                      </TextRoll>
+                    </Dialog.Title>
                     <Dialog.Description className="publish-description">
                       {description}
                     </Dialog.Description>

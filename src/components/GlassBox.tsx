@@ -52,12 +52,18 @@ export function GlassBox({
           <motion.div
             className="console-body"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 134, opacity: 1 }}
+            animate={{ height: 92, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           >
             {visibleLogs.map((log) => (
-              <div className="console-line" key={log.id}>
+              <motion.div
+                className="console-line"
+                key={log.id}
+                initial={{ opacity: 0, x: -9 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.22 }}
+              >
                 <span className="console-time">
                   {new Date(
                     log.timestamp < 1e12 ? log.timestamp * 1000 : log.timestamp,
@@ -92,7 +98,7 @@ export function GlassBox({
                     </AnimatedTooltip>
                   )}
                 </span>
-              </div>
+              </motion.div>
             ))}
             {!visibleLogs.length && (
               <p className="console-empty">

@@ -83,7 +83,7 @@ branchline/
 └── DESIGN.md
 ```
 
-Registries contain reviewed component source and attribution. The Skiper directory contains an original motion implementation inspired by the requested aesthetic; no paid Skiper component source is redistributed. The Vengeance tooltip is an attributed adaptation with its MIT notice. [Dependency rationale](docs/DEPENDENCIES.md) explains these choices.
+Registries contain reviewed component source and attribution. The Skiper directory contains the actual free TextRoll source adaptation, credited in the application, alongside a project-owned kinetic modal. Vengeance AnimatedButton and tooltip adaptations preserve their MIT notices. [Dependency rationale](docs/DEPENDENCIES.md) explains these choices.
 
 ## Checks
 

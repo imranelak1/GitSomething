@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { KineticModal } from '../registry/skiper/KineticModal';
 import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
+import { Button } from '../ui/button';
 import './publish.css';
 
 type Provider = 'github' | 'gitlab';
@@ -90,6 +91,137 @@ const safeRepositoryUrl = (url: string): string | undefined => {
     return undefined;
   }
 };
+
+function PublishPipeline({
+  provider,
+  hasFolder,
+  busy = false,
+  progress = {},
+}: {
+  provider: Provider;
+  hasFolder: boolean;
+  busy?: boolean;
+  progress?: Partial<Record<PublishStep, StepStatus>>;
+}) {
+  const reducedMotion = useReducedMotion();
+  const localDone = progress.init === 'success';
+  const commitDone = progress.commit === 'success';
+  const cloudDone = progress.push === 'success';
+  const localRunning =
+    busy &&
+    ['validate', 'init', 'commit'].some((key) => progress[key as PublishStep] === 'running');
+  const cloudRunning =
+    busy && ['remote', 'push'].some((key) => progress[key as PublishStep] === 'running');
+
+  return (
+    <div className={`publish-pipeline ${busy ? 'is-running' : ''}`} aria-hidden="true">
+      <svg className="publish-pipeline-wires" viewBox="0 0 500 112" preserveAspectRatio="none">
+        <path
+          className={`publish-wire ${commitDone ? 'is-complete' : ''}`}
+          d="M109 41 H174 Q184 41 184 51 V57 Q184 67 194 67 H224"
+        />
+        <path
+          className={`publish-wire publish-wire-cloud ${cloudDone ? 'is-complete' : ''}`}
+          d="M276 67 H306 Q316 67 316 57 V51 Q316 41 326 41 H391"
+        />
+        {localRunning &&
+          !reducedMotion &&
+          [0, 1].map((particle) => (
+            <motion.circle
+              key={`local-${particle}`}
+              r="3"
+              cx={109}
+              cy={41}
+              className="publish-transfer-dot"
+              initial={{ cx: 109, cy: 41, opacity: 0 }}
+              animate={{
+                cx: [109, 174, 184, 194, 224],
+                cy: [41, 41, 54, 67, 67],
+                opacity: [0, 1, 1, 1, 0],
+              }}
+              transition={{
+                duration: 1.45,
+                delay: particle * 0.72,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          ))}
+        {cloudRunning &&
+          !reducedMotion &&
+          [0, 1].map((particle) => (
+            <motion.circle
+              key={`cloud-${particle}`}
+              r="3"
+              cx={276}
+              cy={67}
+              className="publish-transfer-dot publish-transfer-cloud"
+              initial={{ cx: 276, cy: 67, opacity: 0 }}
+              animate={{
+                cx: [276, 306, 316, 326, 391],
+                cy: [67, 67, 54, 41, 41],
+                opacity: [0, 1, 1, 1, 0],
+              }}
+              transition={{
+                duration: 1.45,
+                delay: particle * 0.72,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          ))}
+      </svg>
+      <div
+        className={`publish-pipeline-stage publish-stage-local ${hasFolder || localDone ? 'is-ready' : ''} ${localRunning ? 'is-active' : ''}`}
+      >
+        <motion.div
+          className="publish-pipeline-icon"
+          whileHover={reducedMotion ? undefined : { rotate: -7, y: -3 }}
+        >
+          {localDone ? <Check size={23} /> : <FolderOpen size={25} />}
+        </motion.div>
+        <strong>Local folder</strong>
+        <span>
+          {localDone
+            ? 'History initialized'
+            : hasFolder
+              ? 'Folder selected'
+              : 'Start with your files'}
+        </span>
+      </div>
+      <div
+        className={`publish-pipeline-stage publish-stage-commit ${commitDone ? 'is-ready' : ''} ${progress.commit === 'running' ? 'is-active' : ''}`}
+      >
+        <motion.div
+          className="publish-pipeline-icon"
+          whileHover={reducedMotion ? undefined : { rotate: 7, y: -3 }}
+        >
+          {commitDone ? <Check size={23} /> : <GitCommitHorizontal size={26} />}
+        </motion.div>
+        <strong>First commit</strong>
+        <span>{commitDone ? 'Snapshot saved' : 'A fresh beginning'}</span>
+      </div>
+      <div
+        className={`publish-pipeline-stage publish-stage-cloud ${cloudDone ? 'is-ready' : ''} ${cloudRunning ? 'is-active' : ''}`}
+      >
+        <motion.div
+          className="publish-pipeline-icon"
+          whileHover={reducedMotion ? undefined : { rotate: -7, y: -3 }}
+        >
+          {cloudDone ? (
+            <Check size={23} />
+          ) : provider === 'github' ? (
+            <Github size={26} />
+          ) : (
+            <GitBranch size={26} />
+          )}
+        </motion.div>
+        <strong>{provider === 'github' ? 'GitHub' : 'GitLab'}</strong>
+        <span>{cloudDone ? 'Your code is up' : 'Ready for the world'}</span>
+      </div>
+    </div>
+  );
+}
 
 export function DropzoneToGitHub({
   open,
@@ -319,6 +451,12 @@ export function DropzoneToGitHub({
                 <Play size={13} /> Preview only · no files or repositories are changed
               </div>
             )}
+            <PublishPipeline
+              provider={provider}
+              hasFolder={!!path}
+              busy={busy}
+              progress={progress}
+            />
             <div className="publish-progress-repo">
               <div className="publish-repo-icon">
                 <Folder size={21} />
@@ -342,7 +480,12 @@ export function DropzoneToGitHub({
               {steps.map((step, index) => {
                 const status = progress[step.key];
                 return (
-                  <li key={step.key} className={`publish-step ${status ?? 'waiting'}`}>
+                  <motion.li
+                    key={step.key}
+                    className={`publish-step ${status ?? 'waiting'}`}
+                    animate={{ x: status === 'running' && !reducedMotion ? 4 : 0 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  >
                     <span className="publish-step-marker">
                       {status === 'success' ? (
                         <Check size={14} />
@@ -359,7 +502,7 @@ export function DropzoneToGitHub({
                       <span>{step.description}</span>
                     </div>
                     {status === 'success' && <span className="publish-step-done">Done</span>}
-                  </li>
+                  </motion.li>
                 );
               })}
             </ol>
@@ -385,7 +528,7 @@ export function DropzoneToGitHub({
                     Open on {provider === 'github' ? 'GitHub' : 'GitLab'}
                     <ExternalLink size={14} />
                   </a>
-                  <button
+                  <Button
                     className="publish-primary-button"
                     onClick={() => {
                       onPublished(result);
@@ -394,7 +537,7 @@ export function DropzoneToGitHub({
                   >
                     Open repository
                     <ArrowRight size={15} />
-                  </button>
+                  </Button>
                 </>
               ) : busy ? (
                 <span className="publish-running-note">
@@ -406,10 +549,10 @@ export function DropzoneToGitHub({
                   <button className="publish-secondary-button" onClick={resetProgress}>
                     {error ? 'Back to setup' : 'Replay setup'}
                   </button>
-                  <button className="publish-primary-button" onClick={() => onOpenChange(false)}>
+                  <Button className="publish-primary-button" onClick={() => onOpenChange(false)}>
                     Done
                     <Check size={15} />
-                  </button>
+                  </Button>
                 </>
               )}
             </footer>
@@ -424,24 +567,14 @@ export function DropzoneToGitHub({
             exit={{ opacity: 0 }}
             transition={{ duration: reducedMotion ? 0 : 0.15 }}
           >
-            <div className="publish-folder-flow" aria-hidden="true">
-              <div className="publish-flow-node">
-                <Folder size={25} />
-              </div>
-              <div className="publish-flow-connection">
-                <span />
-                <GitCommitHorizontal size={16} />
-                <span />
-              </div>
-              <div className="publish-flow-node publish-flow-cloud">
-                {provider === 'github' ? <Github size={26} /> : <GitBranch size={26} />}
-              </div>
-            </div>
-            <button
+            <PublishPipeline provider={provider} hasFolder={!!path} />
+            <motion.button
               type="button"
               className={`publish-drop-target ${path ? 'has-folder' : ''}`}
               onClick={pickFolder}
               disabled={!desktop}
+              whileHover={reducedMotion || !desktop ? undefined : { y: -2 }}
+              whileTap={reducedMotion || !desktop ? undefined : { scale: 0.99 }}
             >
               <FolderOpen size={20} />
               <span>
@@ -460,7 +593,7 @@ export function DropzoneToGitHub({
                 </span>
               </span>
               {desktop && <ArrowUpRight size={17} />}
-            </button>
+            </motion.button>
             {desktop && (
               <button
                 type="button"
@@ -636,19 +769,15 @@ export function DropzoneToGitHub({
                 One folder. First commit. First push.
               </span>
               {desktop ? (
-                <motion.button
-                  type="submit"
-                  className="publish-primary-button"
-                  whileTap={reducedMotion ? undefined : { scale: 0.98 }}
-                >
+                <Button type="submit" className="publish-primary-button">
                   Create & push
                   <Upload size={15} />
-                </motion.button>
+                </Button>
               ) : (
-                <button type="button" className="publish-primary-button" onClick={runPreview}>
+                <Button type="button" className="publish-primary-button" onClick={runPreview}>
                   <Play size={14} />
                   Preview flow
-                </button>
+                </Button>
               )}
             </footer>
           </motion.form>

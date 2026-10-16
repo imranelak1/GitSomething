@@ -27,6 +27,8 @@ import {
   Layers2,
   LoaderCircle,
   MoreHorizontal,
+  Maximize2,
+  Minimize2,
   Plus,
   RefreshCw,
   Search,
@@ -34,6 +36,7 @@ import {
   ShieldCheck,
   Sparkles,
   Terminal,
+  Zap,
   X,
 } from 'lucide-react';
 import { open as chooseDirectory } from '@tauri-apps/plugin-dialog';
@@ -48,6 +51,8 @@ import { HistoryGraph, type HistoryPlan } from './components/HistoryGraph';
 import { CommandPalette } from './components/CommandPalette';
 import { DropzoneToGitHub } from './components/publish/DropzoneToGitHub';
 import { AnimatedTooltip } from './components/registry/vengeance/AnimatedTooltip';
+import { TextRoll } from './components/registry/skiper/TextRoll';
+import { BranchJourney } from './components/BranchJourney';
 
 const DiffViewer = lazy(() => import('./components/DiffViewer'));
 
@@ -67,6 +72,7 @@ export default function App() {
   const [plan, setPlan] = useState<HistoryPlan | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [branchesOpen, setBranchesOpen] = useState(true);
+  const [focusMode, setFocusMode] = useState(false);
   const changedFileCount = new Set(repository.files.map((file) => file.path)).size;
   const staged = repository.files.filter((file) => file.staged);
   const unstaged = repository.files.filter((file) => !file.staged);
@@ -92,6 +98,11 @@ export default function App() {
         setConsoleOpen((value) => !value);
       }
       if ((event.metaKey || event.ctrlKey) && !document.querySelector('[role="dialog"]')) {
+        if (event.shiftKey && event.key.toLowerCase() === 'f') {
+          event.preventDefault();
+          setFocusMode((value) => !value);
+          return;
+        }
         if (event.key.toLowerCase() === 'o') {
           event.preventDefault();
           document.querySelector<HTMLButtonElement>('.add-repository')?.click();
@@ -201,7 +212,7 @@ export default function App() {
   };
   return (
     <div
-      className="app"
+      className={`app ${focusMode ? 'focus-mode' : ''}`}
       onDragOver={(e) => {
         e.preventDefault();
         if (!isDesktop()) setDragging(true);
@@ -248,7 +259,72 @@ export default function App() {
         </button>
       </header>
       <div className="app-body">
-        <aside className="sidebar">
+        <nav className="activity-rail" aria-label="Quick navigation" inert={focusMode}>
+          <div className="rail-primary">
+            <AnimatedTooltip side="right" content="Working directory">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                className={tab === 'changes' ? 'rail-button selected' : 'rail-button'}
+                aria-label="Show working directory"
+                onClick={() => setTab('changes')}
+              >
+                <Layers2 size={20} />
+                {tab === 'changes' && (
+                  <motion.span layoutId="rail-selection" className="rail-selection" />
+                )}
+              </motion.button>
+            </AnimatedTooltip>
+            <AnimatedTooltip side="right" content="Explore your commit graph">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                className={tab === 'history' ? 'rail-button selected' : 'rail-button'}
+                aria-label="Show commit graph"
+                onClick={() => setTab('history')}
+              >
+                <GitBranch size={20} />
+                {tab === 'history' && (
+                  <motion.span layoutId="rail-selection" className="rail-selection" />
+                )}
+              </motion.button>
+            </AnimatedTooltip>
+            <AnimatedTooltip side="right" content="Create & publish a repository">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                className="rail-button"
+                aria-label="Create a new repository"
+                onClick={startPublish}
+              >
+                <Plus size={21} />
+              </motion.button>
+            </AnimatedTooltip>
+          </div>
+          <div className="rail-bottom">
+            <AnimatedTooltip side="right" content="Every action, explained">
+              <button
+                className="rail-button"
+                aria-label="Toggle command console"
+                onClick={() => setConsoleOpen((value) => !value)}
+              >
+                <Terminal size={19} />
+              </button>
+            </AnimatedTooltip>
+            <button
+              className="rail-button"
+              aria-label="Open keyboard commands"
+              onClick={() => setPaletteOpen(true)}
+            >
+              <Command size={18} />
+            </button>
+            <button
+              className="rail-button"
+              aria-label="App help and credits"
+              onClick={() => setGuideOpen(true)}
+            >
+              <Settings2 size={18} />
+            </button>
+          </div>
+        </nav>
+        <aside className="sidebar" inert={focusMode}>
           <div className="workspace-switch">
             <div className="workspace-avatar">{demo ? 'A' : 'Y'}</div>
             <div>
@@ -343,17 +419,22 @@ export default function App() {
             <span className="remote-subtitle">{demo ? 'github.com' : 'remote'}</span>
           </div>
           <div className="sidebar-spacer" />
-          <button className="publish-prompt" onClick={startPublish}>
+          <motion.button
+            className="publish-prompt"
+            onClick={startPublish}
+            whileHover={{ y: -3 }}
+            whileTap={{ scale: 0.98 }}
+          >
             <div className="publish-prompt-icon">
               <FolderOpen size={20} strokeWidth={1.5} />
               <ArrowUpRight size={12} />
             </div>
-            <strong>Something new in mind?</strong>
-            <span>Drop a folder. Make it a repository.</span>
+            <strong>Start something.</strong>
+            <span>Local ideas. Global possibilities.</span>
             <span className="publish-prompt-action">
               Create & publish <ArrowRight size={13} />
             </span>
-          </button>
+          </motion.button>
           <div className="sidebar-bottom">
             <button onClick={() => setGuideOpen(true)}>
               <span className="profile-avatar">{demo ? 'AM' : 'YOU'}</span>
@@ -375,6 +456,16 @@ export default function App() {
               <strong>{tab === 'changes' ? 'Working directory' : 'History'}</strong>
             </div>
             <div className="toolbar-actions">
+              <AnimatedTooltip content="Focus mode · Ctrl / Cmd + Shift + F">
+                <button
+                  className="icon-button focus-toggle"
+                  aria-label="Focus mode"
+                  aria-pressed={focusMode}
+                  onClick={() => setFocusMode((value) => !value)}
+                >
+                  {focusMode ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                </button>
+              </AnimatedTooltip>
               <AnimatedTooltip content="Download the newest remote references without changing your files.">
                 <button
                   className="toolbar-fetch"
@@ -396,31 +487,39 @@ export default function App() {
               </Button>
             </div>
           </div>
-          <div className="page-heading">
-            <div>
-              <h1>
-                {tab === 'changes' ? 'Working directory' : 'Repository history'}
-                <span className="heading-period">.</span>
-              </h1>
-              <p>
-                {tab === 'changes'
-                  ? changedFileCount
-                    ? 'A few changes today. Something great tomorrow.'
-                    : 'Everything is saved. On to the next idea.'
-                  : 'The story of what you’re building, one commit at a time.'}
-              </p>
+          <div className="workspace-masthead">
+            <div className="page-heading">
+              <div>
+                <motion.h1
+                  key={tab}
+                  initial={{ opacity: 0.3, y: 8, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <span>{tab === 'changes' ? 'Your work,' : 'Every branch,'}</span>
+                  <TextRoll>{tab === 'changes' ? 'in motion.' : 'a possibility.'}</TextRoll>
+                </motion.h1>
+                <p>
+                  {tab === 'changes'
+                    ? changedFileCount
+                      ? `${changedFileCount} changed files. Make your next move.`
+                      : 'A clean slate. What will you build next?'
+                    : 'Follow the ideas. Find your next direction.'}
+                </p>
+              </div>
+              <button
+                className="branch-selector"
+                onClick={() => {
+                  setTab('history');
+                  setNotice(`Current branch: ${repository.branch}`);
+                }}
+              >
+                <GitBranch size={14} />
+                <span>{repository.branch}</span>
+                <ChevronDown size={12} />
+              </button>
             </div>
-            <button
-              className="branch-selector"
-              onClick={() => {
-                setTab('history');
-                setNotice(`Current branch: ${repository.branch}`);
-              }}
-            >
-              <GitBranch size={14} />
-              <span>{repository.branch}</span>
-              <ChevronDown size={12} />
-            </button>
+            <BranchJourney repository={repository} onViewHistory={() => setTab('history')} />
           </div>
           {demo && (
             <div className="demo-ribbon">
@@ -471,7 +570,11 @@ export default function App() {
               onClick={() => setTab('changes')}
             >
               <Layers2 size={14} />
-              Changes<span>{changedFileCount}</span>
+              <span className="tab-label">Changes</span>
+              <span>{changedFileCount}</span>
+              {tab === 'changes' && (
+                <motion.div layoutId="workspace-tab-indicator" className="tab-indicator" />
+              )}
             </button>
             <button
               role="tab"
@@ -481,6 +584,9 @@ export default function App() {
             >
               <GitCommitHorizontal size={15} />
               History
+              {tab === 'history' && (
+                <motion.div layoutId="workspace-tab-indicator" className="tab-indicator" />
+              )}
             </button>
             <div className="tabs-spacer" />
             {tab === 'changes' && (
@@ -563,51 +669,6 @@ export default function App() {
                       </div>
                     )}
                   </div>
-                  <div className="commit-composer">
-                    <div className="commit-composer-top">
-                      <span className="profile-avatar small">{demo ? 'AM' : 'Y'}</span>
-                      <span>Make a little history.</span>
-                      <AnimatedTooltip content="Only staged changes are saved in a commit. Your other edits stay in your working folder.">
-                        <ShieldCheck size={15} />
-                      </AnimatedTooltip>
-                    </div>
-                    <label htmlFor="commit-message" className="sr-only">
-                      Commit message
-                    </label>
-                    <textarea
-                      id="commit-message"
-                      placeholder="What did you change?"
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                          e.preventDefault();
-                          void submitCommit();
-                        }
-                      }}
-                      maxLength={5000}
-                    />
-                    <div className="commit-composer-detail">
-                      <span>
-                        {staged.length} {staged.length === 1 ? 'file' : 'files'} staged
-                      </span>
-                      <span>⌘ ↵</span>
-                    </div>
-                    <Button
-                      className="commit-button"
-                      onClick={() => void submitCommit()}
-                      disabled={busy || !message.trim() || !staged.length}
-                    >
-                      {busy ? (
-                        <LoaderCircle className="spin" size={15} />
-                      ) : (
-                        <GitCommitHorizontal size={16} />
-                      )}
-                      Commit changes
-                      <ArrowRight size={15} />
-                    </Button>
-                    <p>Saved locally. Push when you’re ready.</p>
-                  </div>
                 </section>
                 <Suspense
                   fallback={
@@ -627,6 +688,54 @@ export default function App() {
                     }}
                   />
                 </Suspense>
+                <div className="commit-composer">
+                  <div className="commit-composer-top">
+                    <span className="profile-avatar small">{demo ? 'AM' : 'Y'}</span>
+                    <span>
+                      <Zap size={13} />
+                      Make it a milestone.
+                    </span>
+                    <AnimatedTooltip content="Only staged changes are saved in a commit. Your other edits stay in your working folder.">
+                      <ShieldCheck size={15} />
+                    </AnimatedTooltip>
+                  </div>
+                  <label htmlFor="commit-message" className="sr-only">
+                    Commit message
+                  </label>
+                  <textarea
+                    id="commit-message"
+                    placeholder="What did you change?"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                        e.preventDefault();
+                        void submitCommit();
+                      }
+                    }}
+                    maxLength={5000}
+                  />
+                  <div className="commit-composer-detail">
+                    <span>
+                      {staged.length} {staged.length === 1 ? 'file' : 'files'} staged
+                    </span>
+                    <span>⌘ ↵</span>
+                  </div>
+                  <Button
+                    className="commit-button"
+                    onClick={() => void submitCommit()}
+                    disabled={busy || !message.trim() || !staged.length}
+                  >
+                    {busy ? (
+                      <LoaderCircle className="spin" size={15} />
+                    ) : (
+                      <GitCommitHorizontal size={16} />
+                    )}
+                    Commit changes
+                    <ArrowRight size={15} />
+                  </Button>
+                  <p>Saved locally. Push when you’re ready.</p>
+                </div>
               </div>
             ) : (
               <HistoryGraph repository={repository} onPlan={setPlan} />
@@ -802,6 +911,17 @@ export default function App() {
                 <span>Drop a folder into the desktop app to publish it.</span>
               </p>
             </div>
+            <p className="component-credits">
+              Motion components by{' '}
+              <a href="https://skiper-ui.com" target="_blank" rel="noreferrer">
+                Skiper UI
+              </a>{' '}
+              and{' '}
+              <a href="https://vengeanceui.com" target="_blank" rel="noreferrer">
+                Vengeance UI
+              </a>
+              .
+            </p>
             <Button
               className="full-width"
               onClick={() => {
@@ -836,8 +956,22 @@ function FileRow({
   const name = segments.pop();
   const Icon = name?.endsWith('.json') ? FileJson2 : name?.endsWith('.md') ? FileText : FileCode2;
   return (
-    <div className={`file-row ${active ? 'selected' : ''}`}>
-      <button
+    <motion.div
+      className={`file-row ${active ? 'selected' : ''}`}
+      layout="position"
+      initial={{ opacity: 0, x: -7 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+    >
+      {active && (
+        <motion.span
+          className="file-selection-surface"
+          layoutId="file-selection"
+          transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+        />
+      )}
+      <motion.button
+        whileTap={{ scale: 0.75 }}
         className={`stage-checkbox ${file.staged ? 'checked' : ''}`}
         aria-label={`${file.staged ? 'Unstage' : 'Stage'} ${file.path}`}
         aria-pressed={file.staged}
@@ -845,7 +979,7 @@ function FileRow({
         onClick={onToggle}
       >
         {file.staged && <Check size={10} strokeWidth={3} />}
-      </button>
+      </motion.button>
       <button className="file-select" onClick={onSelect} title={file.path}>
         <Icon size={15} className={name?.endsWith('.tsx') ? 'file-react' : ''} />
         <span>
@@ -864,6 +998,6 @@ function FileRow({
               : 'M'}
         </span>
       </button>
-    </div>
+    </motion.div>
   );
 }
