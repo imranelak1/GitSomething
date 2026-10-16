@@ -442,11 +442,22 @@ fn ensure_clean_operation(repo: &Repository) -> EngineResult<()> {
 }
 
 pub fn commit_changes(path: &str, message: &str) -> EngineResult<String> {
+    commit_changes_with_identity(path, message, None)
+}
+
+pub fn commit_changes_with_identity(
+    path: &str,
+    message: &str,
+    fallback: Option<(&str, &str)>,
+) -> EngineResult<String> {
     let repo = open(path)?;
     ensure_clean_operation(&repo)?;
-    let signature = repo.signature().map_err(|_| {
-        "Set user.name and user.email in your Git configuration before committing.".to_string()
-    })?;
+    let signature = repo
+        .signature()
+        .or_else(|error| fallback.map_or(Err(error), |(name, email)| Signature::now(name, email)))
+        .map_err(|_| {
+            "Connect to GitHub or set your Git author name and email before committing.".to_string()
+        })?;
     commit_index(&repo, message, &signature)
 }
 
@@ -521,6 +532,44 @@ fn validate_token_destination(url: &str, expected_host: Option<&str>) -> EngineR
     Ok(())
 }
 
+/// Determine which remote this operation actually contacts before selecting a credential.
+/// SSH, local, GitLab, and other remotes retain their existing authentication behavior.
+pub fn uses_github_auth(path: &str, operation: &str) -> EngineResult<bool> {
+    let repo = open(path)?;
+    let remote_name = if operation == "pull" {
+        let head = repo
+            .head()
+            .map_err(|_| "Switch to a branch before pulling.".to_string())?;
+        let remote = repo
+            .branch_upstream_remote(head.name().map_err(|e| e.to_string())?)
+            .map_err(|_| "This branch has no upstream. Push it first.".to_string())?;
+        remote.as_str().map_err(|e| e.to_string())?.to_string()
+    } else {
+        "origin".to_string()
+    };
+    let remote = repo
+        .find_remote(&remote_name)
+        .map_err(|_| "No remote is configured. Publish this repository first.".to_string())?;
+    let fetch_url = remote
+        .url()
+        .map_err(|_| "Invalid remote URL.".to_string())?;
+    let destination = if operation == "push" {
+        remote
+            .pushurl()
+            .map_err(|_| "Invalid push URL.".to_string())?
+            .unwrap_or(fetch_url)
+    } else {
+        fetch_url
+    };
+    match reqwest::Url::parse(destination) {
+        Ok(url) if url.scheme() == "https" && url.host_str() == Some("github.com") => {
+            validate_token_destination(destination, Some("github.com"))?;
+            Ok(true)
+        }
+        _ => Ok(false),
+    }
+}
+
 fn callbacks(
     token: Option<&str>,
     username: &str,
@@ -535,12 +584,22 @@ fn callbacks(
             // Check every callback, including URLs produced by rewrites or redirects.
             validate_token_destination(url, expected_host.as_deref())
                 .map_err(|message| git2::Error::from_str(&message))?;
-            if allowed.is_user_pass_plaintext() { return Cred::userpass_plaintext(&username, token); }
+            if allowed.is_user_pass_plaintext() {
+                return Cred::userpass_plaintext(&username, token);
+            }
         }
-        if allowed.is_ssh_key() { return Cred::ssh_key_from_agent(url_username.unwrap_or("git")); }
-        if allowed.is_username() { return Cred::username(url_username.unwrap_or(&username)); }
-        if allowed.is_default() { return Cred::default(); }
-        Err(git2::Error::from_str("Authentication required. Configure an SSH remote and SSH agent, or publish with a provider token."))
+        if allowed.is_ssh_key() {
+            return Cred::ssh_key_from_agent(url_username.unwrap_or("git"));
+        }
+        if allowed.is_username() {
+            return Cred::username(url_username.unwrap_or(&username));
+        }
+        if allowed.is_default() {
+            return Cred::default();
+        }
+        Err(git2::Error::from_str(
+            "Authentication required. Connect to GitHub, or configure an SSH remote and SSH agent.",
+        ))
     });
     callbacks.push_update_reference(|_, status| {
         status.map_or(Ok(()), |message| Err(git2::Error::from_str(message)))
@@ -549,12 +608,28 @@ fn callbacks(
 }
 
 pub fn fetch_repository(path: &str) -> EngineResult<()> {
+    fetch_repository_with_auth(path, None, "git", None)
+}
+
+pub fn fetch_repository_with_auth(
+    path: &str,
+    token: Option<&str>,
+    username: &str,
+    expected_host: Option<&str>,
+) -> EngineResult<()> {
     let repo = open(path)?;
     let mut remote = repo.find_remote("origin").map_err(|_| {
         "This repository has no origin remote. Publish it or configure a remote first.".to_string()
     })?;
     let mut options = FetchOptions::new();
-    options.remote_callbacks(callbacks(None, "git", None));
+    if token.is_some() {
+        validate_token_destination(
+            remote.url().map_err(|_| "Invalid remote URL.")?,
+            expected_host,
+        )?;
+        options.follow_redirects(git2::RemoteRedirect::None);
+    }
+    options.remote_callbacks(callbacks(token, username, expected_host));
     remote
         .fetch::<&str>(&[], Some(&mut options), None)
         .map_err(network_error)
@@ -564,7 +639,7 @@ fn network_error(error: git2::Error) -> String {
     // A remote's raw diagnostic may contain a configured credential-bearing URL.
     // Report classified errors instead of ever emitting that diagnostic to IPC.
     let help = match error.code() {
-        ErrorCode::Auth => "Authentication was rejected. Configure an SSH remote and unlock your SSH agent, or verify your publish token permissions.",
+        ErrorCode::Auth => "Authentication was rejected. Connect to GitHub again, or unlock your SSH agent for an SSH remote.",
         ErrorCode::Certificate => "The remote certificate could not be verified. Check your network and trusted certificates.",
         ErrorCode::NotFastForward => "The remote branch has new history. Fetch and review it before pushing; remote history was preserved.",
         _ => "The remote could not complete the operation. Check your connection, repository access, and SSH agent.",
@@ -634,6 +709,15 @@ pub fn push_repository(
 }
 
 pub fn pull_repository(path: &str) -> EngineResult<()> {
+    pull_repository_with_auth(path, None, "git", None)
+}
+
+pub fn pull_repository_with_auth(
+    path: &str,
+    token: Option<&str>,
+    username: &str,
+    expected_host: Option<&str>,
+) -> EngineResult<()> {
     let repo = open(path)?;
     ensure_clean_operation(&repo)?;
     if !repo.statuses(None).map_err(|e| e.to_string())?.is_empty() {
@@ -655,7 +739,14 @@ pub fn pull_repository(path: &str) -> EngineResult<()> {
     let remote_name = remote_name.as_str().map_err(|e| e.to_string())?;
     let mut remote = repo.find_remote(remote_name).map_err(|e| e.to_string())?;
     let mut options = FetchOptions::new();
-    options.remote_callbacks(callbacks(None, "git", None));
+    if token.is_some() {
+        validate_token_destination(
+            remote.url().map_err(|_| "Invalid remote URL.")?,
+            expected_host,
+        )?;
+        options.follow_redirects(git2::RemoteRedirect::None);
+    }
+    options.remote_callbacks(callbacks(token, username, expected_host));
     remote
         .fetch::<&str>(&[], Some(&mut options), None)
         .map_err(network_error)?;
@@ -1108,5 +1199,62 @@ mod tests {
         assert!(error.contains("withheld"));
         assert!(!error.contains("never-send-this-token"));
         assert!(!error.contains("attacker.example"));
+    }
+
+    #[test]
+    fn github_auth_selection_follows_push_url_and_pull_upstream() {
+        let folder = tempdir().unwrap();
+        let path = folder.path().to_str().unwrap();
+        fs::write(folder.path().join("hello.txt"), "hello\n").unwrap();
+        let (root, files) = validate_publish_folder(path, "demo").unwrap();
+        initialize_publish(&root, &files, "Test", "test@example.com").unwrap();
+        add_remote(path, "https://github.com/owner/repo.git").unwrap();
+        assert!(uses_github_auth(path, "fetch").unwrap());
+        assert!(uses_github_auth(path, "push").unwrap());
+        let repo = open(path).unwrap();
+        repo.remote_set_pushurl("origin", Some("git@github.com:owner/repo.git"))
+            .unwrap();
+        assert!(!uses_github_auth(path, "push").unwrap());
+        assert!(uses_github_auth(path, "fetch").unwrap());
+        repo.remote("backup", "https://gitlab.com/owner/repo.git")
+            .unwrap();
+        let mut config = repo.config().unwrap();
+        config.set_str("branch.main.remote", "backup").unwrap();
+        config
+            .set_str("branch.main.merge", "refs/heads/main")
+            .unwrap();
+        assert!(!uses_github_auth(path, "pull").unwrap());
+        config.set_str("branch.main.remote", "origin").unwrap();
+        assert!(uses_github_auth(path, "pull").unwrap());
+        repo.remote_set_url("origin", "https://name:password@github.com/owner/repo.git")
+            .unwrap();
+        assert!(uses_github_auth(path, "fetch").is_err());
+    }
+
+    #[test]
+    fn account_commit_identity_is_a_fallback_and_does_not_rewrite_config() {
+        let folder = tempdir().unwrap();
+        let path = folder.path().to_str().unwrap();
+        fs::write(folder.path().join("hello.txt"), "hello\n").unwrap();
+        let (root, files) = validate_publish_folder(path, "demo").unwrap();
+        initialize_publish(&root, &files, "Configured Author", "configured@example.com").unwrap();
+        fs::write(folder.path().join("hello.txt"), "hello\nconfigured\n").unwrap();
+        stage_file(path, "hello.txt").unwrap();
+        let fallback = Some(("Connected Account", "account@example.com"));
+        let id = commit_changes_with_identity(path, "Keep repo identity", fallback).unwrap();
+        let repo = open(path).unwrap();
+        let commit = repo.find_commit(git2::Oid::from_str(&id).unwrap()).unwrap();
+        assert_eq!(commit.author().name().unwrap(), "Configured Author");
+        let mut config = repo.config().unwrap();
+        config.set_str("user.name", "").unwrap();
+        config.set_str("user.email", "").unwrap();
+        fs::write(folder.path().join("hello.txt"), "hello\nfallback\n").unwrap();
+        stage_file(path, "hello.txt").unwrap();
+        let id = commit_changes_with_identity(path, "Use connected identity", fallback).unwrap();
+        let commit = repo.find_commit(git2::Oid::from_str(&id).unwrap()).unwrap();
+        assert_eq!(commit.author().name().unwrap(), "Connected Account");
+        assert_eq!(commit.author().email().unwrap(), "account@example.com");
+        assert_eq!(config.get_string("user.name").unwrap(), "");
+        assert_eq!(config.get_string("user.email").unwrap(), "");
     }
 }

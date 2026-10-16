@@ -16,6 +16,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
 git2 = { version = "0.21", default-features = false, features = ["https", "ssh", "vendored-libgit2"] }
 notify = "8"
 serde = { version = "1", features = ["derive"] }
@@ -25,6 +26,15 @@ tokio = { version = "1", features = ["rt-multi-thread", "sync", "time"] }
 uuid = { version = "1", features = ["v4"] }
 ignore = "0.4"
 zeroize = { version = "1", features = ["derive"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "3", features = ["windows-native"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3", features = ["apple-native"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+keyring = { version = "3", features = ["sync-secret-service", "crypto-rust"] }
 
 [dev-dependencies]
 tempfile = "3"

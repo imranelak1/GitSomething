@@ -1,6 +1,11 @@
 pub mod git_engine;
+pub mod github_auth;
 
 use git_engine::{EngineResult, FileDiff, RepositorySnapshot};
+use github_auth::{
+    github_auth_cancel, github_auth_disconnect, github_auth_open_browser, github_auth_poll,
+    github_auth_start, github_auth_status, AuthState,
+};
 use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -270,9 +275,11 @@ async fn unstage_file(
 async fn commit_changes(
     app: AppHandle,
     state: State<'_, AppState>,
+    auth: State<'_, AuthState>,
     path: String,
     message: String,
 ) -> EngineResult<String> {
+    let account = auth.commit_identity().await;
     let quoted = quote(&message);
     let command = tokens(&[
         ("git", "Git records your project's history."),
@@ -284,7 +291,13 @@ async fn commit_changes(
         (&quoted, "Your explanation of this change."),
     ]);
     run_git(app, state.inner().clone(), path, command, move |path| {
-        git_engine::commit_changes(&path, &message)
+        let author = account.as_ref().and_then(|account| {
+            account
+                .email
+                .as_deref()
+                .map(|email| (account.name.as_deref().unwrap_or(&account.login), email))
+        });
+        git_engine::commit_changes_with_identity(&path, &message, author)
     })
     .await
 }
@@ -293,9 +306,12 @@ async fn commit_changes(
 async fn fetch_repository(
     app: AppHandle,
     state: State<'_, AppState>,
+    auth: State<'_, AuthState>,
     path: String,
 ) -> EngineResult<()> {
-    run_git(
+    let token = network_token(auth.inner(), &path, "fetch").await?;
+    let used_github_auth = token.is_some();
+    let result = run_git(
         app,
         state.inner().clone(),
         path,
@@ -307,18 +323,32 @@ async fn fetch_repository(
             ),
             ("origin", "The remote this repository was published to."),
         ]),
-        |path| git_engine::fetch_repository(&path),
+        move |path| {
+            git_engine::fetch_repository_with_auth(
+                &path,
+                token.as_deref().map(|t| t.as_str()),
+                "x-access-token",
+                Some("github.com"),
+            )
+        },
     )
-    .await
+    .await;
+    if used_github_auth {
+        check_auth_result(auth.inner(), &result).await;
+    }
+    result
 }
 
 #[tauri::command]
 async fn push_repository(
     app: AppHandle,
     state: State<'_, AppState>,
+    auth: State<'_, AuthState>,
     path: String,
 ) -> EngineResult<()> {
-    run_git(
+    let token = network_token(auth.inner(), &path, "push").await?;
+    let used_github_auth = token.is_some();
+    let result = run_git(
         app,
         state.inner().clone(),
         path,
@@ -335,18 +365,32 @@ async fn push_repository(
             ("origin", "The remote this repository was published to."),
             ("HEAD", "Push the currently checked out branch."),
         ]),
-        |path| git_engine::push_repository(&path, None, "git", None),
+        move |path| {
+            git_engine::push_repository(
+                &path,
+                token.as_deref().map(|t| t.as_str()),
+                "x-access-token",
+                Some("github.com"),
+            )
+        },
     )
-    .await
+    .await;
+    if used_github_auth {
+        check_auth_result(auth.inner(), &result).await;
+    }
+    result
 }
 
 #[tauri::command]
 async fn pull_repository(
     app: AppHandle,
     state: State<'_, AppState>,
+    auth: State<'_, AuthState>,
     path: String,
 ) -> EngineResult<()> {
-    run_git(
+    let token = network_token(auth.inner(), &path, "pull").await?;
+    let used_github_auth = token.is_some();
+    let result = run_git(
         app,
         state.inner().clone(),
         path,
@@ -358,9 +402,49 @@ async fn pull_repository(
                 "Stop safely if local and remote history have diverged.",
             ),
         ]),
-        |path| git_engine::pull_repository(&path),
+        move |path| {
+            git_engine::pull_repository_with_auth(
+                &path,
+                token.as_deref().map(|t| t.as_str()),
+                "x-access-token",
+                Some("github.com"),
+            )
+        },
     )
+    .await;
+    if used_github_auth {
+        check_auth_result(auth.inner(), &result).await;
+    }
+    result
+}
+
+async fn network_token(
+    auth: &AuthState,
+    path: &str,
+    operation: &str,
+) -> EngineResult<Option<Zeroizing<String>>> {
+    let path = path.to_string();
+    let operation = operation.to_string();
+    let github = tauri::async_runtime::spawn_blocking(move || {
+        git_engine::uses_github_auth(&path, &operation)
+    })
     .await
+    .map_err(|_| "Could not inspect the remote destination.".to_string())??;
+    if github {
+        Ok(Some(auth.credential().await?.0))
+    } else {
+        Ok(None)
+    }
+}
+
+async fn check_auth_result<T>(auth: &AuthState, result: &EngineResult<T>) {
+    if result
+        .as_ref()
+        .err()
+        .is_some_and(|error| error.contains("Authentication was rejected"))
+    {
+        auth.rejected().await;
+    }
 }
 
 #[tauri::command]
@@ -399,8 +483,11 @@ struct PublishRequest {
     name: String,
     private: bool,
     provider: String,
+    #[serde(default)]
     token: String,
+    #[serde(default)]
     author_name: String,
+    #[serde(default)]
     author_email: String,
     operation_id: String,
 }
@@ -436,7 +523,8 @@ async fn provider_error(response: reqwest::Response, provider: &str) -> String {
     let status = response.status();
     // The provider response body is intentionally excluded: it may echo user data.
     let help = match status.as_u16() {
-        401 => "Your token was rejected. Check its value and expiration.",
+        401 if provider == "github" => "Your GitHub connection expired or was revoked. Connect to GitHub again.",
+        401 => "Your GitLab token was rejected. Check its value and expiration.",
         403 => "Your token needs permission to create and push repositories, or your organization restricts this action.",
         400 | 409 | 422 => "A repository with that name may already exist, or the provider rejected the name.",
         429 => "The provider rate limit was reached. Wait before trying again.",
@@ -561,9 +649,23 @@ async fn create_remote(
 async fn publish_repository(
     app: AppHandle,
     state: State<'_, AppState>,
+    auth: State<'_, AuthState>,
     mut request: PublishRequest,
 ) -> EngineResult<PublishResult> {
-    let token = Zeroizing::new(std::mem::take(&mut request.token));
+    // GitHub credentials supplied by a renderer are never accepted. OAuth stays native.
+    let supplied_token = Zeroizing::new(std::mem::take(&mut request.token));
+    let token = if request.provider == "github" {
+        let (token, account) = auth.credential().await?;
+        if request.author_name.trim().is_empty() {
+            request.author_name = account.name.unwrap_or(account.login);
+        }
+        if request.author_email.trim().is_empty() {
+            request.author_email = account.email.unwrap_or_default();
+        }
+        token
+    } else {
+        supplied_token
+    };
     let operation = request.operation_id.clone();
     progress(
         &app,
@@ -582,6 +684,17 @@ async fn publish_repository(
         &mut current_step,
     )
     .await;
+    if request.provider == "github" {
+        check_auth_result(auth.inner(), &result).await;
+    }
+    if request.provider == "github"
+        && result
+            .as_ref()
+            .err()
+            .is_some_and(|e| e.contains("HTTP 401"))
+    {
+        auth.rejected().await;
+    }
     if let Err(error) = &result {
         progress(&app, &operation, current_step, "error", Some(error), None);
         // A terminal error event is always emitted, including failures between stages.
@@ -602,9 +715,7 @@ async fn publish_inner(
         return Err("Choose GitHub or GitLab.".into());
     }
     if token.trim().is_empty() {
-        return Err(
-            "Enter a provider access token. It is used for this request and is never saved.".into(),
-        );
+        return Err("Connect to GitHub, or enter a GitLab access token for this request.".into());
     }
     if request.author_name.trim().is_empty() || !request.author_email.contains('@') {
         return Err("Enter your author name and commit email address.".into());
@@ -850,7 +961,9 @@ async fn publish_inner(
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
         .manage(AppState::default())
+        .manage(AuthState::default())
         .invoke_handler(tauri::generate_handler![
             open_repository,
             get_diff,
@@ -861,7 +974,13 @@ pub fn run() {
             push_repository,
             pull_repository,
             create_rescue_branch,
-            publish_repository
+            publish_repository,
+            github_auth_status,
+            github_auth_start,
+            github_auth_poll,
+            github_auth_open_browser,
+            github_auth_cancel,
+            github_auth_disconnect
         ])
         .run(tauri::generate_context!())
         .expect("could not run Branchline desktop application");
