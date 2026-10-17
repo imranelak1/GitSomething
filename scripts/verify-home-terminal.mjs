@@ -260,13 +260,19 @@ try {
   const shortWindow = await freshPage('fresh-short-window', { width: 1440, height: 650 });
   await enterDemoWorkspace(shortWindow);
   await expect(shortWindow.locator('.monaco-diff-editor')).toBeVisible();
+  await expect(shortWindow.locator('.glass-terminal-toggle')).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  );
+  await shortWindow.keyboard.press('Control+j');
+  await expect(input(shortWindow)).toBeVisible();
   await handle(shortWindow).focus();
   await handle(shortWindow).press('End');
   await inspect(shortWindow, '1440px-fresh-short-window-maximum');
   await capture(shortWindow, '1440-short-window-terminal.png');
   await shortWindow.close();
   check(
-    'Opening the demo directly in a 650px-high window shows Monaco and keeps the resized terminal input on screen',
+    'A fresh 650px-high window prioritizes Monaco; explicitly opening and resizing the terminal keeps its input on screen',
   );
 
   for (const width of [320, 390]) {

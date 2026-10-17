@@ -7,7 +7,7 @@ type PreferenceStorage = Pick<Storage, 'getItem' | 'setItem'>;
 
 export const TERMINAL_PREFERENCES_KEY = 'branchline.terminal.v1';
 export const DEFAULT_TERMINAL_PREFERENCES: Readonly<TerminalPreferences> = {
-  height: 244,
+  height: 180,
   fontSize: 13,
 };
 
@@ -25,7 +25,12 @@ export function terminalHeightBounds(viewportHeight: number, contentCapacity = I
 
 export function clampTerminalHeight(height: number, viewportHeight: number): number {
   const { min, max } = terminalHeightBounds(viewportHeight);
-  return Math.round(Math.min(max, Math.max(min, Number.isFinite(height) ? height : 244)));
+  return Math.round(
+    Math.min(
+      max,
+      Math.max(min, Number.isFinite(height) ? height : DEFAULT_TERMINAL_PREFERENCES.height),
+    ),
+  );
 }
 
 export function normalizeTerminalPreferences(value: unknown): TerminalPreferences {

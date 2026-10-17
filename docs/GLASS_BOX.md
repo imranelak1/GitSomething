@@ -6,7 +6,9 @@ GitSomething starts on Home. Open a repository, select a recent project, or choo
 
 ## Adjust the terminal
 
-Drag the top separator to change the Glass Box height. Keyboard users can focus the separator and use Up/Down, with Shift for smaller steps; Home/End selects the smallest/largest allowed height. The terminal adapts its allowed height to the current window. Open Terminal appearance to choose 12–18px text or reset the display settings. Font size and height are remembered locally; the controls still work if persistent storage is unavailable.
+Drag the top separator to change the Glass Box height. Keyboard users can focus the separator and use Up/Down, with Shift for smaller steps; Home/End selects the smallest/largest allowed height. A fresh terminal body starts at 180px; existing saved heights are retained. Windows shorter than 720px initially show the collapsed heading, which remains available to reopen the terminal.
+
+The terminal adapts its allowed height to the current window while reserving room for the workspace. Open Terminal appearance to choose 12–18px text or reset the display settings. Font size and height are remembered locally; the controls still work if persistent storage is unavailable. The repository sidebar and file pane have their own pointer and keyboard dividers, allowing more room for code without shrinking its text.
 
 ## Buttons and results
 
@@ -38,7 +40,9 @@ Native reads refresh the repository snapshot before producing status, branch, or
 
 ## Learning beside the work
 
-The compact Learn by doing strip explains the working folder, staging, committing, and pushing. Expand a step to see where data lives, why the step matters, and a safe command to try. The terminal has additional lessons about branches, diffs, and its supported-command boundary. The first-run practice guide remains available from Help or the command palette.
+The compact Learn by doing strip explains the working folder, staging, committing, and pushing. Choose a step to open an anchored tip showing where data lives, why the step matters, and a safe command to try. The tip overlays the workspace without reducing its code-reading height. Close it to return to reviewing files.
+
+The terminal's learning panel starts closed. Choose Learn or request a full lesson to open additional explanations about branches, diffs, and the supported-command boundary. It can be hidden again while keeping the command stream and input available. The first-run practice guide remains available from Help or the command palette.
 
 ## Implementation
 

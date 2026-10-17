@@ -99,6 +99,12 @@ export default function DiffViewer({
             <b>+{file.additions}</b>
             <i>−{file.deletions}</i>
           </span>
+          <span
+            className={`diff-state ${file.staged ? 'is-staged' : ''}`}
+            title={file.staged ? 'Included in your next commit' : 'Working changes, not yet staged'}
+          >
+            {file.staged ? 'Staged' : 'Working'}
+          </span>
         </div>
         <div className="toolbar-actions">
           <button
@@ -185,11 +191,11 @@ export default function DiffViewer({
               automaticLayout: true,
               minimap: { enabled: false },
               fontFamily: 'Geist Mono, monospace',
-              fontSize: 13,
-              lineHeight: 26,
+              fontSize: 14,
+              lineHeight: 24,
               fontLigatures: true,
               scrollBeyondLastLine: false,
-              padding: { top: 18, bottom: 18 },
+              padding: { top: 12, bottom: 12 },
               renderLineHighlight: 'none',
               folding: false,
               lineNumbersMinChars: 3,

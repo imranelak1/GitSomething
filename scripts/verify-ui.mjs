@@ -138,12 +138,12 @@ try {
   );
   check('Skiper UI TextRoll and Vengeance UI AnimatedButton render in the working directory');
   report.palette = await desktop.evaluate(() => ({
-    rail: getComputedStyle(document.querySelector('.activity-rail')).backgroundColor,
+    sidebar: getComputedStyle(document.querySelector('.sidebar')).backgroundColor,
     files: getComputedStyle(document.querySelector('.changes-panel')).backgroundColor,
     composer: getComputedStyle(document.querySelector('.commit-composer')).backgroundColor,
   }));
   assert.deepEqual(report.palette, {
-    rail: 'rgb(13, 17, 23)',
+    sidebar: 'rgb(21, 27, 35)',
     files: 'rgb(21, 27, 35)',
     composer: 'rgb(21, 27, 35)',
   });
@@ -159,8 +159,7 @@ try {
   check(
     'GitHub dark navigation, charcoal files, and composer render; the sidebar publishing action stays visible',
   );
-  assert.equal(await desktop.locator('.journey-node').count(), 5);
-  assert.equal(await desktop.locator('.journey-lines path').count(), 4);
+  assert.equal(await desktop.locator('.journey-node').count(), 0);
   await capture(desktop, 'desktop-working-directory.png');
   const standardEditor = await desktop.locator('.diff-panel').boundingBox();
   assert.ok(standardEditor);
@@ -172,7 +171,7 @@ try {
   const focusedSidebar = await desktop.locator('.sidebar').boundingBox();
   assert.equal(await focusToggle.getAttribute('aria-pressed'), 'true');
   assert.ok(focusedEditor && focusedEditor.width > standardEditor.width + 80);
-  assert.ok(focusedSidebar && focusedSidebar.width < 1);
+  assert.ok(!focusedSidebar || focusedSidebar.width < 1);
   assert.notEqual(await desktop.locator('.sidebar').getAttribute('inert'), null);
   await capture(desktop, 'desktop-focus-mode.png');
   await desktop.keyboard.press('Control+Shift+f');
@@ -185,6 +184,8 @@ try {
   );
   await desktop.getByRole('tab', { name: 'History', exact: true }).click();
   await desktop.locator('.history-row').first().waitFor();
+  assert.equal(await desktop.locator('.journey-node').count(), 5);
+  assert.equal(await desktop.locator('.journey-lines path').count(), 4);
   assert.equal(await desktop.locator('.history-row').count(), 7);
   assert.equal(await desktop.locator('.commit-connections path').count(), 7);
   assert.equal(await desktop.locator('.graph-node-head').count(), 1);
@@ -234,7 +235,7 @@ try {
     .getByText('Demo commit saved. Your real files are unchanged.', { exact: true })
     .waitFor();
   await desktop.locator('.commit-avatar.is-saved').waitFor();
-  await desktop.getByText('A little history, saved.', { exact: true }).waitFor();
+  await desktop.getByText('Commit saved', { exact: true }).waitFor();
   await capture(desktop, 'desktop-commit-saved.png');
   check('Successful commits show the saved checkmark and confirmation in the commit composer');
   assert.equal(await desktop.locator('.file-row').count(), 3);

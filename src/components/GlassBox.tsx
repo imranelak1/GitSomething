@@ -155,7 +155,7 @@ export function GlassBox({
   const [clearedIds, setClearedIds] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<Filter>('all');
   const [following, setFollowing] = useState(true);
-  const [learningOpen, setLearningOpen] = useState(() => window.innerWidth > 1050);
+  const [learningOpen, setLearningOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<string | undefined>();
   const [source, setSource] = useState('');
   const [history, setHistory] = useState<string[]>([]);
@@ -283,13 +283,16 @@ export function GlassBox({
         parent.clientHeight,
         window.innerHeight - parent.getBoundingClientRect().top,
       );
+      // Measure the bounded host and fixed chrome, rather than the flexible
+      // workspace itself, so resizing the terminal cannot shrink its own limit.
+      const workspaceReserve = window.innerWidth <= 760 ? 200 : 260;
       setContentCapacity(
         Math.floor(
           available -
             occupiedHeight -
             heading.getBoundingClientRect().height -
             workspaceMargins -
-            180,
+            workspaceReserve,
         ),
       );
     };

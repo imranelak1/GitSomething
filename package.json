@@ -15,6 +15,7 @@
     "test:learning": "node scripts/verify-learning.mjs",
     "test:home": "node scripts/verify-home-terminal.mjs",
     "test:push-slider": "node scripts/verify-push-slider.mjs",
+    "test:workspace": "node scripts/verify-workspace-layout.mjs",
     "test:native-learning": "node scripts/verify-native-learning.mjs",
     "format": "prettier --write src scripts *.json *.ts docs README.md PRODUCT.md DESIGN.md"
   },

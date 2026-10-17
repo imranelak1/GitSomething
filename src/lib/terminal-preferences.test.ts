@@ -39,7 +39,7 @@ describe('terminal appearance preferences', () => {
       DEFAULT_TERMINAL_PREFERENCES,
     );
     expect(normalizeTerminalPreferences({ height: NaN, fontSize: 14.6 })).toEqual({
-      height: 244,
+      height: 180,
       fontSize: 15,
     });
   });
@@ -52,7 +52,7 @@ describe('terminal appearance preferences', () => {
     expect(terminalHeightBounds(700, 90)).toEqual({ min: 160, max: 160 });
     expect(clampTerminalHeight(600, 700)).toBe(340);
     expect(clampTerminalHeight(70, 900)).toBe(160);
-    expect(clampTerminalHeight(NaN, 900)).toBe(244);
+    expect(clampTerminalHeight(NaN, 900)).toBe(180);
   });
 
   it('persists a normalized value and tolerates storage write failures', () => {

@@ -8,7 +8,9 @@ The project name is **GitSomething**. The first project remote is assumed to be 
 
 The app starts on Home. Users choose a recent local repository, open an existing repository, publish a folder, follow the guide, or explicitly enter the demo. Only successful native repository openings populate recents; the browser preview has no invented recent projects. Returning Home keeps the current workspace and unsaved commit message in memory. The welcome guide is available by choice instead of obscuring Home on launch.
 
-The Glass Box supports pointer and keyboard height adjustment plus a 12–18px terminal font preference. Appearance settings persist locally, recover from invalid or blocked storage, and adapt to available window space. These controls do not start Git operations.
+The workspace prioritizes reviewing code with a macOS-inspired split layout: repository navigation, changed files with the commit composer below them, and a full-height diff. The large working-view slogan and activity rail are removed; the branch journey lives in History. Users can resize the two left panes with pointer or keyboard controls, hide the desktop repository sidebar, and retain those preferences across launches. Smaller windows hide the sidebar automatically; narrow layouts stack the files, diff, and composer. This is a web interpretation of Apple's content-first layout approach, retaining the GitHub dark palette.
+
+The Glass Box supports pointer and keyboard height adjustment plus a 12–18px terminal font preference. Its fresh body height is 180px, existing saved heights stay valid, and a window shorter than 720px initially shows its collapsed heading. The terminal's learning inspector starts closed; purple workflow tips open over the working view when requested. Appearance settings persist locally, recover from invalid or blocked storage, and adapt to available window space. These controls do not start Git operations.
 
 The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Motion for React (formerly Framer Motion), and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
 
@@ -47,6 +49,7 @@ These are roadmap capabilities, not promises that the starter already implements
 ## UX acceptance rules
 
 - A beginner can find the changed files, read a diff, stage a file, and create a commit without opening an advanced panel.
+- Pane resizing, sidebar visibility, and contextual teaching preserve a useful code-reading area; narrow windows keep every core action reachable by scrolling.
 - Every mutation has a pending, success, and actionable failure state. Repeated clicks cannot start overlapping mutations.
 - The console teaches the equivalent CLI without exposing credentials or claiming a shell command was executed.
 - Folder publishing subscribes to progress before starting work and cannot confuse updates from another operation.

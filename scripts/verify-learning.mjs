@@ -124,6 +124,10 @@ async function geometry(page, surface) {
 
 try {
   const desktop = await createPage('desktop', { width: 1440, height: 1000 });
+  await expect(desktop.locator('.glass-learning')).toHaveCount(0);
+  await expect(
+    desktop.getByRole('button', { name: 'Show learning panel', exact: true }),
+  ).toBeVisible();
   const initialGeometry = await geometry(desktop, 'desktop-collapsed-lesson');
   assert.ok(
     initialGeometry.learning.height < 80,
@@ -133,7 +137,9 @@ try {
     initialGeometry.editor.height >= 140,
     'The terminal must leave room for reviewing a diff',
   );
-  check('The learning strip is compact and the open terminal leaves a usable diff workspace');
+  check(
+    'Lessons wait for an explicit Learn action, the learning strip stays compact, and the terminal leaves a usable diff workspace',
+  );
 
   const selectedFile = 'src/components/Dropzone.tsx';
   await desktop.getByRole('button', { name: `Stage ${selectedFile}`, exact: true }).click();

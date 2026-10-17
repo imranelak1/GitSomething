@@ -1,0 +1,554 @@
+/* A macOS-style source list and a continuous document canvas. */
+.app-body > .activity-rail {
+  display: none;
+}
+
+.app-body > .sidebar {
+  position: relative;
+  width: var(--repository-pane-width, 224px);
+  flex: 0 0 var(--repository-pane-width, 224px);
+  overflow: visible;
+  padding: 0;
+  background: var(--ui-panel);
+}
+
+.repository-sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 26px 16px 14px;
+  scrollbar-width: thin;
+}
+
+.repository-sidebar-content > :not(.sidebar-spacer) {
+  flex-shrink: 0;
+}
+
+.sidebar-collapsed .app-body > .sidebar {
+  display: none;
+}
+
+.app .repository-toolbar {
+  height: 56px;
+  min-height: 56px;
+  padding: 0 20px;
+  gap: 16px;
+  flex-wrap: nowrap;
+  background: color-mix(in srgb, var(--ui-panel) 94%, transparent);
+}
+
+.repository-toolbar > .breadcrumb {
+  flex: 1 1 auto;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.repository-toolbar .breadcrumb > strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repository-toolbar .breadcrumb > span {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repository-sidebar-toggle {
+  width: 32px;
+  height: 32px;
+}
+
+.repository-toolbar > .toolbar-actions {
+  gap: 10px;
+  margin: 0;
+}
+
+.repository-toolbar .toolbar-fetch,
+.repository-toolbar .button {
+  min-height: 34px;
+  font-size: 12px;
+}
+
+.app .demo-ribbon {
+  margin: 0 20px;
+  min-height: 22px;
+  font-size: 11px;
+}
+
+.app .demo-ribbon > button {
+  font-size: 11px;
+}
+
+.app .view-tabs {
+  height: 42px;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 20px;
+  border-color: var(--ui-border);
+}
+
+.app .view-tabs > button:not(.view-options) {
+  font-size: 13px;
+}
+
+.app .learning-flow {
+  position: relative;
+  z-index: 12;
+}
+
+.app .learning-flow-bar {
+  min-height: 40px;
+  padding: 3px 20px;
+  gap: 16px;
+}
+
+.app .learning-flow-panel-clip {
+  position: absolute;
+  top: 100%;
+  left: 12px;
+  right: 12px;
+  border: 1px solid var(--ui-learn-border);
+  border-radius: 0 0 8px 8px;
+  background: var(--ui-panel);
+  box-shadow: 0 6px 8px #0003;
+}
+
+.app .learning-flow-panel {
+  padding-top: 16px;
+}
+
+.app .workspace-content {
+  display: flex;
+  min-height: 0;
+  margin: 0 0 12px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.app .changes-view {
+  flex: 1 0 0;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: var(--files-pane-width, 304px) minmax(0, 1fr);
+  grid-template-rows: minmax(52px, 1fr) auto;
+  border: 0;
+  border-bottom: 1px solid var(--ui-border);
+  border-radius: 0;
+  background: var(--ui-canvas);
+  overflow: visible;
+}
+
+.app .changes-panel {
+  position: relative;
+  min-height: 0;
+  grid-column: 1;
+  grid-row: 1;
+  background: var(--ui-panel);
+  border-right: 1px solid var(--ui-border);
+  overflow: visible;
+}
+
+.app .file-search {
+  flex-shrink: 0;
+  height: 44px;
+}
+
+.app .file-search input {
+  font-size: 13px;
+}
+
+.app .file-list {
+  overflow: auto;
+  padding: 4px 8px 12px;
+  scrollbar-width: thin;
+}
+
+.app .file-group-heading {
+  height: 32px;
+  font-size: 12px;
+}
+
+.app .file-row {
+  min-height: 48px;
+  padding: 0 10px;
+}
+
+.app .file-select strong {
+  font-size: 13px;
+}
+
+.app .file-select small {
+  font-size: 11px;
+}
+
+.app .diff-panel {
+  min-height: 0;
+  grid-column: 2;
+  grid-row: 1 / 3;
+  border: 0;
+  background: var(--ui-canvas);
+}
+
+.changes-view > .empty-state {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.app .diff-toolbar {
+  height: 44px;
+  flex-shrink: 0;
+  padding: 0 16px;
+}
+
+.app .diff-file > span:first-of-type {
+  font-size: 12px;
+}
+
+.app .diff-file {
+  min-width: 0;
+}
+
+.app .diff-file > span:first-of-type {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.app .diff-context {
+  display: none;
+}
+
+.diff-state {
+  color: var(--ui-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.diff-state.is-staged {
+  color: var(--ui-success);
+}
+
+.app .diff-footer {
+  min-height: 40px;
+  height: 40px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.app .diff-footer > span {
+  font-size: 11px;
+}
+
+.app .diff-footer .button {
+  min-height: 30px;
+  font-size: 12px;
+}
+
+.app .commit-composer {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--ui-border);
+  border-right: 1px solid var(--ui-border);
+  background: var(--ui-panel);
+}
+
+.app .commit-composer::before {
+  display: none;
+}
+
+.app .commit-composer-top {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  min-height: 20px;
+  gap: 8px;
+  margin: 0;
+}
+
+.app .commit-composer-top > span:nth-child(2) {
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.app .commit-avatar {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: transparent;
+}
+
+.app .commit-composer > textarea {
+  flex: none;
+  width: 100%;
+  height: 62px;
+  min-height: 62px;
+  max-height: 62px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--ui-canvas);
+}
+
+.app .commit-composer-detail {
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 11px;
+}
+
+.app .commit-button {
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  font-size: 13px;
+}
+
+.app .commit-composer > p {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.history-workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 260px;
+  gap: 12px;
+  padding: 16px 20px 0;
+}
+
+.history-workspace > .journey-strip {
+  flex: 0 0 112px;
+}
+
+.history-workspace > .history-view {
+  flex: 1;
+  min-height: 0;
+}
+
+.app.focus-mode .sidebar {
+  display: none;
+}
+
+@media (max-height: 900px) and (min-width: 761px) {
+  .app .commit-composer {
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .app .commit-composer-top {
+    padding-right: 92px;
+  }
+
+  .app .commit-composer-detail {
+    position: absolute;
+    top: 15px;
+    right: 16px;
+  }
+
+  .app .commit-composer-detail > span:last-child {
+    display: none;
+  }
+
+  .app .commit-composer > textarea {
+    height: 54px;
+    min-height: 54px;
+    max-height: 54px;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 761px) {
+  .app .learning-flow {
+    display: none;
+  }
+
+  .app .changes-view {
+    min-height: 230px;
+    grid-template-rows: minmax(124px, 1fr) auto;
+  }
+
+  .app .commit-composer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 44px 34px;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .app .commit-composer-top,
+  .app .commit-composer > p {
+    display: none;
+  }
+
+  .app .commit-composer > textarea {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding: 8px 10px;
+  }
+
+  .app .commit-composer-detail {
+    position: static;
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-start;
+  }
+
+  .app .commit-button {
+    grid-column: 2;
+    grid-row: 2;
+    width: auto;
+    height: 34px;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .app .file-search {
+    height: 40px;
+  }
+
+  .app .file-group-heading {
+    height: 24px;
+  }
+
+  .app .file-row {
+    min-height: 36px;
+  }
+
+  .app .file-select small {
+    display: none;
+  }
+
+  .app .file-list {
+    padding-block: 4px 6px;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 761px) {
+  .repository-toolbar .breadcrumb > strong {
+    display: none;
+  }
+
+  .repository-toolbar > .breadcrumb {
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 1000px) {
+  .app-body > .sidebar,
+  .repository-sidebar-toggle,
+  .app .sidebar > .workspace-split-handle {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .app .repository-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    height: auto;
+    padding: 8px 16px 10px;
+    gap: 8px 10px;
+  }
+
+  .app .repository-toolbar .breadcrumb {
+    font-size: 11px;
+  }
+
+  .app .repository-toolbar .breadcrumb > span {
+    max-width: 110px;
+  }
+
+  .app .repository-toolbar .breadcrumb > strong {
+    display: none;
+  }
+
+  .app .demo-ribbon {
+    margin: 0 16px;
+    font-size: 10px;
+  }
+
+  .app .view-tabs {
+    padding: 0 16px;
+  }
+
+  .app .learning-flow-bar {
+    padding-inline: 16px;
+  }
+
+  .app .changes-view {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 148px minmax(280px, 1fr) auto;
+    min-height: 650px;
+    height: auto;
+  }
+
+  .app .changes-panel {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    border-right: 0;
+  }
+
+  .app .changes-panel > .workspace-split-handle {
+    display: none;
+  }
+
+  .app .diff-panel {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .changes-view > .empty-state {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .app .commit-composer {
+    grid-column: 1;
+    grid-row: 3;
+    border-right: 0;
+  }
+
+  .app .diff-footer > span,
+  .app .diff-state {
+    display: none;
+  }
+
+  .app .file-select small {
+    display: none;
+  }
+
+  .app .file-row {
+    min-height: 40px;
+  }
+
+  .history-workspace {
+    padding: 12px 16px 0;
+  }
+
+  .history-workspace > .journey-strip {
+    display: none;
+  }
+}

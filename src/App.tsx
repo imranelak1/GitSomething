@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
@@ -31,6 +31,7 @@ import {
   Maximize2,
   Minimize2,
   Plus,
+  PanelLeft,
   RefreshCw,
   Search,
   Settings2,
@@ -65,6 +66,12 @@ import type { FileDiff } from './lib/types';
 import { LearningFlow } from './components/LearningFlow';
 import { HomePage } from './components/HomePage';
 import { SlideToConfirm } from './components/SlideToConfirm';
+import { WorkspaceSplitHandle } from './components/WorkspaceSplitHandle';
+import {
+  readWorkspaceLayout,
+  writeWorkspaceLayout,
+  type WorkspaceLayout,
+} from './lib/workspace-layout';
 import {
   forgetRepository,
   readRecentRepositories,
@@ -100,7 +107,7 @@ export default function App() {
   const [tab, setTab] = useState<'changes' | 'history'>('changes');
   const [selected, setSelected] = useState('src/components/Dropzone.tsx');
   const [selectedStaged, setSelectedStaged] = useState(false);
-  const [consoleOpen, setConsoleOpen] = useState(true);
+  const [consoleOpen, setConsoleOpen] = useState(() => window.innerHeight >= 720);
   const [suggestedCommand, setSuggestedCommand] = useState<{ id: number; text: string }>();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
@@ -112,6 +119,43 @@ export default function App() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [branchesOpen, setBranchesOpen] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
+  const [workspaceLayout, setWorkspaceLayout] = useState(readWorkspaceLayout);
+  const layoutRef = useRef(workspaceLayout);
+  const mainElement = useRef<HTMLElement>(null);
+  const [mainWidth, setMainWidth] = useState(window.innerWidth - 224);
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const sidebarMaximum = Math.max(190, Math.min(320, viewportWidth - 680));
+  const filesMaximum = Math.max(248, Math.min(420, mainWidth - 440));
+
+  useEffect(() => {
+    const resize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+
+  useEffect(() => {
+    if (!workspaceVisited || !mainElement.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0) setMainWidth(Math.round(entry.contentRect.width));
+    });
+    observer.observe(mainElement.current);
+    return () => observer.disconnect();
+  }, [workspaceVisited]);
+
+  function updateWorkspaceLayout(patch: Partial<WorkspaceLayout>) {
+    const next = { ...layoutRef.current, ...patch };
+    layoutRef.current = next;
+    setWorkspaceLayout(next);
+  }
+
+  function finishPaneResize(pane: 'sidebarWidth' | 'filesWidth') {
+    writeWorkspaceLayout(layoutRef.current);
+    record({
+      kind: 'interface',
+      label: pane === 'sidebarWidth' ? 'Resize repository sidebar' : 'Resize changed files',
+      description: `Set the pane width to ${layoutRef.current[pane]} pixels. Your layout is remembered on this computer.`,
+    });
+  }
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [commitSaved, setCommitSaved] = useState(false);
@@ -437,7 +481,13 @@ export default function App() {
   };
   return (
     <div
-      className={`app ${screen === 'home' ? 'app-home' : ''} ${screen === 'workspace' && focusMode ? 'focus-mode' : ''}`}
+      className={`app ${screen === 'home' ? 'app-home' : ''} ${screen === 'workspace' && focusMode ? 'focus-mode' : ''} ${!workspaceLayout.sidebarVisible ? 'sidebar-collapsed' : ''}`}
+      style={
+        {
+          '--repository-pane-width': `${Math.min(workspaceLayout.sidebarWidth, sidebarMaximum)}px`,
+          '--files-pane-width': `${Math.min(workspaceLayout.filesWidth, filesMaximum)}px`,
+        } as CSSProperties
+      }
       onDragOver={(e) => {
         e.preventDefault();
         if (!isDesktop()) setDragging(true);
@@ -584,145 +634,170 @@ export default function App() {
               </button>
             </div>
           </nav>
-          <aside className="sidebar" inert={focusMode}>
-            <div className="workspace-switch">
-              <div className="workspace-avatar">
-                {auth.account?.login.slice(0, 1).toUpperCase() || (demo ? 'A' : 'Y')}
+          <aside className="sidebar" inert={focusMode || !workspaceLayout.sidebarVisible}>
+            <WorkspaceSplitHandle
+              label="Resize repository sidebar"
+              value={Math.min(workspaceLayout.sidebarWidth, sidebarMaximum)}
+              min={190}
+              max={sidebarMaximum}
+              defaultValue={224}
+              onChange={(sidebarWidth) => updateWorkspaceLayout({ sidebarWidth })}
+              onResizeEnd={() => finishPaneResize('sidebarWidth')}
+            />
+            <div className="repository-sidebar-content">
+              <div className="workspace-switch">
+                <div className="workspace-avatar">
+                  {auth.account?.login.slice(0, 1).toUpperCase() || (demo ? 'A' : 'Y')}
+                </div>
+                <div>
+                  <strong>
+                    {auth.account
+                      ? `${auth.account.login}’s workspace`
+                      : demo
+                        ? 'Alex’s workspace'
+                        : 'Your workspace'}
+                  </strong>
+                  <span>Personal workspace</span>
+                </div>
+                <button
+                  className="icon-button"
+                  aria-label="Workspace information"
+                  onClick={() => setGuideOpen(true)}
+                >
+                  <ChevronDown size={14} />
+                </button>
               </div>
-              <div>
-                <strong>
-                  {auth.account
-                    ? `${auth.account.login}’s workspace`
-                    : demo
-                      ? 'Alex’s workspace'
-                      : 'Your workspace'}
-                </strong>
-                <span>Personal workspace</span>
+              <button className="sidebar-search" onClick={() => setPaletteOpen(true)}>
+                <Search size={15} />
+                <span>Jump to anything…</span>
+                <kbd>⌘ K</kbd>
+              </button>
+              <div className="sidebar-section-title">
+                <span>Repositories</span>
+                <button className="icon-button" aria-label="Add repository" onClick={startPublish}>
+                  <Plus size={14} />
+                </button>
               </div>
+              <button className="repository-item" onClick={() => setTab('changes')}>
+                <FolderGit2 size={17} />
+                <span>{repository.name}</span>
+                <ChevronDown size={13} />
+              </button>
+              <nav className="repository-nav" aria-label="Repository views">
+                <button
+                  className={tab === 'changes' ? 'selected' : ''}
+                  onClick={() => setTab('changes')}
+                >
+                  <Layers2 size={15} />
+                  <span>Working directory</span>
+                  <span className="nav-count">{changedFileCount}</span>
+                </button>
+                <button
+                  className={tab === 'history' ? 'selected' : ''}
+                  onClick={() => setTab('history')}
+                >
+                  <History size={15} />
+                  <span>History</span>
+                </button>
+              </nav>
+              <button className="add-repository" onClick={() => void openLocal()}>
+                <Plus size={15} />
+                Open repository<span>⌘ O</span>
+              </button>
+              <div className="sidebar-divider" />
               <button
-                className="icon-button"
-                aria-label="Workspace information"
-                onClick={() => setGuideOpen(true)}
+                className="sidebar-section-title branch-toggle"
+                aria-expanded={branchesOpen}
+                onClick={() => setBranchesOpen(!branchesOpen)}
               >
-                <ChevronDown size={14} />
+                <span>Local branches</span>
+                <ChevronDown size={13} className={!branchesOpen ? 'rotated' : ''} />
               </button>
-            </div>
-            <button className="sidebar-search" onClick={() => setPaletteOpen(true)}>
-              <Search size={15} />
-              <span>Jump to anything…</span>
-              <kbd>⌘ K</kbd>
-            </button>
-            <div className="sidebar-section-title">
-              <span>Repositories</span>
-              <button className="icon-button" aria-label="Add repository" onClick={startPublish}>
-                <Plus size={14} />
-              </button>
-            </div>
-            <button className="repository-item" onClick={() => setTab('changes')}>
-              <FolderGit2 size={17} />
-              <span>{repository.name}</span>
-              <ChevronDown size={13} />
-            </button>
-            <nav className="repository-nav" aria-label="Repository views">
+              {branchesOpen && (
+                <div className="branch-list">
+                  {repository.branches.map((branch) => (
+                    <button
+                      key={branch.name}
+                      className={branch.current ? 'current' : ''}
+                      onClick={() => {
+                        setTab('history');
+                        setNotice(
+                          `Viewing history. ${branch.current ? 'You are currently on this branch.' : 'Branch checkout is planned for the next milestone.'}`,
+                        );
+                      }}
+                    >
+                      <GitBranch size={14} />
+                      <span>{branch.name}</span>
+                      {branch.current && <CircleDot size={12} />}
+                    </button>
+                  ))}
+                </div>
+              )}
               <button
-                className={tab === 'changes' ? 'selected' : ''}
-                onClick={() => setTab('changes')}
+                className="sidebar-section-title remote-label"
+                onClick={() => void sync('fetch')}
+                disabled={busy}
               >
-                <Layers2 size={15} />
-                <span>Working directory</span>
-                <span className="nav-count">{changedFileCount}</span>
+                <span>Remotes</span>
+                <RefreshCw size={12} />
               </button>
-              <button
-                className={tab === 'history' ? 'selected' : ''}
-                onClick={() => setTab('history')}
-              >
-                <History size={15} />
-                <span>History</span>
-              </button>
-            </nav>
-            <button className="add-repository" onClick={() => void openLocal()}>
-              <Plus size={15} />
-              Open repository<span>⌘ O</span>
-            </button>
-            <div className="sidebar-divider" />
-            <button
-              className="sidebar-section-title branch-toggle"
-              aria-expanded={branchesOpen}
-              onClick={() => setBranchesOpen(!branchesOpen)}
-            >
-              <span>Local branches</span>
-              <ChevronDown size={13} className={!branchesOpen ? 'rotated' : ''} />
-            </button>
-            {branchesOpen && (
-              <div className="branch-list">
-                {repository.branches.map((branch) => (
-                  <button
-                    key={branch.name}
-                    className={branch.current ? 'current' : ''}
-                    onClick={() => {
-                      setTab('history');
-                      setNotice(
-                        `Viewing history. ${branch.current ? 'You are currently on this branch.' : 'Branch checkout is planned for the next milestone.'}`,
-                      );
-                    }}
-                  >
-                    <GitBranch size={14} />
-                    <span>{branch.name}</span>
-                    {branch.current && <CircleDot size={12} />}
-                  </button>
-                ))}
+              <div className="remote-item">
+                <Github size={14} />
+                <span>origin</span>
+                <span className="remote-subtitle">{demo ? 'github.com' : 'remote'}</span>
               </div>
-            )}
-            <button
-              className="sidebar-section-title remote-label"
-              onClick={() => void sync('fetch')}
-              disabled={busy}
-            >
-              <span>Remotes</span>
-              <RefreshCw size={12} />
-            </button>
-            <div className="remote-item">
-              <Github size={14} />
-              <span>origin</span>
-              <span className="remote-subtitle">{demo ? 'github.com' : 'remote'}</span>
-            </div>
-            <div className="sidebar-spacer" />
-            <motion.button
-              className="publish-prompt"
-              onClick={startPublish}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Magnetic strength={5} style={{ width: '100%' }}>
-                <span className="publish-prompt-icon">
-                  <FolderOpen size={20} strokeWidth={1.5} />
-                  <ArrowUpRight size={12} />
+              <div className="sidebar-spacer" />
+              <motion.button
+                className="publish-prompt"
+                onClick={startPublish}
+                whileHover={{ y: -3 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Magnetic strength={5} style={{ width: '100%' }}>
+                  <span className="publish-prompt-icon">
+                    <FolderOpen size={20} strokeWidth={1.5} />
+                    <ArrowUpRight size={12} />
+                  </span>
+                </Magnetic>
+                <strong>Start something.</strong>
+                <span>Local ideas. Global possibilities.</span>
+                <span className="publish-prompt-action">
+                  Create & publish <ArrowRight size={13} />
                 </span>
-              </Magnetic>
-              <strong>Start something.</strong>
-              <span>Local ideas. Global possibilities.</span>
-              <span className="publish-prompt-action">
-                Create & publish <ArrowRight size={13} />
-              </span>
-            </motion.button>
-            <div className="sidebar-bottom">
-              <button onClick={() => openGettingStarted(1)}>
-                <span className="profile-avatar">
-                  {auth.account?.login.slice(0, 2).toUpperCase() || <Github size={14} />}
-                </span>
-                <span>{auth.account?.login || 'Connect GitHub'}</span>
-                {auth.connected ? <Check size={14} /> : <ArrowUpRight size={14} />}
-              </button>
-              <button className="sidebar-help" onClick={() => setGuideOpen(true)}>
-                <Keyboard size={14} />
-                <span>A little help</span>
-                <span>?</span>
-              </button>
+              </motion.button>
+              <div className="sidebar-bottom">
+                <button onClick={() => openGettingStarted(1)}>
+                  <span className="profile-avatar">
+                    {auth.account?.login.slice(0, 2).toUpperCase() || <Github size={14} />}
+                  </span>
+                  <span>{auth.account?.login || 'Connect GitHub'}</span>
+                  {auth.connected ? <Check size={14} /> : <ArrowUpRight size={14} />}
+                </button>
+                <button className="sidebar-help" onClick={() => setGuideOpen(true)}>
+                  <Keyboard size={14} />
+                  <span>A little help</span>
+                  <span>?</span>
+                </button>
+              </div>
             </div>
           </aside>
-          <main className="main">
+          <main className="main" ref={mainElement}>
             <div className="repository-toolbar">
               <div className="breadcrumb">
+                <AnimatedTooltip content="Show or hide the repository sidebar to give your diff more room.">
+                  <button
+                    className="icon-button repository-sidebar-toggle"
+                    aria-label="Toggle repository sidebar"
+                    aria-pressed={workspaceLayout.sidebarVisible && !focusMode}
+                    disabled={focusMode}
+                    onClick={() => {
+                      updateWorkspaceLayout({ sidebarVisible: !workspaceLayout.sidebarVisible });
+                      writeWorkspaceLayout(layoutRef.current);
+                    }}
+                  >
+                    <PanelLeft size={18} />
+                  </button>
+                </AnimatedTooltip>
                 <button
                   className="workspace-home-button"
                   aria-label="Back to home"
@@ -731,7 +806,9 @@ export default function App() {
                 >
                   <House size={14} />
                 </button>
-                <span>{repository.name}</span>
+                <span>
+                  <TextRoll>{repository.name}</TextRoll>
+                </span>
                 <ChevronRight size={13} />
                 <strong>{tab === 'changes' ? 'Working directory' : 'History'}</strong>
               </div>
@@ -785,40 +862,7 @@ export default function App() {
                 onConfirm={() => sync('push')}
               />
             </div>
-            <div className="workspace-masthead">
-              <div className="page-heading">
-                <div>
-                  <motion.h1
-                    key={tab}
-                    initial={{ opacity: 0.3, y: 8, filter: 'blur(4px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <span>{tab === 'changes' ? 'Make a little' : 'See how it'}</span>
-                    <TextRoll>{tab === 'changes' ? 'history.' : 'came together.'}</TextRoll>
-                  </motion.h1>
-                  <p>
-                    {tab === 'changes'
-                      ? changedFileCount
-                        ? `${changedFileCount} changed files. Pick files, then save a commit.`
-                        : 'Your working folder matches your last saved commit.'
-                      : 'Each commit is a saved checkpoint. Select one to inspect it.'}
-                  </p>
-                </div>
-                <button
-                  className="branch-selector"
-                  onClick={() => {
-                    setTab('history');
-                    setNotice(`Current branch: ${repository.branch}`);
-                  }}
-                >
-                  <GitBranch size={14} />
-                  <span>{repository.branch}</span>
-                  <ChevronDown size={12} />
-                </button>
-              </div>
-              <BranchJourney repository={repository} onViewHistory={() => setTab('history')} />
-            </div>
+            <h1 className="sr-only">{tab === 'changes' ? 'Working directory' : 'History'}</h1>
             {demo && (
               <div className="demo-ribbon">
                 <span>
@@ -915,6 +959,15 @@ export default function App() {
               {tab === 'changes' ? (
                 <div className="changes-view">
                   <section className="changes-panel" aria-label="Changed files">
+                    <WorkspaceSplitHandle
+                      label="Resize changed files"
+                      value={Math.min(workspaceLayout.filesWidth, filesMaximum)}
+                      min={248}
+                      max={filesMaximum}
+                      defaultValue={304}
+                      onChange={(filesWidth) => updateWorkspaceLayout({ filesWidth })}
+                      onResizeEnd={() => finishPaneResize('filesWidth')}
+                    />
                     <div className="file-search">
                       <Search size={14} />
                       <input
@@ -1011,7 +1064,7 @@ export default function App() {
                       </motion.span>
                       <span>
                         <Zap size={13} />
-                        {commitSaved ? 'A little history, saved.' : 'Make it a milestone.'}
+                        {commitSaved ? 'Commit saved' : 'Save a commit'}
                       </span>
                       <AnimatedTooltip content="Only staged changes are saved in a commit. Your other edits stay in your working folder.">
                         <ShieldCheck size={15} />
@@ -1063,19 +1116,22 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                <HistoryGraph
-                  repository={repository}
-                  onPlan={(next) => {
-                    record({
-                      kind: 'interface',
-                      label: `Preview ${next.kind}`,
-                      description:
-                        'Explore the consequences of a history edit. This preview leaves all commits unchanged.',
-                      lessonId: 'safety',
-                    });
-                    setPlan(next);
-                  }}
-                />
+                <div className="history-workspace">
+                  <BranchJourney repository={repository} onViewHistory={() => setTab('history')} />
+                  <HistoryGraph
+                    repository={repository}
+                    onPlan={(next) => {
+                      record({
+                        kind: 'interface',
+                        label: `Preview ${next.kind}`,
+                        description:
+                          'Explore the consequences of a history edit. This preview leaves all commits unchanged.',
+                        lessonId: 'safety',
+                      });
+                      setPlan(next);
+                    }}
+                  />
+                </div>
               )}
             </div>
             <GlassBox
