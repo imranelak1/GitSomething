@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T00:32:08.464Z",
+  "testedAt": "2026-10-17T00:57:23.479Z",
   "scope": "Palette, text contrast, responsive guide presentation, and mocked device-code presentation",
   "checks": [
     "Mocked GitHub approval code and actions remain legible on desktop and 320px",
@@ -101,11 +101,11 @@
       "selector": ".onboarding-footer .button-primary",
       "foreground": "rgb(255, 255, 255)",
       "background": [
-        31,
-        111,
-        235
+        17,
+        88,
+        199
       ],
-      "ratio": 4.63,
+      "ratio": 6.47,
       "minimum": 4.5
     },
     {
@@ -409,6 +409,30 @@
       "minimum": 4.5
     },
     {
+      "surface": "320px device code",
+      "selector": ".github-device-code-row code",
+      "foreground": "rgb(88, 166, 255)",
+      "background": [
+        13,
+        17,
+        23
+      ],
+      "ratio": 7.49,
+      "minimum": 4.5
+    },
+    {
+      "surface": "320px device code",
+      "selector": ".github-device-wait",
+      "foreground": "rgb(145, 152, 161)",
+      "background": [
+        33,
+        40,
+        48
+      ],
+      "ratio": 5.11,
+      "minimum": 4.5
+    },
+    {
       "surface": "1440px practice",
       "selector": ".practice-heading > span:last-child",
       "foreground": "rgb(145, 152, 161)",
@@ -457,42 +481,6 @@
       "minimum": 4.5
     },
     {
-      "surface": "390px practice input",
-      "selector": ".practice-message",
-      "foreground": "rgb(145, 152, 161)",
-      "background": [
-        13,
-        17,
-        23
-      ],
-      "ratio": 6.5,
-      "minimum": 4.5
-    },
-    {
-      "surface": "390px practice input",
-      "selector": ".practice-message input",
-      "foreground": "rgb(240, 246, 252)",
-      "background": [
-        13,
-        17,
-        23
-      ],
-      "ratio": 17.39,
-      "minimum": 4.5
-    },
-    {
-      "surface": "390px practice input",
-      "selector": ".practice-lesson .button-primary",
-      "foreground": "rgb(255, 255, 255)",
-      "background": [
-        31,
-        111,
-        235
-      ],
-      "ratio": 4.63,
-      "minimum": 4.5
-    },
-    {
       "surface": "320px practice input",
       "selector": ".practice-message",
       "foreground": "rgb(145, 152, 161)",
@@ -529,27 +517,39 @@
       "minimum": 4.5
     },
     {
-      "surface": "320px device code",
-      "selector": ".github-device-code-row code",
-      "foreground": "rgb(88, 166, 255)",
+      "surface": "390px practice input",
+      "selector": ".practice-message",
+      "foreground": "rgb(145, 152, 161)",
       "background": [
         13,
         17,
         23
       ],
-      "ratio": 7.49,
+      "ratio": 6.5,
       "minimum": 4.5
     },
     {
-      "surface": "320px device code",
-      "selector": ".github-device-wait",
-      "foreground": "rgb(145, 152, 161)",
+      "surface": "390px practice input",
+      "selector": ".practice-message input",
+      "foreground": "rgb(240, 246, 252)",
       "background": [
-        33,
-        40,
-        48
+        13,
+        17,
+        23
       ],
-      "ratio": 5.11,
+      "ratio": 17.39,
+      "minimum": 4.5
+    },
+    {
+      "surface": "390px practice input",
+      "selector": ".practice-lesson .button-primary",
+      "foreground": "rgb(255, 255, 255)",
+      "background": [
+        31,
+        111,
+        235
+      ],
+      "ratio": 4.63,
       "minimum": 4.5
     },
     {
@@ -601,7 +601,7 @@
       "minimum": 4.5
     },
     {
-      "surface": "320px project",
+      "surface": "390px project",
       "selector": ".onboarding-connection",
       "foreground": "rgb(145, 152, 161)",
       "background": [
@@ -613,7 +613,7 @@
       "minimum": 4.5
     },
     {
-      "surface": "320px project",
+      "surface": "390px project",
       "selector": ".onboarding-project-option strong",
       "foreground": "rgb(240, 246, 252)",
       "background": [
@@ -625,7 +625,7 @@
       "minimum": 4.5
     },
     {
-      "surface": "320px project",
+      "surface": "390px project",
       "selector": ".onboarding-project-option > span:nth-child(2) > span",
       "foreground": "rgb(145, 152, 161)",
       "background": [
@@ -637,7 +637,7 @@
       "minimum": 4.5
     },
     {
-      "surface": "390px project",
+      "surface": "320px project",
       "selector": ".onboarding-connection",
       "foreground": "rgb(145, 152, 161)",
       "background": [
@@ -649,7 +649,7 @@
       "minimum": 4.5
     },
     {
-      "surface": "390px project",
+      "surface": "320px project",
       "selector": ".onboarding-project-option strong",
       "foreground": "rgb(240, 246, 252)",
       "background": [
@@ -661,7 +661,7 @@
       "minimum": 4.5
     },
     {
-      "surface": "390px project",
+      "surface": "320px project",
       "selector": ".onboarding-project-option > span:nth-child(2) > span",
       "foreground": "rgb(145, 152, 161)",
       "background": [
@@ -781,6 +781,42 @@
       "minimum": 4.5
     },
     {
+      "surface": "1440px project",
+      "selector": ".onboarding-connection",
+      "foreground": "rgb(145, 152, 161)",
+      "background": [
+        21,
+        27,
+        35
+      ],
+      "ratio": 5.94,
+      "minimum": 4.5
+    },
+    {
+      "surface": "1440px project",
+      "selector": ".onboarding-project-option strong",
+      "foreground": "rgb(240, 246, 252)",
+      "background": [
+        21,
+        27,
+        35
+      ],
+      "ratio": 15.91,
+      "minimum": 4.5
+    },
+    {
+      "surface": "1440px project",
+      "selector": ".onboarding-project-option > span:nth-child(2) > span",
+      "foreground": "rgb(145, 152, 161)",
+      "background": [
+        21,
+        27,
+        35
+      ],
+      "ratio": 5.94,
+      "minimum": 4.5
+    },
+    {
       "surface": "320px publish",
       "selector": ".publish-title",
       "foreground": "rgb(240, 246, 252)",
@@ -826,42 +862,6 @@
         235
       ],
       "ratio": 4.63,
-      "minimum": 4.5
-    },
-    {
-      "surface": "1440px project",
-      "selector": ".onboarding-connection",
-      "foreground": "rgb(145, 152, 161)",
-      "background": [
-        21,
-        27,
-        35
-      ],
-      "ratio": 5.94,
-      "minimum": 4.5
-    },
-    {
-      "surface": "1440px project",
-      "selector": ".onboarding-project-option strong",
-      "foreground": "rgb(240, 246, 252)",
-      "background": [
-        21,
-        27,
-        35
-      ],
-      "ratio": 15.91,
-      "minimum": 4.5
-    },
-    {
-      "surface": "1440px project",
-      "selector": ".onboarding-project-option > span:nth-child(2) > span",
-      "foreground": "rgb(145, 152, 161)",
-      "background": [
-        21,
-        27,
-        35
-      ],
-      "ratio": 5.94,
       "minimum": 4.5
     },
     {
@@ -1021,14 +1021,14 @@
   ],
   "screenshots": [
     "artifacts/github-dark-guide/320-welcome.png",
-    "artifacts/github-dark-guide/390-welcome.png",
     "artifacts/github-dark-guide/1440-welcome.png",
+    "artifacts/github-dark-guide/390-welcome.png",
     "artifacts/github-dark-guide/1440-device-code.png",
     "artifacts/github-dark-guide/1440-connect.png",
     "artifacts/github-dark-guide/320-practice.png",
     "artifacts/github-dark-guide/390-practice.png",
-    "artifacts/github-dark-guide/1440-practice.png",
     "artifacts/github-dark-guide/320-device-code.png",
+    "artifacts/github-dark-guide/1440-practice.png",
     "artifacts/github-dark-guide/320-project.png",
     "artifacts/github-dark-guide/320-publish.png",
     "artifacts/github-dark-guide/1440-publish.png",
@@ -1082,12 +1082,12 @@
       "colorScheme": "dark"
     },
     {
-      "surface": "1440px practice",
+      "surface": "320px device code",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },
     {
-      "surface": "390px practice input",
+      "surface": "1440px practice",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },
@@ -1097,7 +1097,7 @@
       "colorScheme": "dark"
     },
     {
-      "surface": "320px device code",
+      "surface": "390px practice input",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },
@@ -1112,12 +1112,12 @@
       "colorScheme": "dark"
     },
     {
-      "surface": "320px project",
+      "surface": "390px project",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },
     {
-      "surface": "390px project",
+      "surface": "320px project",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },
@@ -1137,12 +1137,12 @@
       "colorScheme": "dark"
     },
     {
-      "surface": "320px publish",
+      "surface": "1440px project",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },
     {
-      "surface": "1440px project",
+      "surface": "320px publish",
       "background": "rgb(21, 27, 35)",
       "colorScheme": "dark"
     },

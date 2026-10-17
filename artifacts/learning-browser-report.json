@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T00:40:12.541Z",
+  "testedAt": "2026-10-17T01:00:20.520Z",
   "browser": "155.0.4283.62",
   "scope": "Guided Git, action visibility, contextual learning, and responsive terminal",
   "checks": [
@@ -207,17 +207,17 @@
         "x": 0,
         "y": 257.5,
         "width": 390,
-        "height": 218.90625,
+        "height": 242.03125,
         "right": 390,
-        "bottom": 476.40625
+        "bottom": 499.53125
       },
       "editor": {
         "x": 17,
-        "y": 617.40625,
+        "y": 640.53125,
         "width": 356,
         "height": 82,
         "right": 373,
-        "bottom": 699.40625
+        "bottom": 722.53125
       }
     },
     {
@@ -265,9 +265,9 @@
       "scrollWidth": 320,
       "terminal": {
         "x": 0,
-        "y": 653,
+        "y": 710.96875,
         "width": 320,
-        "height": 283,
+        "height": 225.03125,
         "right": 320,
         "bottom": 936
       },
@@ -283,17 +283,17 @@
         "x": 0,
         "y": 292.859375,
         "width": 320,
-        "height": 127.40625,
+        "height": 302,
         "right": 320,
-        "bottom": 420.265625
+        "bottom": 594.859375
       },
       "editor": {
         "x": 17,
-        "y": 561.265625,
+        "y": 735.859375,
         "width": 286,
         "height": 82,
         "right": 303,
-        "bottom": 643.265625
+        "bottom": 817.859375
       }
     }
   ],

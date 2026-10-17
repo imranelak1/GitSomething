@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { enterDemoWorkspace, openGuideFromHome } from './workspace-fixture.mjs';
 
 // A presentation check for the chosen dark palette. OAuth and publishing remain
 // covered by the existing behavior suites; the device-code view below uses IPC fixtures.
@@ -190,7 +191,7 @@ async function guide(width) {
   });
   monitor(page, `guide-${width}`);
   await page.goto(baseURL);
-  await page.locator('.onboarding-dialog').waitFor();
+  await openGuideFromHome(page);
   await inspect(page, `${width}px welcome`, [
     '.onboarding-title h2',
     '.onboarding-title > p',
@@ -255,6 +256,7 @@ async function guide(width) {
   if (width === 1440) {
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await page.locator('.publish-dialog').waitFor({ state: 'hidden' });
+    await enterDemoWorkspace(page);
     await inspect(page, 'workspace controls', [
       '.stage-checkbox[aria-pressed="false"]',
       '.focus-toggle',
@@ -306,6 +308,7 @@ async function deviceCode() {
     };
   });
   await page.goto(baseURL);
+  await openGuideFromHome(page);
   await page.getByRole('button', { name: 'Step 2: Connect', exact: true }).click();
   await page.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
   await page.getByText('TEST-CODE', { exact: true }).waitFor();

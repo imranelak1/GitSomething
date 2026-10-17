@@ -2,6 +2,7 @@ import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { enterDemoWorkspace } from './workspace-fixture.mjs';
 
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
@@ -49,7 +50,7 @@ function monitor(page, surface) {
   });
 }
 async function waitForEditor(page) {
-  await page.locator('.monaco-diff-editor').waitFor({ state: 'visible', timeout: 45_000 });
+  await enterDemoWorkspace(page);
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(750);
 }
@@ -331,7 +332,10 @@ try {
   await desktop.keyboard.press('Control+k');
   await desktop.getByPlaceholder('What would you like to do?').fill('console');
   await desktop.keyboard.press('Enter');
-  assert.equal(await desktop.locator('.glass-terminal-toggle').getAttribute('aria-expanded'), 'false');
+  assert.equal(
+    await desktop.locator('.glass-terminal-toggle').getAttribute('aria-expanded'),
+    'false',
+  );
   await desktop.keyboard.press('Control+j');
   await desktop.locator('.glass-entry-command code .vengeance-tooltip-trigger').first().focus();
   await desktop.getByRole('tooltip').first().waitFor();

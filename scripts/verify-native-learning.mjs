@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, resolve } from 'node:path';
+import { enterDemoWorkspace } from './workspace-fixture.mjs';
 
 const root = resolve(process.cwd());
 const filename = `.branchline-learning-smoke-${randomUUID()}.txt`;
@@ -75,7 +76,7 @@ try {
   previousGuide = await page.evaluate(() => localStorage.getItem('branchline.guide.v1'));
   await page.evaluate(() => localStorage.setItem('branchline.guide.v1', 'seen'));
   await page.reload();
-  await page.locator('.monaco-diff-editor').waitFor({ state: 'visible', timeout: 45_000 });
+  await enterDemoWorkspace(page);
   await page.evaluate(
     ({ patchKey, root }) => {
       const internals = window.__TAURI_INTERNALS__;

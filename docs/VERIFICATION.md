@@ -2,6 +2,29 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Home and adjustable terminal: October 17, 2026
+
+Home is the initial route, with no automatic guide overlay and no Monaco mount until a workspace is entered. Actual local repository metadata populates recents only after a successful open. The workspace stays mounted but hidden and inert when returning Home, preserving its in-memory commit draft, selection, active view, and terminal session.
+
+The terminal has pointer and keyboard resizing, local height/font preferences, a 12–18px type control, and reset/expand behavior. The keyboard separator supports Up/Down, Shift for smaller steps, and Home/End. Preference validation and recent-repository metadata tests cover malformed or blocked storage, bounded lists/settings, Windows path deduplication, and removal without filesystem mutation. `npm run check` passed TypeScript and **67 unit checks**; the production build passed with the existing Monaco chunk-size warning.
+
+The browser entry helpers now explicitly choose the demo or guide from Home. [The Home/terminal report](../artifacts/home-terminal-report.json) records fresh launch, guide and publishing entry, workspace preservation, resizing, font persistence, responsive layouts, and mocked native open/recents contracts. The native route fixture is limited to browser contract verification; it does not prove filesystem access. [The separate native report](../artifacts/learning-native-report.json) exercises the actual Rust engine with the previously documented picker-only fixture boundary.
+
+| Current checks                 | Result                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
+| Home and adjustments           | 13 groups passed, no geometry issues, browser errors, or provider calls.              |
+| Guided terminal                | 17 groups passed after the layout fix.                                                |
+| Workspace regression           | 24 groups passed after the layout fix.                                                |
+| Guide and OAuth fixtures       | 16 groups passed, including explicit Home entry and final guide-to-workspace handoff. |
+| Palette and guide presentation | 7 groups passed; 81 sampled text/background combinations met AA.                      |
+| Actual native Git terminal     | 8 groups passed, temporary-file cleanup succeeded, no WebView errors.                 |
+
+The total is 77 browser groups plus 8 actual native groups. Browser provider operations use fixtures or explicit demo data; live OAuth consent and remote publication remain outside these checks. The final short-window checks cover both resizing from a larger window and entering the demo directly at 1440×650: Monaco mounts and the input ends at 599px, inside the 650px viewport.
+
+A separate [actual native launch check](../artifacts/native-home-report.json) confirms Home is visible after reloading the WebView, with zero Monaco mounts, zero automatic guide overlays, and the real recent-repository shortcut. The desktop app is left on [Home](../artifacts/home-terminal/native-home.png) for review.
+
+Short windows use the available viewport rather than the previous minimum canvas height, omit the decorative workspace overview, and allow the work area to scroll. The terminal measures its host and reserves 180px for the workspace where possible. This keeps its input reachable while allowing access to files, diffs, and commit controls. Home remains independently scrollable. [Screenshots](../artifacts/home-terminal/) cover the new entry and adjustment surfaces. A separate screenshot review found no material visual defects in the six desktop/mobile Home and adjusted-terminal captures; interaction claims come from the browser checks.
+
 ## Current teaching terminal results: October 17, 2026
 
 The Glass Box now records interface requests and settled Git operations, accepts a supported subset of Git commands, and explains the workflow in separate purple teaching surfaces. See [the terminal guide](GLASS_BOX.md) for syntax and behavior.

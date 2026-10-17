@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-17T00:31:23.283Z",
+  "testedAt": "2026-10-17T01:01:31.504Z",
   "boundary": "Actual Tauri WebView, typed guided Git commands, and Rust/libgit2 IPC. Tauri freezes invoke, so only the plugin:dialog|open IPC fetch response is replaced with this workspace path; native folder selection itself is not verified. Every other fetch delegates unchanged. No commits, network Git commands, or provider writes are performed.",
   "checks": [
     "The existing-repository button opens the actual project through a picker-IPC-only path fixture and leaves practice mode",

@@ -5,6 +5,7 @@ import { chromium } from '@playwright/test';
 import assert from 'node:assert/strict';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
+import { enterDemoWorkspace } from './workspace-fixture.mjs';
 
 const root = process.cwd();
 const browser = await chromium.connectOverCDP('http://127.0.0.1:9223');
@@ -31,7 +32,7 @@ const ipc = (command, args) =>
 page.on('pageerror', (error) => report.errors.push(error.message));
 try {
   await page.reload();
-  await page.locator('.monaco-diff-editor').waitFor();
+  await enterDemoWorkspace(page);
   const auth = await ipc('github_auth_status');
   assert.equal(typeof auth.configured, 'boolean');
   assert.equal(typeof auth.connected, 'boolean');

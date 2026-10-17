@@ -1,0 +1,304 @@
+{
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T01:00:20.568Z",
+  "browser": "155.0.4283.62",
+  "scope": "Home navigation, preserved workspace, recent-repository IPC contract, adjustable terminal",
+  "checks": [
+    "A fresh launch opens Home without mounting Monaco or an automatic guide overlay",
+    "Home opens the guide and folder-publishing workflow and returns safely after dismissal",
+    "Home and Continue preserve the current tab, selected file, unfinished commit, terminal draft, and results; demo creates no recent repository",
+    "The accessible resize handle supports coarse and fine keyboard adjustments and enforces its minimum and maximum",
+    "Dragging the terminal edge upward grows its real content area while keeping the command input visible",
+    "Terminal typography offers 12–18px, closes accessibly, and preserves font size and height across a fresh Home launch",
+    "Window height constrains the terminal and Reset restores readable default typography",
+    "Opening the demo directly in a 650px-high window shows Monaco and keeps the resized terminal input on screen",
+    "At 320px and 390px, Home and maximum terminal sizes fit; large text remains usable with guided commands",
+    "A failed native open stays on Home, explains the error, and creates no false recent entry",
+    "Only a successful native open enters the workspace and persists a recent repository; reopening a recent validates it through IPC again",
+    "Removing a recent shortcut leaves the current repository available through Continue workspace",
+    "Home, navigation, and terminal adjustments make no provider requests and produce no browser or Monaco errors"
+  ],
+  "screenshots": [
+    "artifacts/home-terminal/1440-home.png",
+    "artifacts/home-terminal/1440-adjusted-terminal.png",
+    "artifacts/home-terminal/1440-short-window-terminal.png",
+    "artifacts/home-terminal/320-home.png",
+    "artifacts/home-terminal/320-terminal.png",
+    "artifacts/home-terminal/390-home.png",
+    "artifacts/home-terminal/390-terminal.png"
+  ],
+  "geometry": [
+    {
+      "surface": "1440px-home",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "home": {
+        "x": 0,
+        "y": 58,
+        "right": 1440,
+        "bottom": 1000,
+        "width": 1440,
+        "height": 942
+      },
+      "terminal": null,
+      "input": null,
+      "handle": null
+    },
+    {
+      "surface": "1440px-resized-terminal",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "home": null,
+      "terminal": {
+        "x": 288,
+        "y": 674,
+        "right": 1440,
+        "bottom": 974,
+        "width": 1152,
+        "height": 300
+      },
+      "input": {
+        "x": 363.640625,
+        "y": 917,
+        "right": 1048.984375,
+        "bottom": 949,
+        "width": 685.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 288,
+        "y": 670,
+        "right": 1440,
+        "bottom": 681,
+        "width": 1152,
+        "height": 11
+      }
+    },
+    {
+      "surface": "1440px-short-window-maximum",
+      "width": 1440,
+      "height": 650,
+      "scrollWidth": 1440,
+      "home": null,
+      "terminal": {
+        "x": 288,
+        "y": 416,
+        "right": 1440,
+        "bottom": 624,
+        "width": 1152,
+        "height": 208
+      },
+      "input": {
+        "x": 363.640625,
+        "y": 567,
+        "right": 1048.984375,
+        "bottom": 599,
+        "width": 685.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 288,
+        "y": 412,
+        "right": 1440,
+        "bottom": 423,
+        "width": 1152,
+        "height": 11
+      }
+    },
+    {
+      "surface": "1440px-fresh-short-window-maximum",
+      "width": 1440,
+      "height": 650,
+      "scrollWidth": 1440,
+      "home": null,
+      "terminal": {
+        "x": 288,
+        "y": 416,
+        "right": 1440,
+        "bottom": 624,
+        "width": 1152,
+        "height": 208
+      },
+      "input": {
+        "x": 363.640625,
+        "y": 567,
+        "right": 1048.984375,
+        "bottom": 599,
+        "width": 685.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 288,
+        "y": 412,
+        "right": 1440,
+        "bottom": 423,
+        "width": 1152,
+        "height": 11
+      }
+    },
+    {
+      "surface": "320px-home",
+      "width": 320,
+      "height": 960,
+      "scrollWidth": 320,
+      "home": {
+        "x": 0,
+        "y": 50,
+        "right": 320,
+        "bottom": 960,
+        "width": 320,
+        "height": 910
+      },
+      "terminal": null,
+      "input": null,
+      "handle": null
+    },
+    {
+      "surface": "320px-maximum-terminal",
+      "width": 320,
+      "height": 960,
+      "scrollWidth": 320,
+      "home": null,
+      "terminal": {
+        "x": 0,
+        "y": 522,
+        "right": 320,
+        "bottom": 936,
+        "width": 320,
+        "height": 414
+      },
+      "input": {
+        "x": 60.640625,
+        "y": 879,
+        "right": 246.984375,
+        "bottom": 911,
+        "width": 186.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 0,
+        "y": 518,
+        "right": 320,
+        "bottom": 529,
+        "width": 320,
+        "height": 11
+      }
+    },
+    {
+      "surface": "320px-large-terminal-text",
+      "width": 320,
+      "height": 960,
+      "scrollWidth": 320,
+      "home": null,
+      "terminal": {
+        "x": 0,
+        "y": 522,
+        "right": 320,
+        "bottom": 936,
+        "width": 320,
+        "height": 414
+      },
+      "input": {
+        "x": 60.640625,
+        "y": 865,
+        "right": 246.984375,
+        "bottom": 897,
+        "width": 186.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 0,
+        "y": 518,
+        "right": 320,
+        "bottom": 529,
+        "width": 320,
+        "height": 11
+      }
+    },
+    {
+      "surface": "390px-home",
+      "width": 390,
+      "height": 960,
+      "scrollWidth": 390,
+      "home": {
+        "x": 0,
+        "y": 50,
+        "right": 390,
+        "bottom": 960,
+        "width": 390,
+        "height": 910
+      },
+      "terminal": null,
+      "input": null,
+      "handle": null
+    },
+    {
+      "surface": "390px-maximum-terminal",
+      "width": 390,
+      "height": 960,
+      "scrollWidth": 390,
+      "home": null,
+      "terminal": {
+        "x": 0,
+        "y": 487,
+        "right": 390,
+        "bottom": 936,
+        "width": 390,
+        "height": 449
+      },
+      "input": {
+        "x": 60.640625,
+        "y": 879,
+        "right": 316.984375,
+        "bottom": 911,
+        "width": 256.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 0,
+        "y": 483,
+        "right": 390,
+        "bottom": 494,
+        "width": 390,
+        "height": 11
+      }
+    },
+    {
+      "surface": "390px-large-terminal-text",
+      "width": 390,
+      "height": 960,
+      "scrollWidth": 390,
+      "home": null,
+      "terminal": {
+        "x": 0,
+        "y": 487,
+        "right": 390,
+        "bottom": 936,
+        "width": 390,
+        "height": 449
+      },
+      "input": {
+        "x": 60.640625,
+        "y": 865,
+        "right": 316.984375,
+        "bottom": 897,
+        "width": 256.34375,
+        "height": 32
+      },
+      "handle": {
+        "x": 0,
+        "y": 483,
+        "right": 390,
+        "bottom": 494,
+        "width": 390,
+        "height": 11
+      }
+    }
+  ],
+  "issues": [],
+  "errors": [],
+  "providerRequests": [],
+  "status": "passed"
+}

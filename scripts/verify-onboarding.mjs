@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { enterDemoWorkspace, openGuideFromHome } from './workspace-fixture.mjs';
 
 // This suite drives browser presentation and mocked native IPC. It never
 // authorizes GitHub, accesses a credential store, or changes a real repository.
@@ -50,7 +51,7 @@ async function expectText(page, text) {
   await page.getByText(text, { exact: true }).waitFor({ timeout: 15_000 });
 }
 async function waitForEditor(page) {
-  await page.locator('.monaco-diff-editor').waitFor({ state: 'visible', timeout: 45_000 });
+  await enterDemoWorkspace(page);
 }
 async function openAccount(page) {
   await page.getByRole('button', { name: 'GitHub account', exact: true }).click();
@@ -191,6 +192,7 @@ try {
   const first = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   monitor(first, 'first-launch-browser');
   await first.goto(baseURL);
+  await openGuideFromHome(first);
   await first.getByRole('dialog', { name: 'A good place to start.', exact: true }).waitFor();
   assert.equal(
     await first
@@ -209,7 +211,7 @@ try {
     await first.getByRole('button', { name: 'Step 1: Welcome' }).getAttribute('aria-current'),
     'step',
   );
-  check('A fresh profile opens the first-use guide with clear progress and a skip action');
+  check('Home opens the first-use guide explicitly with clear progress and a skip action');
 
   await first.getByRole('button', { name: 'Get started', exact: true }).click();
   await expectText(
@@ -264,6 +266,7 @@ try {
   await expectText(first, 'Working locally for now');
   await first.getByRole('button', { name: 'Explore the workspace', exact: true }).click();
   await first.locator('.onboarding-dialog').waitFor({ state: 'hidden' });
+  await first.locator('.monaco-diff-editor').waitFor({ state: 'visible', timeout: 45_000 });
   assert.equal(await first.evaluate(() => localStorage.getItem('branchline.guide.v1')), 'seen');
   await first.reload();
   await waitForEditor(first);
@@ -304,7 +307,7 @@ try {
     });
     monitor(narrow, `guide-${width}px-reduced-motion`);
     await narrow.goto(baseURL);
-    await narrow.locator('.onboarding-dialog').waitFor();
+    await openGuideFromHome(narrow);
     assert.equal(
       await narrow.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches),
       true,

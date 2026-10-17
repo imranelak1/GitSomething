@@ -1,10 +1,10 @@
 {
-  "baseURL": "http://127.0.0.1:1430",
-  "testedAt": "2026-10-16T23:56:34.921Z",
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T00:57:23.442Z",
   "browser": "155.0.4283.62",
   "scope": "Browser guide interactions and mocked native GitHub OAuth IPC only",
   "checks": [
-    "A fresh profile opens the first-use guide with clear progress and a skip action",
+    "Home opens the first-use guide explicitly with clear progress and a skip action",
     "Browser sign-in is explicitly a desktop feature and requests no token",
     "Practice teaches file selection, a named local commit, and an explicitly simulated push",
     "Completing the guide keeps local work available and remembers the choice after reload",
@@ -42,7 +42,7 @@
   ],
   "pollingClock": "Real browser time; mode-tagged 5s/10s frontend polling checks",
   "frontendPolling": {
-    "firstDelayMs": 5018,
+    "firstDelayMs": 5023,
     "pendingDelayMs": 5002,
     "slowDownDelayMs": 10004,
     "polls": [
@@ -51,7 +51,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792195047453,
+        "calledAt": 1792198696658,
         "pollMode": "pending"
       },
       {
@@ -59,7 +59,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792195052455,
+        "calledAt": 1792198701660,
         "pollMode": "slow_down"
       },
       {
@@ -67,7 +67,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792195062459,
+        "calledAt": 1792198711664,
         "pollMode": "connected"
       }
     ]

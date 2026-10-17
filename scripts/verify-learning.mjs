@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { enterDemoWorkspace } from './workspace-fixture.mjs';
 
 // Run after a production build against a fixed preview; no provider credentials
 // or API fixtures are needed. All mutation checks operate on the practice repo.
@@ -49,7 +50,7 @@ async function createPage(surface, viewport, reducedMotion = 'no-preference') {
   const page = await context.newPage();
   monitor(page, surface);
   await page.goto(baseURL);
-  await page.locator('.monaco-diff-editor').waitFor({ state: 'visible', timeout: 45_000 });
+  await enterDemoWorkspace(page);
   await expect(
     page.getByRole('textbox', { name: 'Guided Git command', exact: true }),
   ).toBeVisible();

@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T00:32:08.469Z",
+  "testedAt": "2026-10-17T01:00:20.439Z",
   "browser": "155.0.4283.62",
   "checks": [
     "Monaco mounts locally; initial commit requires a message and staged files",
