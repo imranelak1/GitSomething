@@ -1,6 +1,10 @@
 # Application architecture
 
-Branchline separates interface intent, native repository work, provider APIs, and explanatory output. React owns presentation and user intent. Rust owns filesystem access, Git state, validation, mutations, and provider credentials. The Glass-Box console describes what the engine did using equivalent CLI syntax.
+GitSomething separates interface intent, native repository work, provider APIs, and explanatory output. React owns presentation and user intent. Rust owns filesystem access, Git state, validation, mutations, and provider credentials. The Glass-Box console describes what the engine did using equivalent CLI syntax.
+
+## Product name and compatibility
+
+The product is named GitSomething. The existing native identifier `dev.branchline.desktop`, `branchline.*` preference keys, OS credential-store service `com.branchline.desktop.github`, and `BRANCHLINE_GITHUB_CLIENT_ID` configuration keep their original names so installed preferences and GitHub sign-in remain available after the rename. These are compatibility identifiers rather than names shown in the interface. The `BRANCHLINE_TEST_URL` test-server override is also unchanged.
 
 ## Data and control flow
 

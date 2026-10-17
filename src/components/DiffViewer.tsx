@@ -140,14 +140,14 @@ export default function DiffViewer({
             original={diff.original}
             modified={diff.modified}
             language={diff.language}
-            theme="branchline"
+            theme="gitsomething"
             loading={
               <div className="editor-loading">
                 <LoaderCircle size={18} className="spin" /> Preparing your diff…
               </div>
             }
             beforeMount={(editor) =>
-              editor.editor.defineTheme('branchline', {
+              editor.editor.defineTheme('gitsomething', {
                 base: 'vs-dark',
                 inherit: true,
                 rules: [

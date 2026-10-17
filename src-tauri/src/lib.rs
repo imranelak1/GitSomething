@@ -535,7 +535,7 @@ async fn provider_error(response: reqwest::Response, provider: &str) -> String {
 
 async fn validate_provider_access(request: &PublishRequest, token: &str) -> EngineResult<()> {
     let client = reqwest::Client::builder()
-        .user_agent("Branchline/0.1")
+        .user_agent("GitSomething/0.1")
         .redirect(reqwest::redirect::Policy::none())
         .timeout(Duration::from_secs(30))
         .build()
@@ -596,7 +596,7 @@ async fn create_remote(
     token: &str,
 ) -> EngineResult<(String, String, String)> {
     let client = reqwest::Client::builder()
-        .user_agent("Branchline/0.1")
+        .user_agent("GitSomething/0.1")
         .redirect(reqwest::redirect::Policy::none())
         .timeout(Duration::from_secs(45))
         .build()
@@ -983,5 +983,5 @@ pub fn run() {
             github_auth_disconnect
         ])
         .run(tauri::generate_context!())
-        .expect("could not run Branchline desktop application");
+        .expect("could not run GitSomething desktop application");
 }

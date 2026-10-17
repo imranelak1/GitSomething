@@ -1,13 +1,13 @@
 [package]
-name = "branchline"
+name = "gitsomething"
 version = "0.1.0"
 description = "A thoughtful desktop Git client"
-authors = ["Branchline contributors"]
+authors = ["GitSomething contributors"]
 edition = "2021"
 rust-version = "1.88"
 
 [lib]
-name = "branchline_lib"
+name = "gitsomething_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

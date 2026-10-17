@@ -1,6 +1,6 @@
 # Motion and animation sources
 
-Branchline uses [Motion for React](https://motion.dev/docs/react), imported from `motion/react`, for shared layout transitions, spring interactions, gesture feedback, SVG drawing, and presence. The package is open source under its [MIT license](https://github.com/motiondivision/motion/blob/main/LICENSE.md). No Motion+ source or subscription-only component is included.
+GitSomething uses [Motion for React](https://motion.dev/docs/react), imported from `motion/react`, for shared layout transitions, spring interactions, gesture feedback, SVG drawing, and presence. The package is open source under its [MIT license](https://github.com/motiondivision/motion/blob/main/LICENSE.md). No Motion+ source or subscription-only component is included.
 
 The implementation follows Motion's documented [spring values](https://motion.dev/docs/react-use-spring), [SVG path drawing](https://motion.dev/docs/react-svg-animation), and [reduced-motion guidance](https://motion.dev/docs/react-accessibility). Changes in application state drive motion; animation does not mutate Git state or imply that an unsupported Git operation has run.
 

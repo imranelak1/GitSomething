@@ -75,7 +75,7 @@ export function GitHubConnectCard({ compact = false }: { compact?: boolean }) {
                 {auth.connected
                   ? `Signed in as @${auth.account?.login ?? 'your GitHub account'}`
                   : waiting
-                    ? 'Copy this code, then approve Branchline in your browser.'
+                    ? 'Copy this code, then approve GitSomething in your browser.'
                     : 'Sign in through your browser. No access token to find or paste.'}
               </p>
             </div>
@@ -100,7 +100,7 @@ export function GitHubConnectCard({ compact = false }: { compact?: boolean }) {
                 <strong>{auth.account?.name || auth.account?.login || 'GitHub account'}</strong>
                 <span>Ready to create repositories and push your work.</span>
               </div>
-              <AnimatedTooltip content="Remove Branchline’s saved GitHub credentials from this computer. To revoke access at GitHub, visit your GitHub application settings.">
+              <AnimatedTooltip content="Remove GitSomething’s saved GitHub credentials from this computer. To revoke access at GitHub, visit your GitHub application settings.">
                 <button
                   type="button"
                   className="github-auth-text-button"
@@ -200,7 +200,7 @@ export function GitHubConnectCard({ compact = false }: { compact?: boolean }) {
               </summary>
               <div>
                 <p>
-                  Branchline requests access to your public and private repositories, including
+                  GitSomething requests access to your public and private repositories, including
                   creating repositories and pushing code (<code>repo</code>), and updating workflow
                   files (<code>workflow</code>).
                 </p>

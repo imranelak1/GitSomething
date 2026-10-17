@@ -368,7 +368,7 @@ try {
   await native.getByText('What am I allowing?', { exact: true }).click();
   await native
     .getByText(
-      'Branchline requests access to your public and private repositories, including creating repositories and pushing code',
+      'GitSomething requests access to your public and private repositories, including creating repositories and pushing code',
       { exact: false },
     )
     .waitFor();

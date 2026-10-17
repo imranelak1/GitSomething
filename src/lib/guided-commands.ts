@@ -193,7 +193,7 @@ function help(): string {
     '  git pull [--ff-only]             Pull the configured upstream safely',
     '  git push [origin]               Upload local commits',
     '',
-    'Use quotes for spaces. Reads use the current Branchline snapshot.',
+    'Use quotes for spaces. Reads use the current GitSomething snapshot.',
     'Pull uses the current branch’s configured upstream, always with --ff-only.',
     'Status shows at most 500 rows; history shows 30 loaded commits.',
     'Diff output includes at most 10 files and 300 lines per file.',

@@ -2,7 +2,7 @@ import { useEffect, useRef, type CSSProperties, type PointerEvent, type ReactNod
 import { motion, useReducedMotion, useSpring } from 'motion/react';
 
 /**
- * Original Branchline interaction, inspired by AnimMaster's mouse/physics demos.
+ * Original GitSomething interaction, inspired by AnimMaster's mouse/physics demos.
  * Keep the hit target still; only the inner visual follows a precise pointer.
  */
 export function Magnetic({

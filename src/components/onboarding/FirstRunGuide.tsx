@@ -130,8 +130,8 @@ export function FirstRunGuide({
                 <div className="onboarding-main">
                   <header className="onboarding-header">
                     <div className="onboarding-brand">
-                      <img src="/branchline.svg" alt="" />
-                      <span>Welcome to branchline.</span>
+                      <img src="/gitsomething.svg" alt="" />
+                      <span>Welcome to GitSomething.</span>
                     </div>
                     <Dialog.Close className="icon-button" aria-label="Close getting started guide">
                       <X size={18} />
@@ -191,7 +191,7 @@ export function FirstRunGuide({
                             <div>
                               <strong>Your next step will always be clear.</strong>
                               <p>
-                                Choose your files, save a checkpoint, then share it. Branchline
+                                Choose your files, save a checkpoint, then share it. GitSomething
                                 shows you what happens along the way.
                               </p>
                             </div>

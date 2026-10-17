@@ -192,7 +192,7 @@ fn require_client_id() -> EngineResult<String> {
 
 fn client() -> EngineResult<reqwest::Client> {
     reqwest::Client::builder()
-        .user_agent("Branchline/0.1")
+        .user_agent("GitSomething/0.1")
         .redirect(reqwest::redirect::Policy::none())
         .timeout(Duration::from_secs(30))
         .build()
@@ -221,7 +221,7 @@ fn validate_scopes(scopes: &[String]) -> EngineResult<()> {
         || !(has("read:user") || has("user"))
         || !(has("user:email") || has("user"))
     {
-        return Err("GitHub did not grant the repository, workflow, profile, and email permissions needed by Branchline. Connect again and approve the requested permissions.".into());
+        return Err("GitHub did not grant the repository, workflow, profile, and email permissions needed by GitSomething. Connect again and approve the requested permissions.".into());
     }
     Ok(())
 }
@@ -233,7 +233,7 @@ async fn store(credential: Credential) -> EngineResult<()> {
         let secret = Zeroizing::new(serde_json::to_string(&credential)
             .map_err(|_| "Could not prepare the GitHub credential for secure storage.".to_string())?);
         entry.set_password(&secret)
-            .map_err(|_| "GitHub authorized access, but the operating system could not save it securely. Unlock your credential store and connect again; Branchline has not saved a connection.".to_string())
+            .map_err(|_| "GitHub authorized access, but the operating system could not save it securely. Unlock your credential store and connect again; GitSomething has not saved a connection.".to_string())
     }).await.map_err(|_| "The secure credential worker stopped.".to_string())?
 }
 
@@ -248,7 +248,7 @@ async fn load() -> EngineResult<Option<Credential>> {
                     .map_err(|_| "The saved GitHub connection could not be read. Disconnect and connect again.".to_string())
             }
             Err(keyring::Error::NoEntry) => Ok(None),
-            Err(_) => Err("Your secure credential store is locked or unavailable. Unlock it and restart Branchline.".into()),
+            Err(_) => Err("Your secure credential store is locked or unavailable. Unlock it and restart GitSomething.".into()),
         }
     }).await.map_err(|_| "The secure credential worker stopped.".to_string())?
 }

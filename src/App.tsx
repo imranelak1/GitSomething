@@ -466,9 +466,9 @@ export default function App() {
           }}
           aria-label="Go to home"
         >
-          <img src="/branchline.svg" alt="" />
+          <img src="/gitsomething.svg" alt="" />
           <span>
-            branchline<span className="brand-period">.</span>
+            GitSomething<span className="brand-period">.</span>
           </span>
         </a>
         <div className="titlebar-center">
@@ -851,7 +851,7 @@ export default function App() {
                     variant="outline"
                     onClick={() =>
                       setNotice(
-                        'Resolve conflicted paths and finish the merge or rebase in your existing Git tool. Branchline will refresh automatically.',
+                        'Resolve conflicted paths and finish the merge or rebase in your existing Git tool. GitSomething will refresh automatically.',
                       )
                     }
                   >
@@ -1244,7 +1244,7 @@ export default function App() {
             <Sparkles size={27} className="mint" />
             <Dialog.Title>A calmer way to Git.</Dialog.Title>
             <Dialog.Description>
-              Branchline keeps your next step clear, and the details within reach.
+              GitSomething keeps your next step clear, and the details within reach.
             </Dialog.Description>
             <Button
               className="full-width"

@@ -1,6 +1,6 @@
-﻿# Branchline design system
+﻿# GitSomething design system
 
-Use GitHub's familiar dark palette with a small Branchline touch. The user's latest direction replaces the rejected multicolor and violet palettes: make the client educational and functional, with restrained character in the existing typography, branch illustration, and direct interactions.
+Use GitHub's familiar dark palette with a small GitSomething touch. The user's latest direction replaces the rejected multicolor and violet palettes: make the client educational and functional, with restrained character in the existing typography, branch illustration, and direct interactions.
 
 ## Shared colors
 
@@ -41,7 +41,7 @@ Home is the initial application screen. Keep project actions and real recents pr
 
 The terminal combines command-and-output grouping with GitHub's dark surfaces. Keep the glass effect in the header and framing; put transcript text over a stable, sufficiently opaque reading surface. Blue identifies the prompt and Git interactions, while purple distinguishes teaching content. Give commands more space than interface activity so results remain connected to the operation that produced them.
 
-| Reference                                                                             | Relevant principle                                                                 | Branchline direction                                                                         |
+| Reference                                                                             | Relevant principle                                                                 | GitSomething direction                                                                       |
 | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | [Warp blocks](https://docs.warp.dev/terminal/blocks/)                                 | Groups commands with their output.                                                 | Use a subtle guide and spacing to connect each command to its results.                       |
 | [Ghostty configuration](https://ghostty.org/docs/config/reference#minimum-contrast)   | Exposes minimum contrast and font preferences.                                     | Prioritize clear foregrounds and a consistent reading scale.                                 |
@@ -51,7 +51,7 @@ Use Geist Mono at 13px by default for commands, output, and input; use 12px for 
 
 ## Character and motion
 
-Space Grotesk headings, Manrope controls, Geist Mono code, and the existing layout remain. Preserve the small Branchline touches: state-driven branch drawing, file selection, animated folder illustration, and saved-commit feedback. The reading surface stays still while the user reviews code.
+Space Grotesk headings, Manrope controls, Geist Mono code, and the existing layout remain. Preserve the small GitSomething touches: state-driven branch drawing, file selection, animated folder illustration, and saved-commit feedback. The reading surface stays still while the user reviews code.
 
 Respect reduced motion and visible keyboard focus. Filled-control hover states use darker emphasis colors so white labels retain contrast. Body text and placeholders meet AA contrast on their actual composed surfaces; control boundaries and focus cues meet non-text contrast requirements.
 

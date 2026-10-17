@@ -31,7 +31,7 @@ export const LEARNING_LESSONS: LearningLesson[] = [
     explanation:
       'Fetch checks for remote commits. Pull brings compatible commits into your branch. Push uploads your local commits.',
     command: 'git fetch origin',
-    tip: 'Branchline pulls with --ff-only. If histories diverge, it stops instead of silently merging or rewriting them.',
+    tip: 'GitSomething pulls with --ff-only. If histories diverge, it stops instead of silently merging or rewriting them.',
   },
   {
     id: 'branch',
@@ -53,7 +53,7 @@ export const LEARNING_LESSONS: LearningLesson[] = [
     id: 'safety',
     title: 'Know before you run',
     explanation:
-      'This terminal accepts a small set of Git commands and runs them through Branchline’s Git engine. It never starts a shell.',
+      'This terminal accepts a small set of Git commands and runs them through GitSomething’s Git engine. It never starts a shell.',
     command: 'help',
     tip: 'Reset, force push, command chains, and scripts are unavailable here. Use help to see the supported commands.',
   },

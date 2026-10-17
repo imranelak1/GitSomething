@@ -2,7 +2,7 @@
 
 Open the Glass Box with the terminal button or Ctrl/Cmd+J. It connects three views of the same workflow: what you clicked, the equivalent Git operation, and a short explanation. Purple marks lessons and practice; blue remains the workspace action color and green marks successful Git state.
 
-Branchline starts on Home. Open a repository, select a recent project, or choose Try demo to enter a workspace. Return Home with the logo or Home button; the active workspace and its commit draft stay available through Continue workspace. Recent shortcuts contain only local path, repository name, branch, and last-opened time. Removing a shortcut leaves files on disk untouched.
+GitSomething starts on Home. Open a repository, select a recent project, or choose Try demo to enter a workspace. Return Home with the logo or Home button; the active workspace and its commit draft stay available through Continue workspace. Recent shortcuts contain only local path, repository name, branch, and last-opened time. Removing a shortcut leaves files on disk untouched.
 
 ## Adjust the terminal
 
@@ -22,7 +22,7 @@ This is a supported subset of Git syntax. It dispatches to the same application 
 | ----------------------------------------- | ------------------------------------------------------------------- |
 | `help`                                    | Lists supported syntax                                              |
 | `git status [--short]`                    | Summarizes working and staged changes                               |
-| `git log [--oneline]`                     | Lists the recent commits loaded by Branchline                       |
+| `git log [--oneline]`                     | Lists the recent commits loaded by GitSomething                     |
 | `git branch`                              | Lists loaded local branches; a star marks the current branch        |
 | `git diff [--staged] [-- "path/to/file"]` | Reviews working or staged content                                   |
 | `git add -- "path/to/file"`               | Stages one exact changed file                                       |

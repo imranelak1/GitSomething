@@ -5,7 +5,7 @@ import type { MotionProps } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { AnimatedButton } from '../registry/vengeance/AnimatedButton';
 
-// Source-owned shadcn/ui Button composition (MIT); tokens match Branchline.
+// Source-owned shadcn/ui Button composition (MIT); tokens match GitSomething.
 const buttonVariants = cva('button', {
   variants: {
     variant: {

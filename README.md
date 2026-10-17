@@ -1,4 +1,4 @@
-# Branchline
+# GitSomething
 
 A desktop Git client built around a clear working directory, readable diffs, and a transparent explanation of every action. Tauri 2 and Rust run Git through `git2`/libgit2; React, TypeScript, Monaco, and Motion for React provide the interface.
 
@@ -32,7 +32,7 @@ npm run tauri build
 The first launch opens **Home**. Choose **Show me around** for the interactive guide, open a project, or select **Try demo** to practice safely. The guide explains each step in plain language and can also be opened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account. Use **Home** to leave the workspace and **Continue workspace** to return to its current draft.
 
 1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
-2. **Connect GitHub.** Approve access in your browser using the one-time code shown in Branchline. There is no GitHub token field. The app owner configures the public OAuth Client ID once; see [GitHub sign-in setup](docs/GITHUB_AUTH.md).
+2. **Connect GitHub.** Approve access in your browser using the one-time code shown in GitSomething. There is no GitHub token field. The app owner configures the public OAuth Client ID once; see [GitHub sign-in setup](docs/GITHUB_AUTH.md).
 3. **Review before sharing.** Choose a repository name and Public or Private visibility. Publishing creates the initial local commit, creates the hosted repository, and pushes the first version. GitLab keeps its operation-specific token flow.
 4. **Save your next change.** Review a changed file, pick the files for this save (**stage**), and describe the change before creating a **commit**. A commit saves a version on your computer; **Slide to push** uploads saved versions to GitHub. Drag the handle to the end and release, or focus it, press End, then Enter. Publishing a new folder uses the same deliberate confirmation before creating the cloud repository and pushing.
 
@@ -43,7 +43,7 @@ Publishing changes the selected local folder and creates a remote repository. Ac
 ## Repository layout
 
 ```text
-branchline/
+gitsomething/
 ├── src/
 │   ├── main.tsx                       # React entry point
 │   ├── App.tsx                        # Desktop workspace and view composition

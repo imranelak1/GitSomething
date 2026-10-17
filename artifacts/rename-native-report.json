@@ -1,0 +1,9 @@
+{
+  "testedAt": "2026-10-17T01:16:26.809Z",
+  "scope": "Rebuilt gitsomething.exe in actual Tauri WebView; no repository or credential mutation.",
+  "checks": [
+    "Rebuilt native app opens on GitSomething Home with the renamed title and brand"
+  ],
+  "errors": [],
+  "status": "passed"
+}

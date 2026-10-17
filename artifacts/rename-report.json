@@ -1,0 +1,11 @@
+{
+  "testedAt": "2026-10-17T01:15:43.016Z",
+  "checks": [
+    "1440px Home, document title, icon, guide and longer wordmark use GitSomething without clipping or overlapping controls",
+    "390px Home, document title, icon, guide and longer wordmark use GitSomething without clipping or overlapping controls",
+    "320px Home, document title, icon, guide and longer wordmark use GitSomething without clipping or overlapping controls"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "status": "passed"
+}

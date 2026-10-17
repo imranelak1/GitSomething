@@ -2,6 +2,12 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## GitSomething rename: October 17, 2026
+
+Renamed the app, welcome guide, educational and authentication copy, document title, icon asset, npm package, Rust crate/binary, Tauri product/window metadata, and project documentation to **GitSomething**. The private project repository is now [imranelak1/GitSomething](https://github.com/imranelak1/GitSomething); the local remote points to the new URL. Compatibility identifiers remain stable so saved preferences and GitHub credentials stay available.
+
+TypeScript, all **67 unit tests**, the frontend production build, `cargo check --locked`, and `cargo build --locked` passed. [Targeted browser verification](../artifacts/rename-report.json) confirmed the longer name, icon, page title, Home and guide at 1440px, 390px and 320px, with zero browser errors or provider requests. The [rebuilt native application](../artifacts/rename-native-report.json) opened on Home with the GitSomething wordmark and window title, without WebView errors. [Screenshots](../artifacts/rename/) show the current branding. Previous milestone artifacts remain historical evidence.
+
 ## Push confirmation sliders: October 17, 2026
 
 Both visual push actions now require a deliberate slider confirmation: the workspace's **Slide to push** and publishing's final **Slide to create & push**. The control uses GitHub green, a directly dragged handle, a short return spring, reduced-motion behavior, explicit keyboard confirmation, and an educational Vengeance tooltip. Enter in a publishing text field cannot bypass confirmation. Context changes reset an armed slider without exposing credentials.
@@ -50,7 +56,7 @@ The readability refinement uses 13px Geist Mono for commands, output, and input,
 | Guided terminal browser checks | [17 checks passed](../artifacts/learning-browser-report.json): typed reads, stage/unstage/diff/commit, rejection without mutation, action filters, command history, clear, scroll following, lessons, portal buttons, mobile layouts, and reduced motion.    |
 | Actual native guided terminal  | [Eight checks passed](../artifacts/learning-native-report.json), with zero WebView errors: real status/history/branch reads, filesystem watching, actual index stage/unstage, Rust diff content, and hard-reset rejection preserving HEAD and file contents. |
 
-Native verification substitutes only the folder-picker IPC response with this workspace path. Tauri's native invoke and every other request remain real. It creates one unique temporary file, verifies its exact content after stage/unstage, cleans up only that file, and leaves Branchline open. It does not test native picker interaction, commits, remote Git operations, OAuth consent, or provider publication. The Rust implementation is unchanged in this milestone; the existing Rust engine tests remain prior evidence.
+Native verification substitutes only the folder-picker IPC response with this workspace path. Tauri's native invoke and every other request remain real. It creates one unique temporary file, verifies its exact content after stage/unstage, cleans up only that file, and leaves GitSomething open. It does not test native picker interaction, commits, remote Git operations, OAuth consent, or provider publication. The Rust implementation is unchanged in this milestone; the existing Rust engine tests remain prior evidence.
 
 The final layout makes the mobile workspace independently scrollable so files, Monaco, and the commit composer stay reachable beside an open terminal. Lesson handoffs collapse the top tip, returning space to the editor. Notifications sit above the workspace instead of covering command input. Screenshots are in [the learning proof directory](../artifacts/learning/).
 

@@ -65,7 +65,7 @@ try {
     .contexts()
     .flatMap((context) => context.pages())
     .find((target) => target.url().includes(':1420'));
-  assert.ok(page, 'The native Branchline WebView at port 1420 must be open.');
+  assert.ok(page, 'The native GitSomething WebView at port 1420 must be open.');
   report.browser = await browser.version();
   page.on('pageerror', (error) => report.errors.push(error.message));
   page.on('request', (request) => {
@@ -297,7 +297,7 @@ try {
   );
   console.log(JSON.stringify(report, null, 2));
   // Detach the Playwright transport only. Never send Browser.close, close the
-  // user's native window, terminate Branchline, or close its browser context.
+  // user's native window, terminate GitSomething, or close its browser context.
   // This repository's in-process Playwright exposes the CDP transport through
   // toImpl; closing that socket avoids leaving its Node handle alive.
   browser?._connection.toImpl?.(browser)?._connection.close();

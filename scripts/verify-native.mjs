@@ -1,4 +1,4 @@
-// Launch a debug Branchline WebView with WebView2 CDP on loopback port 9223.
+// Launch a debug GitSomething WebView with WebView2 CDP on loopback port 9223.
 // This check uses actual Rust IPC and a temporary file in the current repo.
 // Native folder selection and provider publishing require manual verification.
 import { chromium } from '@playwright/test';
@@ -13,7 +13,7 @@ const page = browser
   .contexts()[0]
   .pages()
   .find((target) => target.url().includes(':1420'));
-assert.ok(page, 'The native Branchline WebView must be open.');
+assert.ok(page, 'The native GitSomething WebView must be open.');
 const filePath = `.branchline-smoke-${crypto.randomUUID()}.txt`;
 let created = false;
 let canonicalPath;

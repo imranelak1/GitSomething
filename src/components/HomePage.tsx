@@ -75,7 +75,7 @@ export function HomePage({
   const reducedMotion = useReducedMotion();
 
   return (
-    <main className="home-page" aria-label="Branchline home">
+    <main className="home-page" aria-label="GitSomething home">
       <div className="home-page-inner">
         <div className="home-page-topline">
           <span className="home-location">
@@ -232,7 +232,7 @@ export function HomePage({
           <aside className="home-learning" aria-labelledby="home-learning-title">
             <div className="home-learning-heading">
               <BookOpen size={19} aria-hidden="true" />
-              <span>Learn with Branchline</span>
+              <span>Learn with GitSomething</span>
             </div>
             <h2 id="home-learning-title">
               A little Git.

@@ -59,7 +59,7 @@ type ResizeGesture = {
 const milliseconds = (timestamp: number) => (timestamp < 1e12 ? timestamp * 1000 : timestamp);
 const commandWords = (source: string) => source.match(/"[^"\n]*"|'[^'\n]*'|\S+/g) || [];
 const tokenMeanings: Record<string, string> = {
-  git: 'Git records versions of your project. Branchline performs these equivalent operations through libgit2.',
+  git: 'Git records versions of your project. GitSomething performs these equivalent operations through libgit2.',
   status: 'Show changed files and which ones are selected for the next commit.',
   log: 'Read the commits already saved in this repository.',
   branch: 'List the named branches in this repository.',

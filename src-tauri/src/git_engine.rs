@@ -697,7 +697,7 @@ pub fn push_repository(
         &format!("refs/remotes/origin/{branch}"),
         target,
         true,
-        "Branchline: update published branch",
+        "GitSomething: update published branch",
     )
     .map_err(|e| e.to_string())?;
     let result = repo
@@ -775,7 +775,7 @@ pub fn pull_repository_with_auth(
         .find_reference(head.name().map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     local
-        .set_target(annotated.id(), "Branchline: fast-forward pull")
+        .set_target(annotated.id(), "GitSomething: fast-forward pull")
         .map_err(|e| e.to_string())?;
     Ok(())
 }

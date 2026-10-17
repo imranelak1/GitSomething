@@ -22,7 +22,7 @@ const steps = [
     icon: FolderPen,
     title: 'Your files are where the work begins.',
     explanation:
-      'Edit files in your usual editor. Branchline shows what changed since your last commit so you can review each change before saving it.',
+      'Edit files in your usual editor. GitSomething shows what changed since your last commit so you can review each change before saving it.',
     why: 'Review the diff to catch accidental edits before they enter your history.',
     command: 'git status',
     commandLabel: 'See what changed',
