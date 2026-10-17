@@ -1,0 +1,38 @@
+{
+  "testedAt": "2026-10-17T15:33:07.722Z",
+  "version": "0.1.0-alpha.1",
+  "sourceRevision": "21a4a7f3afafe5717ede0f338a63627d4f9ab659",
+  "releaseUrl": "https://github.com/imranelak1/GitSomething/releases/tag/untagged-a985f35113cb9f9810ca",
+  "draft": true,
+  "prerelease": true,
+  "uploadedAssets": 15,
+  "remoteSha256Verified": 15,
+  "installer": {
+    "name": "GitSomething_0.1.0-alpha.1_x64-setup.exe",
+    "bytes": 6766657,
+    "codeSigning": "NotSigned"
+  },
+  "application": {
+    "name": "GitSomething_0.1.0-alpha.1_windows-x64.exe",
+    "bytes": 20114944,
+    "architecture": "x64",
+    "sharedOAuthClientIdEmbedded": true,
+    "codeSigning": "NotSigned"
+  },
+  "nativeSmoke": "artifacts/releases-native-report.json",
+  "brandMotion": "artifacts/brand-motion-report.json",
+  "githubLive": "artifacts/release/live-github.json",
+  "checks": {
+    "frontendUnitTests": 73,
+    "repositoryBrowserGroups": 17,
+    "brandMotionGroups": 11,
+    "packagedNativeGroups": 5,
+    "actualConnectedRepositoryControls": true
+  },
+  "boundaries": [
+    "Application executable launched and tested; installer/uninstaller not exercised.",
+    "Actual GitHub browser approval and credential restoration verified; final candidate loaded 78 rows on its initial 100-item page and passed local repository controls. Counts-only evidence excludes private names, URLs and credentials.",
+    "No live Git repository was created or pushed as a test.",
+    "Release remains an unpublished unsigned Windows x64 alpha draft."
+  ]
+}

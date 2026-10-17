@@ -1,0 +1,85 @@
+{
+  "assets": [
+    {
+      "digest": "sha256:14260e85e4ba8e4ffe49bd0173c017472b15199498cb2d7620421f395520c8b3",
+      "name": "GitSomething-app-icon-1024.png",
+      "size": 50386
+    },
+    {
+      "digest": "sha256:0087b030e63e3de7bb3c18e82735217dba11881280643c28add425aec9a007ac",
+      "name": "GitSomething-app-icon.svg",
+      "size": 1431
+    },
+    {
+      "digest": "sha256:ec7add78216e84a35b9c48ae4257865d679f452276abb672e41d6f3e33f2b217",
+      "name": "GitSomething-github-oauth-logo-256.png",
+      "size": 9187
+    },
+    {
+      "digest": "sha256:0b80c13a3fff5920bf0a1e211e006a5901c201a96c58b68a52e32e091c84a811",
+      "name": "GitSomething-github-oauth-logo-512.png",
+      "size": 23674
+    },
+    {
+      "digest": "sha256:68e6f645ceb96f8285bb171dc0839a100aa644ee76ccf721956bb8741555207f",
+      "name": "GitSomething-logo-preview.html",
+      "size": 15136
+    },
+    {
+      "digest": "sha256:b10736879cc25be68d7ed9b2ae63cfdc02516d63752b2c8b7870917850bbf055",
+      "name": "GitSomething-mark-animated.svg",
+      "size": 2473
+    },
+    {
+      "digest": "sha256:38577a3a8ca0f68d609de388c86ce930ef4c9412e38f16c34eb67b93bc09cda5",
+      "name": "GitSomething-release-banner.png",
+      "size": 32029
+    },
+    {
+      "digest": "sha256:2485c2409b0a79e4bcd7f7e2ac3209dcc1debf2fd13dace99d9e4e94927159a8",
+      "name": "GitSomething-release-banner.svg",
+      "size": 67848
+    },
+    {
+      "digest": "sha256:2e9c7f1a8c01893599790c64b95b4e0a01ed62c86de2377741a3fafaa4116b16",
+      "name": "GitSomething-wordmark-dark.svg",
+      "size": 10264
+    },
+    {
+      "digest": "sha256:2338ce521fdc4028bfbd1d2a4a07f4cfcbe6dfa95dea7f1e826f93654d5b4ef4",
+      "name": "GitSomething-wordmark-light.svg",
+      "size": 10258
+    },
+    {
+      "digest": "sha256:e799935c4b7e13a9422f7a808021064362eef3cbc4a8cec2dd58d25420187366",
+      "name": "GitSomething_0.1.0-alpha.1_windows-x64.exe",
+      "size": 20114944
+    },
+    {
+      "digest": "sha256:404c116342b5a487e53edfa36fdf93623df0c6c25e24f2a4f712a21d16a33bc9",
+      "name": "GitSomething_0.1.0-alpha.1_x64-setup.exe",
+      "size": 6766657
+    },
+    {
+      "digest": "sha256:3b8e3b5d9a113bef8ff97648cf176bdc4ba66644bcab95de74d6df023a01d7f1",
+      "name": "manifest.json",
+      "size": 2937
+    },
+    {
+      "digest": "sha256:ca0447633504f56be42247cb56cddbb6ce169800c146cb8ab738ad3e6609dab2",
+      "name": "RELEASE_NOTES.md",
+      "size": 4248
+    },
+    {
+      "digest": "sha256:276467f00c06a755f486b33dff77472ac7eaee6eea89585388fae24826e61050",
+      "name": "SHA256SUMS.txt",
+      "size": 1363
+    }
+  ],
+  "draft": true,
+  "html_url": "https://github.com/imranelak1/GitSomething/releases/tag/untagged-a985f35113cb9f9810ca",
+  "id": 415874908,
+  "prerelease": true,
+  "tag_name": "v0.1.0-alpha.1",
+  "target_commitish": "21a4a7f3afafe5717ede0f338a63627d4f9ab659"
+}
