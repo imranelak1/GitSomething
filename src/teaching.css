@@ -1,0 +1,65 @@
+/* Purple consistently marks explanation and practice; blue remains an action. */
+.onboarding-progress > button.active,
+.onboarding-progress > button.visited > span,
+.onboarding-path > div,
+.onboarding-path > div:first-child,
+.onboarding-path > div:last-child,
+.practice-label,
+.practice-tabs > button[aria-selected='true'],
+.help-dialog > .mint {
+  color: var(--ui-learn);
+}
+
+.onboarding-progress > button.active > span,
+.onboarding-progress > button.visited > span,
+.practice-check.checked {
+  background: var(--ui-learn-soft);
+  border-color: var(--ui-learn);
+  color: var(--ui-learn);
+}
+
+.onboarding-path > div > svg,
+.onboarding-path > div:first-child > svg,
+.onboarding-path > div:last-child > svg {
+  background: var(--ui-learn-soft);
+}
+
+.practice-tabs > button[aria-selected='true'] {
+  border-bottom-color: var(--ui-learn);
+}
+
+.practice-commit {
+  border-color: var(--ui-learn-border);
+}
+
+.practice-heading {
+  background: var(--ui-learn-soft);
+}
+
+/* Notifications stay above the workspace instead of covering terminal input. */
+.app .toast {
+  top: 110px;
+  bottom: auto;
+  left: auto;
+  right: 24px;
+  max-width: min(420px, calc(100vw - 32px));
+}
+
+@media (max-width: 760px) {
+  /* Keep every Git control reachable while the terminal occupies screen space. */
+  .app .workspace-content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .app .changes-view {
+    min-height: 348px;
+    flex-shrink: 0;
+  }
+
+  .app .toast {
+    top: 104px;
+    right: 16px;
+  }
+}

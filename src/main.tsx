@@ -17,14 +17,18 @@ import './styles.css';
 import './workspace.css';
 import './onboarding-integration.css';
 import './theme.css';
+import './teaching.css';
 import App from './App';
 import { GitHubAuthProvider } from './hooks/useGitHubAuth';
+import { ActivityProvider } from './hooks/useActivity';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <MotionConfig reducedMotion="user">
       <GitHubAuthProvider>
-        <App />
+        <ActivityProvider>
+          <App />
+        </ActivityProvider>
       </GitHubAuthProvider>
     </MotionConfig>
   </React.StrictMode>,

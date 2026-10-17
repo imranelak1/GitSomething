@@ -56,6 +56,12 @@ import { BranchJourney } from './components/BranchJourney';
 import { FirstRunGuide } from './components/onboarding/FirstRunGuide';
 import { GitHubConnectCard } from './components/auth/GitHubConnectCard';
 import { useGitHubAuth } from './hooks/useGitHubAuth';
+import { useActivity } from './hooks/useActivity';
+import { executeGuidedCommand, type TerminalResult } from './lib/guided-commands';
+import { getLesson, type LessonId } from './lib/learning';
+import { demoDiff } from './lib/demo';
+import type { FileDiff } from './lib/types';
+import { LearningFlow } from './components/LearningFlow';
 import { rememberGuide, shouldShowGuide } from './lib/onboarding';
 import { Magnetic } from './components/registry/animmaster/Magnetic';
 
@@ -63,12 +69,14 @@ const DiffViewer = lazy(() => import('./components/DiffViewer'));
 
 export default function App() {
   const auth = useGitHubAuth();
+  const { activities, record, settle } = useActivity();
   const { repository, demo, logs, busy, notice, setNotice, open, stage, commit, sync, refresh } =
     useRepository();
   const [tab, setTab] = useState<'changes' | 'history'>('changes');
   const [selected, setSelected] = useState('src/components/Dropzone.tsx');
   const [selectedStaged, setSelectedStaged] = useState(false);
   const [consoleOpen, setConsoleOpen] = useState(true);
+  const [suggestedCommand, setSuggestedCommand] = useState<{ id: number; text: string }>();
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const [initialPath, setInitialPath] = useState('');
@@ -115,15 +123,30 @@ export default function App() {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         setPaletteOpen((value) => !value);
+        record({
+          kind: 'interface',
+          label: 'Command palette shortcut',
+          description: 'Find available actions without leaving your keyboard.',
+        });
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') {
         event.preventDefault();
         setConsoleOpen((value) => !value);
+        record({
+          kind: 'interface',
+          label: 'Glass box shortcut',
+          description: 'Show or hide the terminal. Your action history stays in memory.',
+        });
       }
       if ((event.metaKey || event.ctrlKey) && !document.querySelector('[role="dialog"]')) {
         if (event.shiftKey && event.key.toLowerCase() === 'f') {
           event.preventDefault();
           setFocusMode((value) => !value);
+          record({
+            kind: 'interface',
+            label: 'Focus mode shortcut',
+            description: 'Give the current workspace more room. Your repository is unchanged.',
+          });
           return;
         }
         if (event.key.toLowerCase() === 'o') {
@@ -141,7 +164,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [record]);
   useEffect(() => {
     if (!notice) return;
     const timeout = window.setTimeout(() => setNotice(''), 9000);
@@ -159,6 +182,12 @@ export default function App() {
           setDragging(false);
           const path = event.payload.paths[0];
           if (path) {
+            record({
+              kind: 'interface',
+              label: 'Drop local folder',
+              description:
+                'Open the repository setup form for this folder. Review the publishing settings before creating a remote.',
+            });
             setInitialPath(path);
             setPublishOpen(true);
           }
@@ -173,7 +202,66 @@ export default function App() {
       disposed = true;
       unlisten?.();
     };
-  }, [setNotice]);
+  }, [setNotice, record]);
+
+  const tryCommand = (text: string) => {
+    setConsoleOpen(true);
+    setSuggestedCommand({ id: Date.now(), text });
+  };
+  const learn = (id: LessonId) => {
+    const lesson = getLesson(id);
+    setConsoleOpen(true);
+    record({
+      kind: 'lesson',
+      label: `Learn: ${lesson.title}`,
+      description: lesson.explanation,
+      lessonId: id,
+    });
+  };
+  const runCommand = async (source: string): Promise<TerminalResult> => {
+    const id = record({
+      kind: 'command',
+      label: 'Guided Git command',
+      command: source,
+      description: 'Requested through the guided command input. No shell is started.',
+      status: 'running',
+    });
+    try {
+      if (busy) {
+        const result = {
+          ok: false,
+          output:
+            'A repository operation is already running. Wait for it to finish, then try again.',
+        };
+        settle(id, { status: 'error', output: result.output });
+        return result;
+      }
+      const snapshot = demo ? repository : await refresh();
+      if (!snapshot)
+        throw new Error('Could not refresh this repository. Reopen it before running a command.');
+      const result = await executeGuidedCommand(source, {
+        repository: snapshot,
+        demo,
+        stage,
+        commit,
+        sync,
+        getDiff: (filePath, staged) =>
+          demo
+            ? Promise.resolve(demoDiff(filePath))
+            : invoke<FileDiff>('get_diff', { path: snapshot.path, filePath, staged }),
+      });
+      settle(id, {
+        status: result.ok ? 'success' : 'error',
+        output: result.output,
+        lessonId: result.lessonId,
+      });
+      return result;
+    } catch (error) {
+      const result = { ok: false, output: displayError(error) };
+      settle(id, { status: 'error', output: result.output });
+      return result;
+    }
+  };
 
   const openLocal = async () => {
     if (!isDesktop()) {
@@ -198,12 +286,20 @@ export default function App() {
     setPublishOpen(true);
   };
   const handleAction = (action: string) => {
+    record({
+      kind: 'interface',
+      label: `Command palette: ${action}`,
+      description:
+        'Run the selected workspace action. Advanced history tools are previews until their engine milestone.',
+    });
     if (action === 'open') void openLocal();
     else if (action === 'publish') startPublish();
     else if (action === 'history') setTab('history');
     else if (action === 'console') setConsoleOpen((value) => !value);
     else if (action === 'guide') openGettingStarted();
     else if (action === 'github') openGettingStarted(1);
+    else if (action === 'learn') learn('stage');
+    else if (action === 'terminal') tryCommand('help');
     else {
       if (action === 'rebase') setTab('history');
       setNotice(
@@ -663,6 +759,15 @@ export default function App() {
               <MoreHorizontal size={17} />
             </button>
           </div>
+          {tab === 'changes' && (
+            <LearningFlow
+              stagedCount={staged.length}
+              changedCount={changedFileCount}
+              demo={demo}
+              onTryCommand={tryCommand}
+              onLesson={learn}
+            />
+          )}
           <div className="workspace-content">
             {tab === 'changes' ? (
               <div className="changes-view">
@@ -778,6 +883,13 @@ export default function App() {
                     onKeyDown={(e) => {
                       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
                         e.preventDefault();
+                        record({
+                          kind: 'interface',
+                          label: 'Commit keyboard shortcut',
+                          description:
+                            'Request a local checkpoint of staged changes. The Git operation reports whether it succeeded.',
+                          lessonId: 'commit',
+                        });
                         void submitCommit();
                       }
                     }}
@@ -806,7 +918,19 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <HistoryGraph repository={repository} onPlan={setPlan} />
+              <HistoryGraph
+                repository={repository}
+                onPlan={(next) => {
+                  record({
+                    kind: 'interface',
+                    label: `Preview ${next.kind}`,
+                    description:
+                      'Explore the consequences of a history edit. This preview leaves all commits unchanged.',
+                    lessonId: 'safety',
+                  });
+                  setPlan(next);
+                }}
+              />
             )}
           </div>
           <GlassBox
@@ -814,6 +938,12 @@ export default function App() {
             open={consoleOpen}
             onToggle={() => setConsoleOpen((value) => !value)}
             demo={demo}
+            repositoryName={repository.name}
+            busy={busy}
+            activities={activities}
+            onRunCommand={runCommand}
+            suggestedCommand={suggestedCommand}
+            stageExamplePath={unstaged[0]?.path}
           />
           <footer className="statusbar">
             <div>
@@ -1077,7 +1207,18 @@ function FileRow({
       >
         {file.staged && <Check size={10} strokeWidth={3} />}
       </motion.button>
-      <button className="file-select" onClick={onSelect} title={file.path}>
+      <button
+        className="file-select"
+        onClick={onSelect}
+        title={file.path}
+        data-activity-label={`Inspect ${file.path}`}
+        data-activity-description={
+          file.staged
+            ? 'Compare the staged version with the last commit. These are the changes your next commit will save.'
+            : 'Compare working changes with the staging area before selecting them for a commit.'
+        }
+        data-lesson-id="diff"
+      >
         <Icon size={15} className={name?.endsWith('.tsx') ? 'file-react' : ''} />
         <span>
           <strong>{name}</strong>

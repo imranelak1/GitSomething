@@ -4,7 +4,7 @@ A desktop Git client built around a clear working directory, readable diffs, and
 
 This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
-The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Short explanations beside staging, committing, and pushing complement the first-use guide and the Glass-Box command console.
+The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box records every button action, shows equivalent Git operations and results, and accepts guided Git commands through the same engine. See [Learn with the Glass Box](docs/GLASS_BOX.md) for supported commands and the learning workflow.
 
 ## Run locally
 

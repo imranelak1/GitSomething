@@ -4,13 +4,16 @@ import { listen } from '@tauri-apps/api/event';
 import { demoLog, demoRepository, initialLogs } from '@/lib/demo';
 import { displayError, mergeLog } from '@/lib/console';
 import { isDesktop, type GitLog, type RepositorySnapshot } from '@/lib/types';
+import { useActivity } from './useActivity';
 
 export function useRepository() {
+  const { record } = useActivity();
   const [repository, setRepository] = useState<RepositorySnapshot>(demoRepository);
   const [demo, setDemo] = useState(true);
   const [logs, setLogs] = useState<GitLog[]>(initialLogs);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  const operation = useRef(false);
   const activePath = useRef<string | null>(null);
   const generation = useRef(0);
   const openRequest = useRef(0);
@@ -22,7 +25,10 @@ export function useRepository() {
     if (!path) return;
     try {
       const result = await invoke<RepositorySnapshot>('open_repository', { path });
-      if (version === generation.current && path === activePath.current) setRepository(result);
+      if (version === generation.current && path === activePath.current) {
+        setRepository(result);
+        return result;
+      }
     } catch (error) {
       if (version === generation.current) setNotice(displayError(error));
     }
@@ -53,27 +59,41 @@ export function useRepository() {
     };
   }, [addLog, refresh]);
 
-  const open = useCallback(async (path: string) => {
-    const request = ++openRequest.current;
-    setBusy(true);
-    try {
-      const result = await invoke<RepositorySnapshot>('open_repository', { path });
-      if (request !== openRequest.current) return;
-      generation.current++;
-      activePath.current = result.path;
-      setRepository(result);
-      setDemo(false);
-      setLogs((prev) => prev.filter((log) => log.operationId !== 'demo'));
-      setNotice('');
-    } catch (error) {
-      if (request === openRequest.current) setNotice(displayError(error));
-    } finally {
-      if (request === openRequest.current) setBusy(false);
-    }
-  }, []);
+  const open = useCallback(
+    async (path: string) => {
+      if (operation.current) return;
+      const request = ++openRequest.current;
+      setBusy(true);
+      try {
+        const result = await invoke<RepositorySnapshot>('open_repository', { path });
+        if (request !== openRequest.current) return;
+        generation.current++;
+        activePath.current = result.path;
+        setRepository(result);
+        setDemo(false);
+        setLogs((prev) => prev.filter((log) => log.operationId !== 'demo'));
+        setNotice('');
+      } catch (error) {
+        if (request === openRequest.current) {
+          setNotice(displayError(error));
+          record({
+            kind: 'interface',
+            label: 'Open repository failed',
+            description: 'The repository could not be opened.',
+            output: displayError(error),
+            status: 'error',
+          });
+        }
+      } finally {
+        if (request === openRequest.current) setBusy(false);
+      }
+    },
+    [record],
+  );
 
   const stage = async (filePath: string, staged: boolean) => {
-    if (busy) return;
+    if (busy || operation.current) return false;
+    operation.current = true;
     setBusy(true);
     try {
       if (demo) {
@@ -108,15 +128,33 @@ export function useRepository() {
         await invoke(staged ? 'unstage_file' : 'stage_file', { path: repository.path, filePath });
         await refresh();
       }
+      return true;
     } catch (error) {
       setNotice(displayError(error));
+      record({
+        kind: 'interface',
+        label: staged ? 'Unstage failed' : 'Stage failed',
+        description: 'The requested staging operation did not complete.',
+        output: displayError(error),
+        status: 'error',
+        lessonId: 'stage',
+      });
+      return false;
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };
 
   const commit = async (message: string) => {
-    if (busy || !message.trim() || !repository.files.some((file) => file.staged)) return false;
+    if (
+      busy ||
+      operation.current ||
+      !message.trim() ||
+      (demo && !repository.files.some((file) => file.staged))
+    )
+      return false;
+    operation.current = true;
     setBusy(true);
     try {
       if (demo) {
@@ -152,14 +190,24 @@ export function useRepository() {
       return true;
     } catch (error) {
       setNotice(displayError(error));
+      record({
+        kind: 'interface',
+        label: 'Commit failed',
+        description: 'The requested local commit did not complete.',
+        output: displayError(error),
+        status: 'error',
+        lessonId: 'commit',
+      });
       return false;
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };
 
   const sync = async (action: 'fetch' | 'pull' | 'push') => {
-    if (busy) return;
+    if (busy || operation.current) return false;
+    operation.current = true;
     setBusy(true);
     try {
       if (demo) {
@@ -183,9 +231,21 @@ export function useRepository() {
         await refresh();
         setNotice(`${action[0].toUpperCase()}${action.slice(1)} complete.`);
       }
+      return true;
     } catch (error) {
       setNotice(displayError(error));
+      record({
+        kind: 'interface',
+        label: `${action[0].toUpperCase()}${action.slice(1)} failed`,
+        description:
+          'The requested sync operation did not complete. Authentication can stop an operation before Git begins.',
+        output: displayError(error),
+        status: 'error',
+        lessonId: 'sync',
+      });
+      return false;
     } finally {
+      operation.current = false;
       setBusy(false);
     }
   };

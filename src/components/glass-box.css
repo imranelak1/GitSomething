@@ -1,0 +1,676 @@
+.console.glass-terminal {
+  position: relative;
+  isolation: isolate;
+  flex-shrink: 0;
+  min-width: 0;
+  border-top: 1px solid color-mix(in srgb, var(--ui-border-strong) 62%, transparent);
+  background: linear-gradient(120deg, #1c2632bd, #111820dc 45%, #151824ec);
+  box-shadow:
+    0 -12px 38px #0000001c,
+    inset 0 1px 0 #ffffff06;
+  backdrop-filter: blur(26px) saturate(130%);
+  -webkit-backdrop-filter: blur(26px) saturate(130%);
+  --glass-learn: var(--ui-learn, #bc8cff);
+  --glass-learn-soft: var(--ui-learn-soft, #bc8cff12);
+}
+.glass-terminal .glass-terminal-heading {
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px;
+  min-width: 0;
+}
+.glass-terminal .glass-terminal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ui-muted);
+  height: 100%;
+  min-width: 0;
+  text-align: left;
+}
+.glass-terminal .glass-terminal-toggle strong {
+  color: var(--ui-text);
+  font:
+    600 12px 'Space Grotesk',
+    sans-serif;
+  white-space: nowrap;
+}
+.glass-terminal .glass-terminal-mark {
+  color: var(--ui-accent);
+}
+.glass-terminal .glass-terminal-subtitle {
+  color: var(--ui-muted);
+  font-size: 10px;
+}
+.glass-terminal .glass-terminal-toggle > svg:last-child {
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-terminal-tools {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-environment {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ui-muted);
+  font:
+    9px 'Geist Mono',
+    monospace;
+  margin-right: 4px;
+}
+.glass-terminal .glass-environment i {
+  width: 5px;
+  height: 5px;
+  background: var(--ui-success);
+  border-radius: 50%;
+}
+.glass-terminal .glass-environment.is-demo i {
+  background: var(--ui-warning);
+}
+.glass-terminal .glass-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  color: var(--ui-muted);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-tool:hover {
+  background: #ffffff09;
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+}
+.glass-terminal .glass-learn-toggle {
+  padding: 0 7px;
+  border-color: var(--ui-border);
+}
+.glass-terminal .glass-learn-toggle.is-active {
+  color: var(--glass-learn);
+  border-color: color-mix(in srgb, var(--glass-learn) 40%, transparent);
+  background: var(--glass-learn-soft);
+}
+.glass-terminal .glass-terminal-content {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  border-top: 1px solid #ffffff08;
+  position: relative;
+  max-height: min(350px, 46vh);
+}
+.glass-terminal .glass-terminal-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.glass-terminal .glass-terminal-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 0 15px 0 20px;
+  height: 34px;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-terminal-filters {
+  display: flex;
+  gap: 14px;
+  height: 100%;
+  align-items: stretch;
+}
+.glass-terminal .glass-terminal-filters button {
+  border-bottom: 1px solid transparent;
+  font-size: 10px;
+  color: var(--ui-muted);
+  white-space: nowrap;
+}
+.glass-terminal .glass-terminal-filters button[aria-pressed='true'] {
+  color: var(--ui-text);
+  border-bottom-color: var(--ui-accent);
+}
+.glass-terminal .glass-terminal-filters button:hover {
+  color: var(--ui-text);
+}
+.glass-terminal .glass-terminal-utilities {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.glass-terminal .glass-engine-label {
+  color: var(--ui-muted);
+  font:
+    8px 'Geist Mono',
+    monospace;
+  white-space: nowrap;
+  margin-right: 7px;
+}
+.glass-terminal .glass-engine-label > span {
+  padding: 0 3px;
+  color: var(--ui-border-strong);
+}
+.glass-terminal .glass-terminal-stream {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 3px 20px 9px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ui-border) transparent;
+}
+.glass-terminal .glass-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 27px;
+  padding: 4px 0;
+  font:
+    11px/1.65 'Geist Mono',
+    monospace;
+  min-width: 0;
+}
+.glass-terminal .glass-entry-time {
+  font-size: 9px;
+  color: var(--ui-muted);
+  opacity: 0.85;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.glass-terminal .glass-entry-symbol {
+  width: 9px;
+  flex-shrink: 0;
+  color: var(--ui-accent);
+}
+.glass-terminal .glass-entry-action .glass-entry-symbol {
+  color: var(--ui-muted);
+}
+.glass-terminal .glass-entry-content {
+  min-width: 0;
+  flex: 1;
+}
+.glass-terminal .glass-command-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+.glass-terminal .glass-command-line > code {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 7px;
+  row-gap: 2px;
+  color: var(--ui-text);
+  font: inherit;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.glass-terminal .glass-command-line > code .vengeance-tooltip-trigger {
+  display: inline;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.glass-terminal .glass-command-line > code .vengeance-tooltip-trigger > span {
+  cursor: help;
+  border-bottom: 1px dotted #656c7666;
+}
+.glass-terminal .glass-command-line > code .vengeance-tooltip-trigger:hover > span {
+  border-bottom-color: var(--ui-accent);
+}
+.glass-terminal .glass-command-git {
+  color: var(--ui-accent);
+}
+.glass-terminal .glass-command-flag {
+  color: var(--glass-learn);
+}
+.glass-terminal .glass-entry-origin {
+  font:
+    7px 'Manrope',
+    sans-serif;
+  color: var(--ui-muted);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-self: center;
+}
+.glass-terminal .glass-status-success {
+  color: var(--ui-success);
+}
+.glass-terminal .glass-status-running {
+  color: var(--ui-accent);
+}
+.glass-terminal .glass-status-error,
+.glass-terminal .glass-entry-error .glass-command-output,
+.glass-terminal .glass-entry-error .glass-command-message {
+  color: var(--ui-danger);
+}
+.glass-terminal .glass-action-label {
+  margin: 0;
+  color: var(--ui-muted);
+  font:
+    10px/1.6 'Manrope',
+    sans-serif;
+}
+.glass-terminal .glass-action-description {
+  display: none;
+}
+.glass-terminal .glass-entry-action:hover .glass-action-description {
+  display: inline;
+  color: var(--ui-muted);
+  margin-left: 8px;
+}
+.glass-terminal .glass-entry-lesson .glass-entry-symbol,
+.glass-terminal .glass-entry-lesson .glass-action-label {
+  color: var(--glass-learn);
+}
+.glass-terminal .glass-command-output {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font:
+    11px/1.7 'Geist Mono',
+    monospace;
+  margin: 4px 0 2px;
+  color: var(--ui-muted);
+}
+.glass-terminal .glass-command-message {
+  margin: 2px 0;
+  color: var(--ui-muted);
+  font:
+    9px/1.7 'Manrope',
+    sans-serif;
+  overflow-wrap: anywhere;
+}
+.glass-terminal .glass-terminal-empty {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: var(--ui-muted);
+  padding: 17px 0;
+}
+.glass-terminal .glass-terminal-empty > svg {
+  color: var(--ui-accent);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-terminal-empty p {
+  color: var(--ui-text);
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.6;
+}
+.glass-terminal .glass-terminal-empty p > span {
+  display: block;
+  color: var(--ui-muted);
+  font-size: 10px;
+  margin-top: 4px;
+}
+.glass-terminal .glass-terminal-empty code {
+  color: var(--ui-accent);
+  font-size: 9px;
+}
+.glass-terminal .glass-follow {
+  position: absolute;
+  bottom: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 9px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 4px;
+  background: #1b2635f5;
+  color: var(--ui-text);
+  font-size: 9px;
+  box-shadow: 0 3px 15px #0006;
+  white-space: nowrap;
+}
+.glass-terminal .glass-command-form {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 37px;
+  margin: 0 14px 0 19px;
+  padding: 0 4px 0 0;
+  gap: 9px;
+  border-top: 1px solid var(--ui-border);
+}
+.glass-terminal .glass-command-context {
+  color: var(--ui-muted);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font:
+    9px 'Geist Mono',
+    monospace;
+  flex-shrink: 0;
+}
+.glass-terminal .glass-command-context > span {
+  margin-left: 9px;
+  color: var(--ui-accent);
+}
+.glass-terminal .glass-command-form input {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  color: var(--ui-text);
+  background: transparent;
+  border: 0;
+  border-radius: 2px;
+  padding: 5px 3px;
+  font:
+    10px 'Geist Mono',
+    monospace;
+  box-shadow: none;
+  height: 27px;
+}
+.glass-terminal .glass-command-form input::placeholder {
+  color: var(--ui-muted);
+  opacity: 0.85;
+}
+.glass-terminal .glass-command-form input:focus-visible {
+  outline: 1px solid var(--ui-accent);
+  outline-offset: 1px;
+}
+.glass-terminal .glass-run {
+  background: #1f6feb20;
+  border: 1px solid #58a6ff66;
+  color: var(--ui-accent);
+  height: 25px;
+  padding: 0 7px;
+  border-radius: 4px;
+  font-size: 9px;
+  box-shadow: none;
+}
+.glass-terminal .glass-run .vengeance-button-content {
+  gap: 5px;
+}
+.glass-terminal .glass-run:hover:not(:disabled) {
+  background: #1f6feb35;
+}
+.glass-terminal .glass-run:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.glass-terminal .glass-terminal-footnote {
+  min-height: 20px;
+  padding: 0 19px 4px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 8px;
+  color: var(--ui-muted);
+  flex-shrink: 0;
+}
+.glass-terminal .glass-terminal-footnote > span:last-child {
+  text-align: right;
+}
+.glass-terminal .glass-learning {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: clamp(245px, 24vw, 310px);
+  min-width: 0;
+  overflow: auto;
+  padding: 13px 17px 10px;
+  border-left: 1px solid color-mix(in srgb, var(--glass-learn) 25%, transparent);
+  background: linear-gradient(125deg, #bc8cff0b, #bc8cff04);
+  scrollbar-width: thin;
+}
+.glass-terminal .glass-learning-heading {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--glass-learn);
+  font:
+    8px 'Geist Mono',
+    monospace;
+  letter-spacing: 0.08em;
+}
+.glass-terminal .glass-learning-count {
+  margin-left: auto;
+  letter-spacing: 0;
+  opacity: 0.9;
+}
+.glass-terminal .glass-lesson-select {
+  font:
+    600 13px 'Space Grotesk',
+    sans-serif;
+  color: var(--ui-text);
+  background: transparent;
+  width: 100%;
+  border: 0;
+  border-radius: 3px;
+  margin: 8px 0 0;
+  padding: 2px 0;
+  cursor: pointer;
+}
+.glass-terminal .glass-lesson-select option {
+  background: var(--ui-panel);
+  color: var(--ui-text);
+}
+.glass-terminal .glass-learning-explanation {
+  color: var(--ui-text);
+  font:
+    11px/1.65 'Manrope',
+    sans-serif;
+  margin: 7px 0 0;
+}
+.glass-terminal .glass-learning-tip {
+  font:
+    10px/1.65 'Manrope',
+    sans-serif;
+  color: var(--glass-learn);
+  margin: 7px 0 8px;
+}
+.glass-terminal .glass-try-command {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 7px;
+  align-items: center;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid color-mix(in srgb, var(--glass-learn) 35%, transparent);
+  border-radius: 4px;
+  background: var(--glass-learn-soft);
+  color: var(--glass-learn);
+  text-align: left;
+}
+.glass-terminal .glass-try-command code {
+  min-width: 0;
+  font:
+    9px/1.5 'Geist Mono',
+    monospace;
+  overflow-wrap: anywhere;
+}
+.glass-terminal .glass-try-command > svg {
+  flex-shrink: 0;
+}
+.glass-terminal .glass-try-command:hover {
+  border-color: var(--glass-learn);
+  background: #bc8cff1a;
+}
+.glass-terminal .glass-learning-shortcuts {
+  display: flex;
+  gap: 9px;
+  align-items: baseline;
+  margin-top: 8px;
+  color: var(--ui-muted);
+  font-size: 8px;
+}
+.glass-terminal .glass-learning-shortcuts button {
+  color: var(--glass-learn);
+  font:
+    8px 'Geist Mono',
+    monospace;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.glass-terminal button:focus-visible,
+.glass-terminal select:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 2px;
+}
+@media (max-width: 1050px) {
+  .glass-terminal .glass-terminal-subtitle {
+    display: none;
+  }
+  .glass-terminal .glass-learning {
+    width: 255px;
+  }
+  .glass-terminal .glass-hint-extra {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .glass-terminal .glass-terminal-heading {
+    height: 38px;
+    padding: 0 13px;
+    gap: 5px;
+  }
+  .glass-terminal .glass-terminal-toggle {
+    gap: 6px;
+  }
+  .glass-terminal .glass-terminal-toggle strong {
+    font-size: 11px;
+  }
+  .glass-terminal .glass-terminal-tools {
+    gap: 4px;
+  }
+  .glass-terminal .glass-environment {
+    font-size: 8px;
+    margin-right: 0;
+  }
+  .glass-terminal .glass-tool {
+    height: 24px;
+    min-width: 24px;
+  }
+  .glass-terminal .glass-learn-toggle {
+    padding: 0 5px;
+  }
+  .glass-terminal .glass-terminal-content {
+    max-height: min(350px, 43vh);
+  }
+  .glass-terminal .glass-terminal-toolbar {
+    padding: 0 10px 0 13px;
+    height: 31px;
+    gap: 4px;
+  }
+  .glass-terminal .glass-terminal-filters {
+    gap: 10px;
+  }
+  .glass-terminal .glass-terminal-filters button {
+    font-size: 9px;
+  }
+  .glass-terminal .glass-engine-label {
+    display: none;
+  }
+  .glass-terminal .glass-terminal-stream {
+    padding: 2px 13px 8px;
+  }
+  .glass-terminal .glass-entry {
+    font-size: 10px;
+    gap: 7px;
+  }
+  .glass-terminal .glass-entry-time {
+    display: none;
+  }
+  .glass-terminal .glass-entry-origin {
+    font-size: 6px;
+  }
+  .glass-terminal .glass-action-label {
+    font-size: 10px;
+  }
+  .glass-terminal .glass-entry-action:hover .glass-action-description {
+    display: none;
+  }
+  .glass-terminal .glass-command-output {
+    font-size: 10px;
+  }
+  .glass-terminal .glass-command-form {
+    margin: 0 10px 0 13px;
+    gap: 5px;
+  }
+  .glass-terminal .glass-command-context {
+    max-width: 65px;
+    font-size: 8px;
+  }
+  .glass-terminal .glass-command-context > span {
+    margin-left: 4px;
+  }
+  .glass-terminal .glass-command-form input {
+    font-size: 9px;
+  }
+  .glass-terminal .glass-terminal-footnote {
+    padding: 0 13px 4px;
+    font-size: 7px;
+  }
+  .glass-terminal .glass-terminal-footnote > span:first-child {
+    min-width: 0;
+  }
+  .glass-terminal .glass-terminal-footnote > span:last-child {
+    max-width: 42%;
+  }
+  .glass-terminal .glass-learning {
+    position: absolute;
+    inset: 0;
+    width: auto;
+    padding: 12px 18px;
+    background: #181524f5;
+    border-left: 0;
+    z-index: 2;
+  }
+  .glass-terminal.glass-learning-open .glass-terminal-main {
+    visibility: hidden;
+  }
+  .glass-terminal .glass-learning-explanation {
+    font-size: 11px;
+  }
+  .glass-terminal .glass-learning-tip {
+    font-size: 10px;
+  }
+  .glass-terminal .glass-learning-shortcuts {
+    font-size: 9px;
+  }
+}
+@media (max-width: 370px) {
+  .glass-terminal .glass-size-toggle {
+    display: none;
+  }
+  .glass-terminal .glass-environment {
+    font-size: 7px;
+  }
+  .glass-terminal .glass-learn-toggle {
+    font-size: 9px;
+  }
+  .glass-terminal .glass-terminal-tools {
+    gap: 3px;
+  }
+  .glass-terminal .glass-command-context {
+    max-width: 53px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-terminal .glass-terminal-toggle > svg:last-child {
+    transition: none;
+  }
+}

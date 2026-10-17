@@ -23,6 +23,7 @@ Use GitHub's familiar dark palette with a small Branchline touch. The user's lat
 | Success        | `#3fb950` | Git additions and completed operations |
 | Danger         | `#ff7b72` | Git removals and error copy            |
 | Warning        | `#d29922` | Warnings and modified-file metadata    |
+| Teaching       | `#bc8cff` | Lessons, practice, and explanations    |
 
 Keep large surfaces dark and neutral. Blue identifies interaction; green identifies saving and positive Git state. Branch colors may distinguish real graph lanes but must not turn the workspace into competing decorative color blocks. All native controls use a dark color scheme.
 
@@ -30,7 +31,9 @@ Keep large surfaces dark and neutral. Blue identifies interaction; green identif
 
 Teach Git beside the action: staging selects files for the next commit, committing saves a checkpoint locally, and pushing uploads saved commits. The diff footer describes whether its file is selected; the composer distinguishes commit from push; Push has a keyboard-accessible explanation of what is uploaded. The Glass-Box console explains the equivalent command tokens.
 
-The first-use guide and practice flow remain skippable and replayable. Keep advanced features behind the command palette. Educational copy should be short and specific; avoid permanent tutorial banners across the working area.
+The purple Learn by doing strip stays compact until expanded. Its steps distinguish working files, selected changes, local checkpoints, and sharing. The Glass Box uses a dark translucent material, a readable mono stream, a guided input, and a separate teaching panel. Every button activation records interface intent; actual Git rows report running, success, or failure. Pure interface actions never receive invented Git commands. See [the terminal guide](docs/GLASS_BOX.md).
+
+The first-use guide and practice flow remain skippable and replayable. Keep advanced features behind the command palette. Educational copy should be short and specific, and examples prepare commands for review before execution.
 
 ## Character and motion
 

@@ -66,6 +66,20 @@ export function CommandPalette({
                     <Command.Empty>No actions found. Try “repository” or “history”.</Command.Empty>
                     <Command.Group heading="Your workspace">
                       <Command.Item
+                        value="Learn Git staging commit push lessons"
+                        onSelect={() => run('learn')}
+                      >
+                        <Sparkles size={17} />
+                        <span>Learn Git by doing</span>
+                      </Command.Item>
+                      <Command.Item
+                        value="Guided Git terminal type command help"
+                        onSelect={() => run('terminal')}
+                      >
+                        <Terminal size={17} />
+                        <span>Try a guided Git command</span>
+                      </Command.Item>
+                      <Command.Item
                         value="Getting started guide tutorial help first time"
                         onSelect={() => run('guide')}
                       >
