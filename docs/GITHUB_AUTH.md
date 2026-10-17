@@ -25,7 +25,7 @@ Lists stay in memory and disappear when the account disconnects or changes. Late
 
 ## Clone a GitHub repository
 
-**Requires GitSomething 1.0.0-beta.2 or newer.** The published beta.1 release only opens GitHub browser links; its existing release assets are unchanged. Beta.2 is currently a prepared release candidate, not a published update.
+**Requires GitSomething 1.0.0-beta.2 or newer.** Install the [public Windows beta.2 release](https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.2) for native cloning. It is a prerelease, not a stable 1.0 release. Beta.1 only opens GitHub browser links; its existing release assets are unchanged.
 
 1. Sign in on Home and find the repository under **GitHub repositories**.
 2. Select its **Clone & open** button.
@@ -36,7 +36,7 @@ Cancelling the folder picker does not start cloning or write Git data. An existi
 
 If a clone fails after creating its folder, completed files remain there. GitSomething does not automatically delete partial clones or resume into an existing folder. Inspect the preserved folder; use **Open repository** if it contains a usable checkout, or choose another parent folder to retry. A connection change or a working-view error can also leave a saved checkout that must be opened manually.
 
-This flow supports GitHub.com HTTPS repositories through the connected native account. Submodules are not initialized, Git LFS objects are not downloaded, and external Git filters are not run; LFS-tracked files may remain pointer files. Use an appropriate Git tool for those additional steps. Browser previews cannot clone repositories. The original beta.1 rows only opened browser links; native **Clone & open** is added in the beta.2 release candidate.
+This flow supports GitHub.com HTTPS repositories through the connected native account. Submodules are not initialized, Git LFS objects are not downloaded, and external Git filters are not run; LFS-tracked files may remain pointer files. Use an appropriate Git tool for those additional steps. Browser previews cannot clone repositories. Native **Clone & open** was introduced in beta.2.
 
 ## Maintainer configuration before distribution
 
@@ -93,4 +93,6 @@ The packaged Windows alpha completed real GitHub browser approval on October 17,
 
 Automated browser checks exercise the consent and repository-list UI through explicit native fixtures; Rust tests check polling, scope validation, redaction, and credential destination rules. Those checks complement the live account test and do not prove remote publication or pushing. New release candidates still need a production-app check of sign-in, loaded repository controls, paging, browser links, logout, and restoration after restart.
 
-Live denial, an expired one-time code, revoked authorization, and installer installation/uninstallation remain separate checks. Publishing and pushing to GitHub also remain unverified in this release candidate and require an explicitly selected disposable project. Do not create a repository or approve consent on someone's behalf as an automated test.
+The packaged beta.2 executable also passed ten checks of a real public GitHub clone, tracking metadata, workspace opening, progress, destination protection, watcher refresh, and Recents. The folder-picker selection/cancellation was supplied by a fixture; actual picker interaction and private cloning were not verified by that run. Private credential routing has unit coverage, which is a different verification boundary. See [VERIFICATION.md](VERIFICATION.md) for the recorded results.
+
+Live denial, an expired one-time code, revoked authorization, and installer installation/uninstallation remain separate checks. Publishing and pushing to GitHub also remain unverified in beta.2 and require an explicitly selected disposable project. Do not create a repository or approve consent on someone's behalf as an automated test.

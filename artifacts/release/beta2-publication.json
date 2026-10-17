@@ -1,0 +1,292 @@
+{
+  "verifiedAt": "2026-10-17T21:55:19.497Z",
+  "version": "1.0.0-beta.2",
+  "sourceRevision": "10a786473f82382879750efc7fdec34e90cf2b17",
+  "repository": "imranelak1/GitSomething",
+  "visibility": "public",
+  "anonymous": true,
+  "releaseId": 416084583,
+  "releaseUrl": "https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.2",
+  "tag": "v1.0.0-beta.2",
+  "draft": false,
+  "prerelease": true,
+  "immutable": true,
+  "publishedAt": "2026-10-17T21:55:02Z",
+  "assetsVerified": 15,
+  "checksumEntriesVerified": 14,
+  "codeSigning": "NotSigned",
+  "tagSignature": "unsigned",
+  "assets": [
+    {
+      "name": "GitSomething_1.0.0-beta.2_windows-x64.exe",
+      "bytes": 20227072,
+      "sha256": "e00d04433b6070268affd5a63b178d07ce12a30b97c80aa318cc98d8a811b773",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething_1.0.0-beta.2_windows-x64.exe"
+    },
+    {
+      "name": "GitSomething_1.0.0-beta.2_x64-setup.exe",
+      "bytes": 6786937,
+      "sha256": "d4005e44ae2f184eca5f486e477e9f0983f22e6ebd33c1945f776e72c2677e3c",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething_1.0.0-beta.2_x64-setup.exe"
+    },
+    {
+      "name": "GitSomething-app-icon-1024.png",
+      "bytes": 50386,
+      "sha256": "14260e85e4ba8e4ffe49bd0173c017472b15199498cb2d7620421f395520c8b3",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-app-icon-1024.png"
+    },
+    {
+      "name": "GitSomething-app-icon.svg",
+      "bytes": 1431,
+      "sha256": "0087b030e63e3de7bb3c18e82735217dba11881280643c28add425aec9a007ac",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-app-icon.svg"
+    },
+    {
+      "name": "GitSomething-github-oauth-logo-256.png",
+      "bytes": 9187,
+      "sha256": "ec7add78216e84a35b9c48ae4257865d679f452276abb672e41d6f3e33f2b217",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-github-oauth-logo-256.png"
+    },
+    {
+      "name": "GitSomething-github-oauth-logo-512.png",
+      "bytes": 23674,
+      "sha256": "0b80c13a3fff5920bf0a1e211e006a5901c201a96c58b68a52e32e091c84a811",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-github-oauth-logo-512.png"
+    },
+    {
+      "name": "GitSomething-logo-preview.html",
+      "bytes": 15136,
+      "sha256": "68e6f645ceb96f8285bb171dc0839a100aa644ee76ccf721956bb8741555207f",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-logo-preview.html"
+    },
+    {
+      "name": "GitSomething-mark-animated.svg",
+      "bytes": 2473,
+      "sha256": "b10736879cc25be68d7ed9b2ae63cfdc02516d63752b2c8b7870917850bbf055",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-mark-animated.svg"
+    },
+    {
+      "name": "GitSomething-release-banner.png",
+      "bytes": 32029,
+      "sha256": "38577a3a8ca0f68d609de388c86ce930ef4c9412e38f16c34eb67b93bc09cda5",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-release-banner.png"
+    },
+    {
+      "name": "GitSomething-release-banner.svg",
+      "bytes": 67848,
+      "sha256": "2485c2409b0a79e4bcd7f7e2ac3209dcc1debf2fd13dace99d9e4e94927159a8",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-release-banner.svg"
+    },
+    {
+      "name": "GitSomething-wordmark-dark.svg",
+      "bytes": 10264,
+      "sha256": "2e9c7f1a8c01893599790c64b95b4e0a01ed62c86de2377741a3fafaa4116b16",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-wordmark-dark.svg"
+    },
+    {
+      "name": "GitSomething-wordmark-light.svg",
+      "bytes": 10258,
+      "sha256": "2338ce521fdc4028bfbd1d2a4a07f4cfcbe6dfa95dea7f1e826f93654d5b4ef4",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/GitSomething-wordmark-light.svg"
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 2933,
+      "sha256": "e7835888ac7fb624c5dcafd89d5c46dc9b797c0317d18d65e85efb657ad91863",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/manifest.json"
+    },
+    {
+      "name": "RELEASE_NOTES.md",
+      "bytes": 6195,
+      "sha256": "f6acc67ba57ee041269fea2513f64b37045712f2bd198df65ec70cf0cafecd63",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/RELEASE_NOTES.md"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 1361,
+      "sha256": "38402ac0e93655017e6e66290a73f9f4fb24f11da1a3d155fa9fd5382bd7a243",
+      "status": 200,
+      "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.2/SHA256SUMS.txt"
+    }
+  ],
+  "attestation": {
+    "verifiedAt": "2026-10-17T21:56:12.532Z",
+    "command": "gh release verify v1.0.0-beta.2 --repo imranelak1/GitSomething --format json",
+    "exitCode": 0,
+    "signature": {
+      "certificate": {
+        "certificateIssuer": "CN=Fulcio Intermediate l1,O=GitHub\\, Inc.",
+        "subjectAlternativeName": "https://dotcom.releases.github.com"
+      }
+    },
+    "verifiedIdentity": {
+      "subjectAlternativeName": {
+        "subjectAlternativeName": "",
+        "regexp": "^https://dotcom\\.releases\\.github\\.com$"
+      },
+      "issuer": {
+        "issuer": "",
+        "regexp": ".*"
+      }
+    },
+    "verifiedTimestamps": [
+      {
+        "type": "TimestampAuthority",
+        "uri": "timestamp.githubapp.com",
+        "timestamp": "2026-10-17T21:55:03Z"
+      }
+    ],
+    "predicateType": "https://in-toto.io/attestation/release/v0.2",
+    "predicate": {
+      "databaseId": "416084583",
+      "ownerId": "158588611",
+      "packageId": "1422730876",
+      "purl": "pkg:github/imranelak1/GitSomething@v1.0.0-beta.2",
+      "repository": "imranelak1/GitSomething",
+      "repositoryId": "1422730876",
+      "tag": "v1.0.0-beta.2"
+    },
+    "tagObject": "a1916ba2f3d65889a204f403363a9509ea5a7aa0",
+    "verifiedAssetDigests": 15,
+    "subject": [
+      {
+        "uri": "pkg:github/imranelak1/GitSomething@v1.0.0-beta.2",
+        "digest": {
+          "sha1": "a1916ba2f3d65889a204f403363a9509ea5a7aa0"
+        }
+      },
+      {
+        "name": "GitSomething-app-icon-1024.png",
+        "digest": {
+          "sha256": "14260e85e4ba8e4ffe49bd0173c017472b15199498cb2d7620421f395520c8b3"
+        }
+      },
+      {
+        "name": "GitSomething-app-icon.svg",
+        "digest": {
+          "sha256": "0087b030e63e3de7bb3c18e82735217dba11881280643c28add425aec9a007ac"
+        }
+      },
+      {
+        "name": "GitSomething-github-oauth-logo-256.png",
+        "digest": {
+          "sha256": "ec7add78216e84a35b9c48ae4257865d679f452276abb672e41d6f3e33f2b217"
+        }
+      },
+      {
+        "name": "GitSomething-github-oauth-logo-512.png",
+        "digest": {
+          "sha256": "0b80c13a3fff5920bf0a1e211e006a5901c201a96c58b68a52e32e091c84a811"
+        }
+      },
+      {
+        "name": "GitSomething-logo-preview.html",
+        "digest": {
+          "sha256": "68e6f645ceb96f8285bb171dc0839a100aa644ee76ccf721956bb8741555207f"
+        }
+      },
+      {
+        "name": "GitSomething-mark-animated.svg",
+        "digest": {
+          "sha256": "b10736879cc25be68d7ed9b2ae63cfdc02516d63752b2c8b7870917850bbf055"
+        }
+      },
+      {
+        "name": "GitSomething-release-banner.png",
+        "digest": {
+          "sha256": "38577a3a8ca0f68d609de388c86ce930ef4c9412e38f16c34eb67b93bc09cda5"
+        }
+      },
+      {
+        "name": "GitSomething-release-banner.svg",
+        "digest": {
+          "sha256": "2485c2409b0a79e4bcd7f7e2ac3209dcc1debf2fd13dace99d9e4e94927159a8"
+        }
+      },
+      {
+        "name": "GitSomething-wordmark-dark.svg",
+        "digest": {
+          "sha256": "2e9c7f1a8c01893599790c64b95b4e0a01ed62c86de2377741a3fafaa4116b16"
+        }
+      },
+      {
+        "name": "GitSomething-wordmark-light.svg",
+        "digest": {
+          "sha256": "2338ce521fdc4028bfbd1d2a4a07f4cfcbe6dfa95dea7f1e826f93654d5b4ef4"
+        }
+      },
+      {
+        "name": "GitSomething_1.0.0-beta.2_windows-x64.exe",
+        "digest": {
+          "sha256": "e00d04433b6070268affd5a63b178d07ce12a30b97c80aa318cc98d8a811b773"
+        }
+      },
+      {
+        "name": "GitSomething_1.0.0-beta.2_x64-setup.exe",
+        "digest": {
+          "sha256": "d4005e44ae2f184eca5f486e477e9f0983f22e6ebd33c1945f776e72c2677e3c"
+        }
+      },
+      {
+        "name": "manifest.json",
+        "digest": {
+          "sha256": "e7835888ac7fb624c5dcafd89d5c46dc9b797c0317d18d65e85efb657ad91863"
+        }
+      },
+      {
+        "name": "RELEASE_NOTES.md",
+        "digest": {
+          "sha256": "f6acc67ba57ee041269fea2513f64b37045712f2bd198df65ec70cf0cafecd63"
+        }
+      },
+      {
+        "name": "SHA256SUMS.txt",
+        "digest": {
+          "sha256": "38402ac0e93655017e6e66290a73f9f4fb24f11da1a3d155fa9fd5382bd7a243"
+        }
+      }
+    ]
+  },
+  "assetVerification": {
+    "exitCode": 0,
+    "commands": [
+      {
+        "command": "gh release verify-asset v1.0.0-beta.2 artifacts/releases/v1.0.0-beta.2/GitSomething_1.0.0-beta.2_x64-setup.exe --repo imranelak1/GitSomething",
+        "result": "Verification succeeded"
+      },
+      {
+        "command": "gh release verify-asset v1.0.0-beta.2 artifacts/releases/v1.0.0-beta.2/GitSomething_1.0.0-beta.2_windows-x64.exe --repo imranelak1/GitSomething",
+        "result": "Verification succeeded"
+      }
+    ]
+  },
+  "sidebar": {
+    "anonymousHydratedCheckAt": "2026-10-17T21:55:34Z",
+    "text": "Releases\n2tags",
+    "namedLatestCard": false,
+    "boundary": "GitHub prereleases are ineligible for Latest; public beta remains a prerelease.",
+    "releasePageImmutableIndicator": true
+  },
+  "githubChecks": {
+    "runId": 39072388097,
+    "url": "https://github.com/imranelak1/GitSomething/actions/runs/39072388097",
+    "conclusion": "success",
+    "sourceRevision": "10a786473f82382879750efc7fdec34e90cf2b17"
+  },
+  "binaryHashesUnchangedFromCandidate": true,
+  "changedMetadataAssets": ["RELEASE_NOTES.md", "SHA256SUMS.txt", "manifest.json"]
+}
