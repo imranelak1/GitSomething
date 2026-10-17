@@ -55,6 +55,8 @@ Space Grotesk headings, Manrope controls, Geist Mono code, and the existing layo
 
 Respect reduced motion and visible keyboard focus. Filled-control hover states use darker emphasis colors so white labels retain contrast. Body text and placeholders meet AA contrast on their actual composed surfaces; control boundaries and focus cues meet non-text contrast requirements.
 
+The workspace Push action and publishing's final Create & push action use a green confirmation slider. The handle follows the pointer directly; releasing before the end returns it with a short spring. Releasing at the end confirms once. Keyboard users move with arrows or End, then confirm with Enter or Space; Escape cancels. Taps, track clicks, and moving to the end without confirming never start work. Changes to the repository, publication details, or account reset an armed slider. The compact workspace control gets its own full-width row on narrow screens; publishing keeps its final slider across the footer.
+
 ## Product truth and source ownership
 
 Motion does not mutate Git state or imply an unsupported operation succeeded. The browser remains an explicit demo; history gestures remain previews; credentials stay in Rust and the OS credential store. [Motion sources](docs/MOTION_SOURCES.md) records the original AnimMaster-inspired effects and their paid-source boundary. Skiper attribution and Vengeance MIT notices remain in source and in-app credits.

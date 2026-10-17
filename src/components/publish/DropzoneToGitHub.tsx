@@ -21,13 +21,13 @@ import {
   LockKeyhole,
   Monitor,
   Play,
-  Upload,
 } from 'lucide-react';
 import { KineticModal } from '../registry/skiper/KineticModal';
 import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
 import { GitHubConnectCard } from '../auth/GitHubConnectCard';
 import { useGitHubAuth } from '../../hooks/useGitHubAuth';
 import { Button } from '../ui/button';
+import { SlideToConfirm } from '../SlideToConfirm';
 import './publish.css';
 
 type Provider = 'github' | 'gitlab';
@@ -231,7 +231,12 @@ function PublishPipeline({
                 stroke="var(--ui-accent-ink)"
                 strokeWidth="1.6"
               />
-              <path d="M24 45h18" stroke="var(--ui-accent-ink)" strokeWidth="3" strokeLinecap="round" />
+              <path
+                d="M24 45h18"
+                stroke="var(--ui-accent-ink)"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
             </motion.svg>
           )}
         </motion.div>
@@ -289,6 +294,7 @@ export function DropzoneToGitHub({
   const [provider, setProvider] = useState<Provider>('github');
   const [privateRepo, setPrivateRepo] = useState(true);
   const [token, setToken] = useState('');
+  const [credentialsVersion, setCredentialsVersion] = useState(0);
   const [authorName, setAuthorName] = useState('');
   const [authorEmail, setAuthorEmail] = useState('');
   const [manualPath, setManualPath] = useState(false);
@@ -304,6 +310,8 @@ export function DropzoneToGitHub({
   const lastExternalPath = useRef('');
   const lastGitHubIdentity = useRef({ name: '', email: '' });
   const surface = useRef<HTMLDivElement>(null);
+  const form = useRef<HTMLFormElement>(null);
+  const publishing = useRef(false);
   const reducedMotion = useReducedMotion();
   const desktop = isDesktop();
   const github = useGitHubAuth();
@@ -379,9 +387,15 @@ export function DropzoneToGitHub({
     }
   }
 
-  async function publish(event: FormEvent<HTMLFormElement>) {
+  function preventImplicitPublish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!desktop || busy) return;
+    setError(
+      'Slide to the end and release to create & push. With a keyboard, focus the slider, press End, then Enter.',
+    );
+  }
+
+  async function publish() {
+    if (!desktop || busy || publishing.current) return;
     if (!path.trim()) {
       setError('Choose the folder you want to publish.');
       return;
@@ -390,6 +404,8 @@ export function DropzoneToGitHub({
       setError('Sign in with GitHub before creating your cloud repository.');
       return;
     }
+    if (!form.current?.reportValidity()) return;
+    publishing.current = true;
     const operationId = crypto.randomUUID();
     activeOperation.current = operationId;
     setBusy(true);
@@ -453,6 +469,7 @@ export function DropzoneToGitHub({
         );
       }
     } finally {
+      publishing.current = false;
       disposeListener();
       if (activeUnlisten.current === disposeListener) activeUnlisten.current = null;
       if (mounted.current && activeOperation.current === operationId) {
@@ -640,7 +657,8 @@ export function DropzoneToGitHub({
           ) : (
             <motion.form
               key="form"
-              onSubmit={publish}
+              ref={form}
+              onSubmit={preventImplicitPublish}
               className="publish-form"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -789,7 +807,10 @@ export function DropzoneToGitHub({
                     <input
                       type="password"
                       value={token}
-                      onChange={(event) => setToken(event.target.value)}
+                      onChange={(event) => {
+                        setToken(event.target.value);
+                        setCredentialsVersion((value) => value + 1);
+                      }}
                       required
                       autoComplete="off"
                       spellCheck={false}
@@ -856,7 +877,7 @@ export function DropzoneToGitHub({
                   <span>{error}</span>
                 </div>
               )}
-              <footer className="publish-form-footer">
+              <footer className={`publish-form-footer ${desktop ? 'publish-slide-footer' : ''}`}>
                 <span className="publish-footer-note">
                   <GitCommitHorizontal size={13} />
                   {desktop && provider === 'github' && !github.connected
@@ -864,14 +885,27 @@ export function DropzoneToGitHub({
                     : 'One folder. First commit. First push.'}
                 </span>
                 {desktop ? (
-                  <Button
-                    type="submit"
-                    className="publish-primary-button"
+                  <SlideToConfirm
+                    className="publish-confirmation"
+                    label="Slide to create & push"
+                    pendingLabel="Creating & pushing…"
+                    description={`Create a ${privateRepo ? 'private' : 'public'} ${provider === 'github' ? 'GitHub' : 'GitLab'} repository, save your first commit, then push your files. ${privateRepo ? 'Only people you grant access can see it.' : 'Anyone can see the published files.'}`}
                     disabled={busy || (provider === 'github' && !github.connected)}
-                  >
-                    Create & push
-                    <Upload size={15} />
-                  </Button>
+                    busy={busy}
+                    resetKey={JSON.stringify([
+                      open,
+                      path,
+                      name,
+                      provider,
+                      privateRepo,
+                      github.connected,
+                      github.account?.login,
+                      authorName,
+                      authorEmail,
+                      credentialsVersion,
+                    ])}
+                    onConfirm={publish}
+                  />
                 ) : (
                   <Button type="button" className="publish-primary-button" onClick={runPreview}>
                     <Play size={14} />

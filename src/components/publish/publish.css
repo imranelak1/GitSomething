@@ -542,6 +542,21 @@
   margin-top: 24px;
   border-top: 1px solid var(--ui-border);
 }
+
+.publish-form-footer.publish-slide-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.publish-slide-footer > .publish-confirmation {
+  width: 100%;
+  min-width: 0;
+}
+
+.publish-slide-footer .publish-footer-note {
+  max-width: none;
+}
 .publish-footer-note {
   display: flex;
   gap: 6px;

@@ -1,0 +1,216 @@
+.slide-confirm-wrap {
+  --slide-height: 50px;
+  --slide-thumb: 40px;
+  min-width: 172px;
+  width: 100%;
+}
+
+.slide-confirm {
+  position: relative;
+  height: var(--slide-height);
+  min-width: 0;
+  isolation: isolate;
+  border: 1px solid var(--ui-success);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--ui-success-fill) 15%, var(--ui-canvas));
+  overflow: hidden;
+  user-select: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.slide-confirm-fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  background: color-mix(in srgb, var(--ui-success-fill) 36%, transparent);
+  pointer-events: none;
+}
+
+.slide-confirm-label {
+  position: absolute;
+  inset: 0 calc(var(--slide-thumb) + 14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: center;
+  pointer-events: none;
+}
+
+.slide-confirm-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  display: grid;
+  place-items: center;
+  width: var(--slide-thumb);
+  height: var(--slide-thumb);
+  border: 1px solid var(--ui-success);
+  border-radius: 6px;
+  background: var(--ui-success-fill);
+  color: var(--ui-accent-ink);
+  cursor: grab;
+  outline: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.slide-confirm-thumb:focus-visible {
+  outline: 2px solid var(--ui-text);
+  outline-offset: -3px;
+}
+
+.slide-confirm[data-dragging='true'] .slide-confirm-thumb {
+  cursor: grabbing;
+}
+
+.slide-confirm[data-ready='true'] {
+  border-color: var(--ui-success);
+}
+
+.slide-confirm[data-ready='true'] .slide-confirm-thumb {
+  background: var(--ui-success-hover);
+  border-color: var(--ui-success);
+}
+
+.slide-confirm[data-ready='true'] .slide-confirm-fill {
+  background: color-mix(in srgb, var(--ui-success-fill) 46%, transparent);
+}
+
+.slide-confirm[data-disabled='true'] {
+  border-color: var(--ui-border-strong);
+  background: var(--ui-panel);
+}
+
+.slide-confirm[data-disabled='true'] .slide-confirm-label {
+  color: var(--ui-muted);
+}
+
+.slide-confirm[data-disabled='true'] .slide-confirm-thumb {
+  background: var(--ui-raised);
+  border-color: var(--ui-border-strong);
+  color: var(--ui-muted);
+  cursor: not-allowed;
+}
+
+.slide-confirm[data-busy='true'] .slide-confirm-thumb {
+  cursor: wait;
+}
+
+.slide-confirm-guidance {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 7px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.slide-confirm-help > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.slide-confirm-help:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.slide-confirm-tooltip-hint {
+  display: block;
+  margin-top: 7px;
+  color: var(--ui-muted);
+}
+
+.slide-confirm-compact {
+  --slide-height: 38px;
+  --slide-thumb: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  width: 218px;
+  flex: 0 0 218px;
+}
+
+.slide-confirm-compact .slide-confirm {
+  flex: 1;
+}
+
+.slide-confirm-compact .slide-confirm-label {
+  font-size: 11px;
+  inset-inline: calc(var(--slide-thumb) + 12px);
+}
+
+.slide-confirm-compact .slide-confirm-guidance {
+  flex: 0 0 20px;
+  align-self: stretch;
+  align-items: center;
+  margin: 0;
+}
+
+.slide-confirm-compact .slide-confirm-instruction,
+.slide-confirm-compact .slide-confirm-help-label {
+  display: none;
+}
+
+.slide-confirm-compact .slide-confirm-help {
+  display: inline-flex;
+  padding: 3px 0;
+}
+
+.slide-confirm-compact .slide-confirm-help > span {
+  opacity: 0.9;
+}
+
+.slide-confirm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.slide-confirm-spinner {
+  animation: slide-confirm-spin 900ms linear infinite;
+}
+
+@keyframes slide-confirm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide-confirm {
+    transition: none;
+  }
+  .slide-confirm-spinner {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .slide-confirm,
+  .slide-confirm-thumb {
+    border-color: ButtonText;
+  }
+  .slide-confirm-thumb:focus-visible {
+    outline-color: Highlight;
+  }
+}

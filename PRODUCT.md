@@ -50,6 +50,7 @@ These are roadmap capabilities, not promises that the starter already implements
 - Every mutation has a pending, success, and actionable failure state. Repeated clicks cannot start overlapping mutations.
 - The console teaches the equivalent CLI without exposing credentials or claiming a shell command was executed.
 - Folder publishing subscribes to progress before starting work and cannot confuse updates from another operation.
+- Both visual push actions require a deliberate slider confirmation. Early release, interruption, or a context change resets the handle; keyboard users can move to the end and confirm explicitly. Enter in the publishing form cannot bypass the slider.
 - Keyboard users can open and close dialogs, invoke the command palette, inspect token explanations, and return to their previous focus.
 - Reduced-motion users receive the same information without spring movement, parallax, or animated reordering.
 - Browser fixtures and native results are distinguishable. UI polish never stands in for verified Git behavior.

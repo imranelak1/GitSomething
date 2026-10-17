@@ -50,3 +50,9 @@ The compact Learn by doing strip explains the working folder, staging, committin
 - `src/components/LearningFlow.tsx` provides contextual guidance in the workspace.
 
 The existing Rust engine remains the only application Git runtime. Advanced history editing and three-way conflict resolution keep their previously documented preview or roadmap status.
+
+## Confirming a push
+
+The workspace **Slide to push** and publishing's **Slide to create & push** controls record a completed confirmation as an interface request. The existing Git operation rows report execution and its actual outcome separately. Releasing early, cancelling, or changing the repository or publication details resets the slider without starting work. The confirmation tooltip explains what will be uploaded and how to use the keyboard: arrows or End to move, Enter or Space at the end to confirm, and Escape to cancel. Pressing Enter in a publishing text field never starts publication.
+
+Guided commands retain their explicit Run or Enter behavior. Typing a supported `git push` uses the same Git engine and records its own result.

@@ -64,6 +64,7 @@ import { demoDiff } from './lib/demo';
 import type { FileDiff } from './lib/types';
 import { LearningFlow } from './components/LearningFlow';
 import { HomePage } from './components/HomePage';
+import { SlideToConfirm } from './components/SlideToConfirm';
 import {
   forgetRepository,
   readRecentRepositories,
@@ -760,19 +761,29 @@ export default function App() {
                   <ArrowDown size={14} />
                   Pull
                 </Button>
-                <AnimatedTooltip content="Push uploads saved commits to the remote repository. Your uncommitted edits stay on this computer.">
-                  <Button
-                    className="toolbar-push"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => void sync('push')}
-                    disabled={busy}
-                  >
-                    <ArrowUp size={14} />
-                    Push
-                  </Button>
-                </AnimatedTooltip>
               </div>
+              <SlideToConfirm
+                className="workspace-push-confirmation"
+                variant="compact"
+                label="Slide to push"
+                pendingLabel="Pushing…"
+                description={
+                  demo
+                    ? 'Practice uploading saved commits. This demo does not contact a remote repository.'
+                    : `Upload saved commits from ${repository.branch} to the remote repository. Uncommitted edits stay on this computer.`
+                }
+                disabled={busy || screen !== 'workspace'}
+                resetKey={JSON.stringify([
+                  screen,
+                  demo,
+                  repository.path,
+                  repository.branch,
+                  repository.branches.find((branch) => branch.current)?.target,
+                  auth.connected,
+                  auth.account?.login,
+                ])}
+                onConfirm={() => sync('push')}
+              />
             </div>
             <div className="workspace-masthead">
               <div className="page-heading">

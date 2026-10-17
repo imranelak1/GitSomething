@@ -34,7 +34,7 @@ The first launch opens **Home**. Choose **Show me around** for the interactive g
 1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
 2. **Connect GitHub.** Approve access in your browser using the one-time code shown in Branchline. There is no GitHub token field. The app owner configures the public OAuth Client ID once; see [GitHub sign-in setup](docs/GITHUB_AUTH.md).
 3. **Review before sharing.** Choose a repository name and Public or Private visibility. Publishing creates the initial local commit, creates the hosted repository, and pushes the first version. GitLab keeps its operation-specific token flow.
-4. **Save your next change.** Review a changed file, pick the files for this save (**stage**), and describe the change before creating a **commit**. A commit saves a version on your computer; **Push** uploads saved versions to GitHub.
+4. **Save your next change.** Review a changed file, pick the files for this save (**stage**), and describe the change before creating a **commit**. A commit saves a version on your computer; **Slide to push** uploads saved versions to GitHub. Drag the handle to the end and release, or focus it, press End, then Enter. Publishing a new folder uses the same deliberate confirmation before creating the cloud repository and pushing.
 
 Local review, staging, and commits work offline. Connecting accounts and synchronizing with a remote require the network. The Glass-Box console explains each equivalent Git command, with hosted repository creation clearly labeled as an API action.
 
