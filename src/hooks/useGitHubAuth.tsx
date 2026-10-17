@@ -49,6 +49,7 @@ export interface PendingGitHubAuthorization {
 
 interface GitHubAuthContextValue extends GitHubAuthStatus {
   desktop: boolean;
+  revision: number;
   stage: 'idle' | 'starting' | 'waiting' | 'connected' | 'error';
   pending: PendingGitHubAuthorization | null;
   connect: () => Promise<void>;
@@ -56,6 +57,8 @@ interface GitHubAuthContextValue extends GitHubAuthStatus {
   disconnect: () => Promise<void>;
   refresh: () => Promise<void>;
   openBrowser: () => Promise<void>;
+  configure: (clientId: string) => Promise<boolean>;
+  openSetup: () => Promise<void>;
 }
 
 interface AuthAttemptActivity {
@@ -87,6 +90,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<GitHubAuthContextValue['stage']>('idle');
   const [pending, setPending] = useState<PendingGitHubAuthorization | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [revision, setRevision] = useState(0);
+  const identity = useRef('');
   const mounted = useRef(false);
   const generation = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -115,6 +120,11 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     try {
       const current = await invoke<GitHubAuthStatus>('github_auth_status');
       if (!mounted.current || currentGeneration !== generation.current) return;
+      const nextIdentity = current.connected ? (current.account?.login.toLowerCase() ?? '') : '';
+      if (identity.current !== nextIdentity) {
+        identity.current = nextIdentity;
+        setRevision((value) => value + 1);
+      }
       setStatus(current);
       setError(current.error ?? null);
       if (!pendingSession.current && !starting.current) {
@@ -123,6 +133,50 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     } catch (reason) {
       if (!mounted.current || currentGeneration !== generation.current) return;
       setError(messageFrom(reason, 'Could not check GitHub sign-in. Try again.'));
+    }
+  }, [desktop]);
+
+  const configure = useCallback(
+    async (clientId: string) => {
+      if (!desktop || starting.current || pendingSession.current || status.connected) return false;
+      starting.current = true;
+      const currentGeneration = ++generation.current;
+      setError(null);
+      try {
+        const current = await invoke<GitHubAuthStatus>('github_auth_configure', { clientId });
+        if (!mounted.current || currentGeneration !== generation.current) return false;
+        identity.current = '';
+        setRevision((value) => value + 1);
+        setStatus(current);
+        setStage('idle');
+        setError(current.error ?? null);
+        return current.configured;
+      } catch (reason) {
+        if (mounted.current && currentGeneration === generation.current) {
+          setError(messageFrom(reason, 'Could not save GitHub setup. Try again.'));
+        }
+        return false;
+      } finally {
+        if (currentGeneration === generation.current) starting.current = false;
+      }
+    },
+    [desktop, status.connected],
+  );
+
+  const openSetup = useCallback(async () => {
+    if (!desktop) return;
+    try {
+      await invoke('github_auth_open_setup');
+      if (mounted.current) setError(null);
+    } catch (reason) {
+      if (mounted.current) {
+        setError(
+          messageFrom(
+            reason,
+            'Could not open GitHub settings. Visit github.com/settings/applications/new.',
+          ),
+        );
+      }
     }
   }, [desktop]);
 
@@ -231,6 +285,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
             pendingSession.current = null;
             setPending(null);
             if (result.status === 'connected') {
+              identity.current = result.account?.login.toLowerCase() ?? '';
+              setRevision((value) => value + 1);
               setStatus((current) => ({
                 ...current,
                 configured: true,
@@ -306,6 +362,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     try {
       await invoke('github_auth_disconnect');
       if (!mounted.current || currentGeneration !== generation.current) return;
+      identity.current = '';
+      setRevision((value) => value + 1);
       setStatus((current) => ({ ...current, connected: false, account: null, scopes: [] }));
       setStage('idle');
       setError(null);
@@ -351,6 +409,7 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       ...status,
       error,
       desktop,
+      revision,
       stage,
       pending,
       connect,
@@ -358,8 +417,24 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       disconnect,
       refresh,
       openBrowser,
+      configure,
+      openSetup,
     }),
-    [status, error, desktop, stage, pending, connect, cancel, disconnect, refresh, openBrowser],
+    [
+      status,
+      error,
+      desktop,
+      revision,
+      stage,
+      pending,
+      connect,
+      cancel,
+      disconnect,
+      refresh,
+      openBrowser,
+      configure,
+      openSetup,
+    ],
   );
 
   return <GitHubAuthContext.Provider value={value}>{children}</GitHubAuthContext.Provider>;

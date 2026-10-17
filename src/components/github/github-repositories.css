@@ -1,0 +1,384 @@
+.github-repositories {
+  min-width: 0;
+  margin-top: 32px;
+  padding-top: 25px;
+  border-top: 1px solid var(--ui-border);
+  color: var(--ui-text);
+  font-size: 13px;
+}
+
+.github-repositories-heading,
+.github-repositories-title,
+.github-repositories-refresh,
+.github-repositories-connect,
+.github-repositories-search,
+.github-repositories-row-heading,
+.github-repositories-visibility,
+.github-repositories-open,
+.github-repositories-metadata,
+.github-repositories-metadata > span,
+.github-repositories-loading,
+.github-repositories-footer {
+  display: flex;
+  align-items: center;
+}
+
+.home-project-actions + .github-repositories {
+  margin-top: 0;
+  margin-bottom: 32px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.github-repositories-heading {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 13px;
+}
+
+.github-repositories-title {
+  gap: 9px;
+  min-width: 0;
+}
+
+.github-repositories-title > svg {
+  flex: 0 0 auto;
+}
+.github-repositories-title h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.github-repositories button,
+.github-repositories-open {
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.github-repositories button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.github-repositories button:focus-visible,
+.github-repositories a:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+
+.github-repositories-refresh {
+  flex: 0 0 auto;
+  gap: 7px;
+  min-height: 32px;
+  padding: 4px 9px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  background: var(--ui-panel);
+  color: var(--ui-text);
+  font-size: 12px;
+}
+
+.github-repositories-refresh:hover:not(:disabled) {
+  background: var(--ui-hover);
+  border-color: var(--ui-border-strong);
+}
+.github-repositories-account {
+  margin: 0 0 16px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.github-repositories-account strong {
+  color: var(--ui-text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.github-repositories-disconnected {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 0 8px;
+}
+.github-repositories-disconnected > svg {
+  color: var(--ui-muted);
+  flex-shrink: 0;
+}
+.github-repositories-disconnected > div {
+  flex: 1;
+  min-width: 0;
+}
+.github-repositories-disconnected p {
+  margin: 0 0 5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.github-repositories-disconnected span {
+  color: var(--ui-muted);
+  line-height: 1.65;
+}
+.github-repositories-connect {
+  flex: 0 0 auto;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 7px;
+  background: var(--ui-panel);
+  color: var(--ui-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+.github-repositories-connect:hover {
+  background: var(--ui-hover);
+}
+
+.github-repositories-search {
+  gap: 9px;
+  min-height: 39px;
+  margin-bottom: 8px;
+  padding: 0 11px;
+  border: 1px solid var(--ui-border);
+  border-radius: 6px;
+  color: var(--ui-muted);
+  background: var(--ui-panel);
+}
+.github-repositories-search > svg {
+  flex: 0 0 auto;
+}
+.github-repositories-search:focus-within {
+  border-color: var(--ui-accent);
+  outline: 1px solid var(--ui-accent);
+  outline-offset: 0;
+}
+.github-repositories-search input {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  min-height: 37px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--ui-text);
+  background: transparent;
+  caret-color: var(--ui-accent);
+  font: inherit;
+  font-size: 12px;
+}
+.github-repositories-search input::placeholder {
+  color: var(--ui-muted);
+  opacity: 1;
+}
+.github-repositories-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: min(52vh, 480px);
+  overflow-y: auto;
+  scrollbar-color: var(--ui-border-strong) transparent;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.github-repositories-list:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+.github-repositories-row {
+  padding: 17px 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+.github-repositories-row-heading {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.github-repositories-name {
+  min-width: 0;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.github-repositories-name > span {
+  color: var(--ui-muted);
+  font-weight: 500;
+}
+.github-repositories-visibility {
+  gap: 5px;
+  color: var(--ui-muted);
+  font-size: 11px;
+}
+.github-repositories-open {
+  flex: 0 0 auto;
+  gap: 5px;
+  margin-left: auto;
+  padding: 3px 0 3px 9px;
+  color: var(--ui-accent);
+  font-size: 11px;
+  line-height: 1.6;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.github-repositories-open:hover {
+  color: var(--ui-text);
+  text-decoration: underline;
+}
+.github-repositories-open[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: progress;
+}
+.github-repositories-description {
+  margin: 7px 0 0;
+  color: var(--ui-muted);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.github-repositories-metadata {
+  flex-wrap: wrap;
+  gap: 5px 18px;
+  margin-top: 9px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.github-repositories-metadata > span {
+  gap: 4px;
+}
+.github-repositories-metadata:empty {
+  display: none;
+}
+.github-repositories-loading {
+  justify-content: center;
+  gap: 9px;
+  padding: 27px 12px;
+  color: var(--ui-muted);
+  line-height: 1.6;
+}
+.github-repositories-spinner {
+  animation: github-repositories-spin 1s linear infinite;
+  flex-shrink: 0;
+}
+.github-repositories-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 13px 0;
+  padding: 12px;
+  border: 1px solid var(--ui-danger);
+  border-radius: 6px;
+  color: var(--ui-danger);
+}
+.github-repositories-error > svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+.github-repositories-error p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.github-repositories-error button,
+.github-repositories-footer button {
+  flex: 0 0 auto;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+.github-repositories-error button:hover:not(:disabled),
+.github-repositories-footer button:hover:not(:disabled) {
+  color: var(--ui-text);
+}
+.github-repositories-open-error {
+  margin: 12px 0;
+  color: var(--ui-danger);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.github-repositories-empty {
+  padding: 26px 0;
+  text-align: center;
+}
+.github-repositories-empty p {
+  margin: 0 0 5px;
+  line-height: 1.6;
+}
+.github-repositories-empty > span {
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.github-repositories-footer {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px 20px;
+  min-height: 47px;
+  padding: 8px 0;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+@keyframes github-repositories-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .github-repositories *,
+  .github-repositories *::before,
+  .github-repositories *::after {
+    transition: none;
+  }
+  .github-repositories-spinner {
+    animation: none;
+  }
+}
+@media (max-width: 600px) {
+  .github-repositories {
+    margin-top: 26px;
+    padding-top: 20px;
+  }
+  .github-repositories-heading {
+    gap: 8px;
+  }
+  .github-repositories-title {
+    gap: 7px;
+  }
+  .github-repositories-title h2 {
+    font-size: 14px;
+  }
+  .github-repositories-disconnected {
+    flex-wrap: wrap;
+  }
+  .github-repositories-disconnected > div {
+    flex-basis: calc(100% - 34px);
+  }
+  .github-repositories-connect {
+    margin-top: 2px;
+  }
+  .github-repositories-row-heading {
+    column-gap: 9px;
+  }
+  .github-repositories-name {
+    flex-basis: 100%;
+  }
+  .github-repositories-open {
+    padding-left: 0;
+  }
+  .github-repositories-error {
+    flex-wrap: wrap;
+  }
+  .github-repositories-error button {
+    margin-left: 25px;
+  }
+}

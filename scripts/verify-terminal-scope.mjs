@@ -145,6 +145,8 @@ async function installNativeFixture(page) {
       async invoke(command, args) {
         state.calls.push(command);
         if (command === 'github_auth_status') return status();
+        if (command === 'list_github_repositories')
+          return { repositories: [], nextPage: null, accountLogin: 'scope-fixture' };
         if (command === 'github_auth_disconnect') {
           state.connected = false;
           return;

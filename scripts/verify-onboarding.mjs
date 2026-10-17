@@ -129,6 +129,8 @@ async function nativePage({ configured = true } = {}) {
               scopes: connected ? scopes : [],
             };
           }
+          if (command === 'list_github_repositories')
+            return { repositories: [], nextPage: null, accountLogin: account.login };
           if (command === 'github_auth_start') {
             return {
               sessionId: `test-session-${++state.sequence}`,
@@ -351,10 +353,7 @@ try {
 
   const unavailable = await nativePage({ configured: false });
   await openAccount(unavailable);
-  await expectText(
-    unavailable,
-    'GitHub sign-in is not available in this build. Your files are safe; you can still work locally.',
-  );
+  await unavailable.getByRole('group', { name: 'Set up GitHub sign-in', exact: true }).waitFor();
   assert.equal(
     await unavailable.getByRole('button', { name: 'Sign in with GitHub', exact: true }).count(),
     0,
@@ -362,7 +361,9 @@ try {
   await unavailable.getByRole('button', { name: 'Continue locally', exact: true }).click();
   await expectText(unavailable, 'Pick what belongs together.');
   await unavailable.close();
-  check('A build without an OAuth Client ID still supports the guide and local work');
+  check(
+    'A build without an OAuth Client ID offers one-time owner setup while retaining local work',
+  );
 
   const native = await nativePage();
   await openAccount(native);

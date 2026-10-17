@@ -52,11 +52,15 @@ The first milestone registers these commands:
 | `fetch_repository` / `push_repository` / `pull_repository` | `path`                        | Synchronize the configured remote; pull accepts only a safe fast-forward.                 |
 | `publish_repository`                                       | `request`                     | Validate, initialize, commit, create a hosted repository, connect, and push.              |
 | `github_auth_status`                                       | none                          | Report configured/connected state and account details without credentials.                |
+| `github_auth_configure`                                    | `clientId`                    | Validate and persist the public OAuth app identifier for one-time owner setup.            |
+| `github_auth_open_setup`                                   | none                          | Open the fixed GitHub OAuth app registration page in the system browser.                  |
 | `github_auth_start`                                        | none                          | Request a one-time user code and keep the private device code in Rust.                    |
 | `github_auth_poll`                                         | `sessionId`                   | Poll a valid session while respecting the provider's minimum interval.                    |
 | `github_auth_open_browser`                                 | `sessionId`                   | Open the fixed GitHub approval page for the active native session.                        |
 | `github_auth_cancel`                                       | `sessionId`                   | Cancel the local sign-in session and prevent later completion.                            |
 | `github_auth_disconnect`                                   | none                          | Remove the saved local GitHub credential and connected account.                           |
+| `list_github_repositories`                                 | `request: { page, perPage }`  | Read a bounded page of repositories accessible to the native authenticated account.       |
+| `open_github_repository`                                   | `url`                         | Validate an HTTPS GitHub repository URL and open it in the system browser.                |
 
 The publishing request uses camelCase:
 
@@ -107,7 +111,11 @@ The Glass Box stores validated height and font preferences under `branchline.ter
 
 `GitHubAuthProvider` shares account state across the guide, account launcher, and publishing dialog. It invokes the native auth commands, schedules polls using the returned interval, and discards responses from canceled or superseded sessions. The native backend also enforces session identity and polling intervals; frontend timers alone cannot enforce these boundaries. React receives only account details, scopes, the public user code, and flow status. Rust owns the private device code, access token, refresh token when issued, and credential-store lifecycle. The sign-in URL is fixed in Rust rather than accepting an arbitrary URL from the webview.
 
-The owner's `BRANCHLINE_GITHUB_CLIENT_ID` is a public identifier, read at runtime or embedded during the native build. A missing identifier leaves local Git work available and shows sign-in as unavailable. Registration is the application owner's responsibility, not an end-user onboarding step. [GitHub sign-in setup](GITHUB_AUTH.md) documents registration, permissions, and the live verification boundary.
+The owner's OAuth Client ID is public configuration. In-app owner setup validates it and writes `github-oauth.json` in Tauri's application configuration directory. This setting takes precedence over `BRANCHLINE_GITHUB_CLIENT_ID`, which can still be read at runtime or embedded during the native build. A missing identifier offers the owner setup form while preserving local Git work. Setup changes require a disconnected account and no pending authorization. Registration is the application owner's responsibility; people installing a configured build sign in directly. [GitHub sign-in setup](GITHUB_AUTH.md) documents registration, permissions, and the live verification boundary.
+
+`GitHubRepositories` adds the authenticated provider list to Home. `useGitHubRepositories` invokes Rust with `{ request: { page, perPage } }` and receives `{ repositories, nextPage, accountLogin }`. Each row contains repository metadata, never credentials or file contents. Rust calls the fixed authenticated GitHub endpoint with the native OAuth credential. It requests owner, collaborator, and organization-member affiliation, sorts by update time, and bounds page size. The interface requests 50 rows per page; filtering searches only loaded metadata. Duplicate repository IDs across pages replace metadata without duplicating rows.
+
+The account login and auth-provider revision define a frontend repository session. The hook hides rows immediately when that identity changes, discards superseded responses, and rejects a response whose `accountLogin` differs from the active account. Search and open-link state reset with the same session. Lists are not written to browser storage. GitHub repository links open through a native command that validates the HTTPS host and repository path; this action does not clone a repository. Failed page requests retain loaded current-account data with a retry action. Browser previews show the desktop requirement rather than invented account repositories.
 
 ## Git Guardian and destructive plans
 

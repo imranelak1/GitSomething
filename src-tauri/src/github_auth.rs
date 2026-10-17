@@ -3,10 +3,11 @@
 use crate::git_engine::EngineResult;
 use serde::{Deserialize, Serialize};
 use std::{
+    path::{Path, PathBuf},
     sync::Arc,
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 use tauri_plugin_opener::OpenerExt;
 use uuid::Uuid;
 use zeroize::{Zeroize, ZeroizeOnDrop, Zeroizing};
@@ -83,6 +84,7 @@ impl Session {
 
 #[derive(Default)]
 struct Inner {
+    config_path: Option<PathBuf>,
     restored: bool,
     credential: Option<Credential>,
     session: Option<Session>,
@@ -176,18 +178,38 @@ struct EmailResponse {
     verified: bool,
 }
 
-fn client_id() -> Option<String> {
-    std::env::var("BRANCHLINE_GITHUB_CLIENT_ID")
-        .ok()
-        .or_else(|| option_env!("BRANCHLINE_GITHUB_CLIENT_ID").map(str::to_owned))
-        .map(|id| id.trim().to_owned())
-        .filter(|id| {
-            !id.is_empty() && id.len() <= 128 && id.chars().all(|c| c.is_ascii_alphanumeric())
-        })
+fn valid_client_id(value: &str) -> bool {
+    (10..=128).contains(&value.len())
+        && value.bytes().all(|byte| byte.is_ascii_alphanumeric())
+        && !(value.len() == 40 && value.bytes().all(|byte| byte.is_ascii_hexdigit()))
 }
 
-fn require_client_id() -> EngineResult<String> {
-    client_id().ok_or_else(|| "GitHub sign-in is not configured in this build. The app owner must set BRANCHLINE_GITHUB_CLIENT_ID to their registered OAuth application's public client ID and enable Device Flow in GitHub settings.".into())
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OwnerConfiguration {
+    client_id: String,
+}
+
+fn client_id(path: Option<&Path>) -> Option<String> {
+    let saved = path.and_then(|path| {
+        let metadata = std::fs::metadata(path).ok()?;
+        if metadata.len() > 4096 {
+            return None;
+        }
+        let saved: OwnerConfiguration = serde_json::from_slice(&std::fs::read(path).ok()?).ok()?;
+        valid_client_id(&saved.client_id).then_some(saved.client_id)
+    });
+    saved.or_else(|| {
+        std::env::var("BRANCHLINE_GITHUB_CLIENT_ID")
+            .ok()
+            .or_else(|| option_env!("BRANCHLINE_GITHUB_CLIENT_ID").map(str::to_owned))
+            .map(|id| id.trim().to_owned())
+            .filter(|id| valid_client_id(id))
+    })
+}
+
+fn require_client_id(path: Option<&Path>) -> EngineResult<String> {
+    client_id(path).ok_or_else(|| "Set up GitHub sign-in with GitSomething's public OAuth client ID and enable Device Flow in GitHub settings.".into())
 }
 
 fn client() -> EngineResult<reqwest::Client> {
@@ -465,6 +487,16 @@ async fn request_device_token(
 }
 
 impl AuthState {
+    pub fn initialize_configuration(&self, app: &AppHandle) -> EngineResult<()> {
+        let path = app
+            .path()
+            .app_config_dir()
+            .map_err(|_| "Could not locate GitHub setup storage.".to_string())?
+            .join("github-oauth.json");
+        self.0.blocking_lock().config_path = Some(path);
+        Ok(())
+    }
+
     /// A local commit may use saved account metadata even when the network is offline.
     /// This never authorizes an API or Git transport operation.
     pub async fn commit_identity(&self) -> Option<GitHubAccount> {
@@ -476,7 +508,7 @@ impl AuthState {
         // while offline. Saved account metadata remains useful for a local commit;
         // loading it here never grants access to the saved transport credential.
         if let Ok(Some(credential)) = load().await {
-            if client_id().as_deref() == Some(&credential.client_id) {
+            if client_id(inner.config_path.as_deref()).as_deref() == Some(&credential.client_id) {
                 return Some(credential.account.clone());
             }
         }
@@ -487,7 +519,7 @@ impl AuthState {
         let mut inner = self.0.lock().await;
         if !inner.restored {
             match load().await {
-                Ok(Some(credential)) if client_id().as_deref() == Some(&credential.client_id) => {
+                Ok(Some(credential)) if client_id(inner.config_path.as_deref()).as_deref() == Some(&credential.client_id) => {
                     match restore_credential(credential).await {
                         Ok(credential) => inner.credential = Some(credential),
                         Err(error) => inner.error = Some(error),
@@ -511,7 +543,7 @@ impl AuthState {
             }
         }
         AuthStatus {
-            configured: client_id().is_some(),
+            configured: client_id(inner.config_path.as_deref()).is_some(),
             connected: inner.credential.is_some(),
             account: inner.credential.as_ref().map(|c| c.account.clone()),
             scopes: inner
@@ -541,6 +573,84 @@ impl AuthState {
         inner.credential = None;
         inner.error = Some("GitHub rejected your connection. Connect to GitHub again.".into());
     }
+
+    pub async fn is_current_credential(&self, token: &str) -> bool {
+        self.0
+            .lock()
+            .await
+            .credential
+            .as_ref()
+            .is_some_and(|credential| credential.token == token)
+    }
+
+    pub async fn reject_credential(&self, token: &str) {
+        let mut inner = self.0.lock().await;
+        if inner
+            .credential
+            .as_ref()
+            .is_some_and(|credential| credential.token == token)
+        {
+            inner.credential = None;
+            inner.error = Some("GitHub rejected your connection. Connect to GitHub again.".into());
+        }
+    }
+}
+
+#[tauri::command]
+pub async fn github_auth_configure(
+    app: AppHandle,
+    state: State<'_, AuthState>,
+    client_id: String,
+) -> EngineResult<AuthStatus> {
+    let client_id = client_id.trim().to_owned();
+    if !valid_client_id(&client_id) {
+        return Err("Paste the public Client ID from your GitHub OAuth App. Access tokens and client secrets are not accepted.".into());
+    }
+    let path = app
+        .path()
+        .app_config_dir()
+        .map_err(|_| "Could not locate GitHub setup storage.".to_string())?
+        .join("github-oauth.json");
+    let mut inner = state.0.lock().await;
+    if inner.credential.is_some() || inner.session.is_some() {
+        return Err(
+            "Disconnect or cancel the current GitHub sign-in before changing app setup.".into(),
+        );
+    }
+    let parent = path
+        .parent()
+        .ok_or("Could not locate GitHub setup storage.")?;
+    std::fs::create_dir_all(parent)
+        .map_err(|_| "Could not create GitHub setup storage.".to_string())?;
+    let contents = serde_json::to_vec(&OwnerConfiguration { client_id })
+        .map_err(|_| "Could not prepare GitHub setup.".to_string())?;
+    let temporary = parent.join(format!("github-oauth-{}.tmp", Uuid::new_v4()));
+    let persist = || -> std::io::Result<()> {
+        use std::io::Write;
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)?;
+        file.write_all(&contents)?;
+        file.sync_all()?;
+        drop(file);
+        std::fs::rename(&temporary, &path)
+    };
+    if persist().is_err() {
+        let _ = std::fs::remove_file(&temporary);
+        return Err("Could not save GitHub setup. Check the app's configuration-folder permissions and try again.".into());
+    }
+    inner.config_path = Some(path);
+    inner.error = None;
+    inner.restored = true;
+    drop(inner);
+    Ok(state.status().await)
+}
+
+#[tauri::command]
+pub fn github_auth_open_setup(app: AppHandle) -> EngineResult<()> {
+    app.opener().open_url("https://github.com/settings/applications/new", None::<&str>)
+        .map_err(|_| "Could not open GitHub. Visit github.com/settings/applications/new to register the OAuth app.".into())
 }
 
 #[tauri::command]
@@ -550,8 +660,8 @@ pub async fn github_auth_status(state: State<'_, AuthState>) -> EngineResult<Aut
 
 #[tauri::command]
 pub async fn github_auth_start(state: State<'_, AuthState>) -> EngineResult<DeviceSession> {
-    let client_id = require_client_id()?;
     let mut inner = state.0.lock().await;
+    let client_id = require_client_id(inner.config_path.as_deref())?;
     // One pending session per app. A double click cannot create two active grants.
     if inner
         .session
@@ -631,7 +741,10 @@ pub async fn github_auth_poll(
     state: State<'_, AuthState>,
     session_id: String,
 ) -> EngineResult<PollResult> {
-    let client_id = require_client_id()?;
+    let client_id = {
+        let inner = state.0.lock().await;
+        require_client_id(inner.config_path.as_deref())?
+    };
     poll_device(
         state.inner(),
         &session_id,
@@ -774,6 +887,158 @@ pub async fn github_auth_disconnect(state: State<'_, AuthState>) -> EngineResult
     delete().await?;
     inner.error = None;
     Ok(())
+}
+
+#[cfg(test)]
+mod owner_setup_tests {
+    use super::*;
+
+    fn credential(token: &str, login: &str) -> Credential {
+        Credential {
+            token: token.into(),
+            refresh_token: None,
+            client_id: "Ov23liExamplePublicID".into(),
+            account: GitHubAccount {
+                login: login.into(),
+                name: None,
+                email: Some(format!("{login}@users.noreply.github.com")),
+                avatar_url: format!("https://avatars.githubusercontent.com/{login}"),
+            },
+            scopes: normalized_scopes("repo workflow read:user user:email"),
+            expires_at: None,
+            refresh_expires_at: None,
+        }
+    }
+
+    #[test]
+    fn owner_setup_accepts_public_ids_and_rejects_tokens_secrets_and_invalid_input() {
+        for public_id in ["Ov23liExamplePublicID", "0123456789abcdef0123"] {
+            assert!(valid_client_id(public_id));
+        }
+        for invalid in [
+            "",
+            "tiny",
+            " Ov23liExamplePublicID",
+            "Ov23liExamplePublicID ",
+            "Ov23liExample\nPublicID",
+            "ghp_examplePersonalAccessToken",
+            "gho_exampleOAuthToken",
+            "github_pat_exampleFineGrainedToken",
+            "0123456789abcdef0123456789abcdef01234567",
+            "https://github.com/settings/applications",
+            "Ov23liExámplePublicID",
+        ] {
+            assert!(
+                !valid_client_id(invalid),
+                "An invalid owner setup value was accepted"
+            );
+        }
+        assert!(!valid_client_id(&"a".repeat(129)));
+    }
+
+    #[test]
+    fn saved_public_configuration_wins_and_serializes_no_credentials() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("github-oauth.json");
+        let configuration = OwnerConfiguration {
+            client_id: "Ov23liExamplePublicID".into(),
+        };
+        let json = serde_json::to_vec(&configuration).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&json).unwrap(),
+            serde_json::json!({ "clientId": "Ov23liExamplePublicID" })
+        );
+        std::fs::write(&path, &json).unwrap();
+        assert_eq!(
+            client_id(Some(&path)).as_deref(),
+            Some("Ov23liExamplePublicID")
+        );
+        assert_eq!(
+            require_client_id(Some(&path)).unwrap(),
+            "Ov23liExamplePublicID"
+        );
+    }
+
+    #[test]
+    fn missing_malformed_oversized_and_secret_configuration_use_only_the_build_fallback() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("github-oauth.json");
+        // Do not mutate environment variables: the test remains independent of
+        // parallel tests and of an owner's legitimate development configuration.
+        let fallback = client_id(None);
+        assert!(client_id(Some(&path)) == fallback);
+        for invalid in [
+            "{invalid-json".to_string(),
+            r#"{"accessToken":"must-never-be-used"}"#.to_string(),
+            r#"{"clientId":"ghp_neverAnOAuthAppID"}"#.to_string(),
+            r#"{"clientId":"0123456789abcdef0123456789abcdef01234567"}"#.to_string(),
+            format!(
+                "{{\"clientId\":\"Ov23liExamplePublicID\",\"padding\":\"{}\"}}",
+                "a".repeat(4096)
+            ),
+        ] {
+            std::fs::write(&path, invalid).unwrap();
+            assert!(
+                client_id(Some(&path)) == fallback,
+                "Invalid stored configuration was accepted"
+            );
+        }
+    }
+
+    #[test]
+    fn stale_rejection_cannot_disconnect_a_new_account_or_change_its_status() {
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        runtime.block_on(async {
+            let state = AuthState::default();
+            {
+                let mut inner = state.0.lock().await;
+                inner.restored = true;
+                inner.credential = Some(credential("old-native-secret", "previous-account"));
+            }
+            let (old_token, old_account) = state.credential().await.unwrap();
+            assert_eq!(old_account.login, "previous-account");
+            assert!(state.is_current_credential(&old_token).await);
+            state.0.lock().await.credential =
+                Some(credential("new-native-secret", "current-account"));
+            assert!(!state.is_current_credential(&old_token).await);
+            state.reject_credential(&old_token).await;
+            assert!(state.is_current_credential("new-native-secret").await);
+            let status = state.status().await;
+            assert!(status.connected);
+            assert_eq!(status.account.unwrap().login, "current-account");
+            assert!(status.error.is_none());
+            let (new_token, new_account) = state.credential().await.unwrap();
+            assert_eq!(new_account.login, "current-account");
+            assert_eq!(new_token.as_str(), "new-native-secret");
+        });
+    }
+
+    #[test]
+    fn current_rejection_clears_access_and_status_without_restoring_or_exposing_a_secret() {
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        runtime.block_on(async {
+            let state = AuthState::default();
+            {
+                let mut inner = state.0.lock().await;
+                inner.restored = true;
+                inner.credential = Some(credential("revoked-native-secret", "current-account"));
+            }
+            state.reject_credential("revoked-native-secret").await;
+            assert!(!state.is_current_credential("revoked-native-secret").await);
+            let status = state.status().await;
+            assert!(!status.connected);
+            assert!(status.account.is_none());
+            assert!(status.scopes.is_empty());
+            let json = serde_json::to_string(&status).unwrap();
+            assert!(!json.contains("revoked-native-secret"));
+            assert!(json.contains("Connect to GitHub again"));
+            assert!(state.credential().await.is_err());
+            // A late rejected request after a deliberate disconnect is inert.
+            state.0.lock().await.error = None;
+            state.reject_credential("revoked-native-secret").await;
+            assert!(state.0.lock().await.error.is_none());
+        });
+    }
 }
 
 #[cfg(test)]

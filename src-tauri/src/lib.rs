@@ -1,11 +1,13 @@
 pub mod git_engine;
 pub mod github_auth;
+pub mod github_repositories;
 
 use git_engine::{EngineResult, FileDiff, RepositorySnapshot};
 use github_auth::{
-    github_auth_cancel, github_auth_disconnect, github_auth_open_browser, github_auth_poll,
-    github_auth_start, github_auth_status, AuthState,
+    github_auth_cancel, github_auth_configure, github_auth_disconnect, github_auth_open_browser,
+    github_auth_open_setup, github_auth_poll, github_auth_start, github_auth_status, AuthState,
 };
+use github_repositories::{list_github_repositories, open_github_repository};
 use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -14,7 +16,7 @@ use std::{
     sync::{Arc, Mutex},
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use uuid::Uuid;
 use zeroize::Zeroizing;
 
@@ -964,6 +966,11 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(AppState::default())
         .manage(AuthState::default())
+        .setup(|app| {
+            app.state::<AuthState>()
+                .initialize_configuration(app.handle())?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             open_repository,
             get_diff,
@@ -980,7 +987,11 @@ pub fn run() {
             github_auth_poll,
             github_auth_open_browser,
             github_auth_cancel,
-            github_auth_disconnect
+            github_auth_disconnect,
+            github_auth_configure,
+            github_auth_open_setup,
+            list_github_repositories,
+            open_github_repository
         ])
         .run(tauri::generate_context!())
         .expect("could not run GitSomething desktop application");

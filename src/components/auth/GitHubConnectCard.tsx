@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useGitHubAuth } from '../../hooks/useGitHubAuth';
+import { GitHubOwnerSetup } from './GitHubOwnerSetup';
 import { TextRoll } from '../registry/skiper/TextRoll';
 import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
 import { Button } from '../ui/button';
@@ -176,14 +177,14 @@ export function GitHubConnectCard({ compact = false }: { compact?: boolean }) {
               </span>
             </div>
           ) : (
-            <div className="github-auth-local-note">
-              <ShieldCheck size={17} />
-              <p>
-                GitHub sign-in is not available in this build. Your files are safe; you can still
-                work locally.
-              </p>
-            </div>
+            <GitHubOwnerSetup />
           )}
+
+          {auth.desktop &&
+            auth.configured &&
+            !auth.connected &&
+            !waiting &&
+            auth.stage !== 'starting' && <GitHubOwnerSetup collapsed />}
 
           {auth.error && (
             <div className="github-auth-error" role="alert">

@@ -221,6 +221,8 @@ async function installNativeFixture(page, connected = true) {
         async invoke(command, args) {
           state.calls.push(command);
           if (command === 'github_auth_status') return status();
+          if (command === 'list_github_repositories')
+            return { repositories: [], nextPage: null, accountLogin: 'slider-fixture' };
           if (command === 'github_auth_disconnect') {
             state.connected = false;
             return status();

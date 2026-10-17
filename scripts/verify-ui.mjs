@@ -447,6 +447,8 @@ try {
         callbacks.delete(callbackId);
       },
       async invoke(command, args) {
+        if (command === 'list_github_repositories')
+          return { repositories: [], nextPage: null, accountLogin: 'test-fixture' };
         if (command === 'github_auth_status') {
           return {
             configured: true,

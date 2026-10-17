@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import type { RecentRepository } from '@/lib/recent-repositories';
+import { GitHubRepositories } from './github/GitHubRepositories';
 import { TextRoll } from './registry/skiper/TextRoll';
 import { AnimatedButton } from './registry/vengeance/AnimatedButton';
 import './home-page.css';
@@ -133,6 +134,8 @@ export function HomePage({
             <CornerDownLeft size={14} aria-hidden="true" /> Or drop a folder here.
           </span>
         </div>
+
+        {accountName && <GitHubRepositories onConnect={onConnectGitHub} />}
 
         <div className="home-content-grid">
           <section className="home-recent-section" aria-labelledby="home-recent-title">
@@ -272,6 +275,8 @@ export function HomePage({
             <p className="home-learning-footnote">The Glass Box explains your actions as you go.</p>
           </aside>
         </div>
+
+        {!accountName && <GitHubRepositories onConnect={onConnectGitHub} />}
 
         <footer className="home-footer">
           <div className="home-github-status">
