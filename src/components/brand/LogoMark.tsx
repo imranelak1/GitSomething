@@ -1,15 +1,9 @@
-import { useEffect, useId, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { animate } from 'motion/react';
 import shapes from './logo-shapes.json';
 import './logo-mark.css';
-
-const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
-const readReducedMotion = () => window.matchMedia(reducedMotionQuery).matches;
-const subscribeReducedMotion = (update: () => void) => {
-  const preference = window.matchMedia(reducedMotionQuery);
-  preference.addEventListener('change', update);
-  return () => preference.removeEventListener('change', update);
-};
+import { useReducedMotionPreference } from '@/hooks/useReducedMotionPreference';
+import { useStartup } from '../startup/startup-context';
 
 /** An original prompt-faced cat; its tail is a two-branch commit graph. */
 export function LogoMark({
@@ -24,7 +18,9 @@ export function LogoMark({
   replayOnHover?: boolean;
 }) {
   const ref = useRef<SVGSVGElement>(null);
-  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, readReducedMotion, () => true);
+  const reducedMotion = useReducedMotionPreference();
+  const { active: startupActive } = useStartup();
+  const suppressIntro = useRef(startupActive);
   const titleId = useId();
   const play = useRef<() => void>(() => {});
 
@@ -72,7 +68,7 @@ export function LogoMark({
       if (document.hidden) stop();
     };
     document.addEventListener('visibilitychange', onVisibility);
-    if (intro) play.current();
+    if (intro && !suppressIntro.current) play.current();
     return () => {
       document.removeEventListener('visibilitychange', onVisibility);
       play.current = () => {};

@@ -8,4 +8,6 @@ The requested [AnimMaster](https://animmasterlib.dev/) catalog provides the crea
 
 The existing attributed [Skiper TextRoll](../src/components/registry/skiper/PROVENANCE.md) and [Vengeance controls](../src/components/registry/vengeance/PROVENANCE.md) remain in use alongside the new Motion components.
 
+The application startup combines those attributed components with original graph paths and a finite mask reveal. Motion's [SVG path drawing](https://motion.dev/docs/react-svg-animation) and scoped [useAnimate controls and cleanup](https://motion.dev/docs/react-use-animate) inform the implementation. AnimMaster's public [Page Transitions catalog](https://animmasterlib.dev/) supplies broad reveal inspiration; no paid transition source is included. The introduction is a timed brand sequence, independent of Git/provider progress, and reduced motion bypasses it completely.
+
 Motion stays useful: selection follows focus, file transitions show staging, commit paths reveal relationships, and publishing animates only actual operation progress or an explicitly labeled practice preview. Keyboard access, native operation feedback, and reduced-motion equivalents remain available.

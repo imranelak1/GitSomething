@@ -23,13 +23,16 @@ import './workspace-layout.css';
 import App from './App';
 import { GitHubAuthProvider } from './hooks/useGitHubAuth';
 import { ActivityProvider } from './hooks/useActivity';
+import { StartupExperience } from './components/startup/StartupExperience';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <MotionConfig reducedMotion="user">
       <ActivityProvider>
         <GitHubAuthProvider>
-          <App />
+          <StartupExperience>
+            <App />
+          </StartupExperience>
         </GitHubAuthProvider>
       </ActivityProvider>
     </MotionConfig>

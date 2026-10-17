@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-17T15:30:55.984Z",
+  "testedAt": "2026-10-17T15:59:17.753Z",
   "expectedVersion": "0.1.0-alpha.1",
   "boundary": "Actual packaged native application, shared OAuth configuration, and bundled Monaco worker under production CSP. Read-only Rust status IPC and explicitly selected demo only; no OAuth initiation/consent, browser launch, provider writes, Git mutations, or credential-store writes.",
   "checks": [

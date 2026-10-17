@@ -42,6 +42,16 @@ Reduced motion gives the complete static mark, including when the preference cha
 
 The standalone preview is self-contained and works offline. It includes actual 16, 24, 32, 48, 64, and 128px samples, a light background, 0.5×/0.25× speed, pause/resume, and a static preview. Its exported SVG uses CSS keyframes; the app uses Motion so interactive interruption can be canceled cleanly. Native desktop and OAuth images stay static because those platforms do not display our web animation.
 
+## Application startup
+
+[StartupExperience](../src/components/startup/StartupExperience.tsx) introduces each full app launch with a drawn branch graph, the prompt cat, the attributed Skiper TextRoll wordmark, and a Vengeance **Skip intro** button. A mask lifts to reveal Home after approximately 1.64 seconds. A 2.3-second failsafe dismisses the screen if the animation completion is interrupted. It runs once per full launch and does not replay when navigating between Home and the workspace.
+
+Home and account restoration mount immediately behind the introduction. Its timing does not wait for fonts, a repository read, or the network, and it displays no invented loading progress. The introduction itself starts no Git/provider operation and adds no Glass Box entries.
+
+**Skip intro**, Escape, or Enter dismisses it immediately. A native folder drag/drop also dismisses it so publishing can take over. The background remains inert while the introduction is visible; keyboard focus starts on Skip and passes to Home's open-repository action afterward, unless an opened dialog already owns focus. Hidden documents bypass or dismiss it. Reduced-motion preference bypasses the entire introduction, including when the preference changes during playback, and all animation controls, timers, and listeners are cleaned up on dismissal.
+
+The startup composition reuses the existing vector geometry and component source. It does not add another public brand export or change the static native/OAuth icon files.
+
 ## Regenerate and use
 
 ```powershell

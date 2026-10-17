@@ -18,6 +18,7 @@
     "test:workspace": "node scripts/verify-workspace-layout.mjs",
     "test:terminal-scope": "node scripts/verify-terminal-scope.mjs",
     "test:github-repositories": "node scripts/verify-github-repositories.mjs",
+    "test:startup": "node scripts/verify-startup.mjs",
     "test:native-learning": "node scripts/verify-native-learning.mjs",
     "release:package": "node scripts/package-release.mjs",
     "brand:build": "node scripts/build-brand.mjs",

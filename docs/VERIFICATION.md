@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Startup animation: October 17, 2026
+
+Added a finite startup composition inspired by the supplied AnimMaster catalog and Motion documentation, using the project's actual Skiper TextRoll and Vengeance button. A blue commit path draws around the original prompt cat, its face blinks, the wordmark arrives, and the near-black veil reveals Home. App and account restoration mount immediately beneath an inert wrapper. The intro does not represent loading or a Git operation.
+
+The [12-group production browser suite](../artifacts/startup-report.json) passed after one combined review and fix batch. It covers natural completion, concurrent account restoration through a deferred native fixture, focus containment and handoff, pointer/keyboard skipping, initial and changed reduced motion, hidden-page cleanup, no replay during navigation, no Glass Box activity, and a mocked native folder drop preserving dialog focus. Desktop, 390px, 320px, and short landscape layouts passed. The fixes use fill-box-relative SVG pivots to keep the blink and node pulse anchored and hide the outgoing startup wordmark layer to remove a transient descender fragment. Geometry checks verify the face, neck pivot, and branch node at 170px, 100px, and 32px. The browser suite reported zero errors and zero provider requests.
+
+The [actual packaged native startup smoke](../artifacts/startup-native-report.json) passed **six checks**: mounted/inert Home while the intro owns focus, finite completion in **1779ms**, immediate Escape dismissal in **25ms**, Home focus restoration, no replay during explicit demo/Home navigation, and preserved GitHub connection. Runtime, console, security, and blocked-CSP error counts were all zero. This evidence contains only booleans and timings; no screenshots or private repository metadata.
+
+The final locked Tauri NSIS build and TypeScript passed; all **73 frontend unit tests** passed. The [five-check packaged runtime smoke](../artifacts/releases-native-report.json) again verified version, shared OAuth configuration, SVG branding, Monaco's bundled worker, and the production CSP. [Connected-account controls](../artifacts/release/live-github.json) again loaded **78 repositories**, with working counts, visibility filters, search, clear/focus, and name sorting, without reauthorization. Private names and URLs were not recorded; the native screenshot safeguard stayed enabled.
+
+The [WebM preview](../artifacts/startup/startup-intro.webm), [contact strip](../artifacts/startup/startup-contact-strip.png), and [desktop/mobile captures](../artifacts/startup/) use explicit fixtures or signed-out browser views. Run `npm run test:startup` against the fixed production preview at port 1431. The intro normally ends around 1.6 seconds and has a 2300ms fallback; Skip, Escape, Enter, reduced motion, or hiding the document can dismiss it sooner. It does not start OAuth, publish a repository, run Git, or wait for the network. Installer installation/uninstallation and live publishing/pushing remain unverified; the Windows alpha remains unsigned and its release remains a draft.
+
 ## Windows alpha, animated branding, and connected repositories: October 17, 2026
 
 The **0.1.0-alpha.1** Windows x64 executable and NSIS installer were rebuilt with the shared GitSomething OAuth registration, original prompt-cat artwork, a finite Motion animation, and the improved repository list. The app restores the already approved account from the Windows credential store. There are no Client ID or access-token inputs for installed users.

@@ -1,0 +1,31 @@
+{
+  "testedAt": "2026-10-17T15:58:47.352Z",
+  "boundary": "Actual packaged Tauri startup and page reloads through direct page-only CDP. Reports contain booleans, timings, and error counts only. No screenshots, private repository/account metadata, OAuth initiation, sign-out, provider writes, or real Git mutations. Demo navigation is explicitly selected and returns to Home.",
+  "checks": [
+    "Packaged Home is ready with safe native auth status and no active consent",
+    "Native startup leaves Home mounted and inert while its skip control owns focus",
+    "Native startup completes finitely and hands focus to Open repository",
+    "Escape dismisses native startup promptly and restores Home keyboard focus",
+    "Demo and Home navigation do not replay startup and the app returns to Home",
+    "Account connection is preserved without runtime errors or blocked production CSP requests"
+  ],
+  "runtimeErrorCount": 0,
+  "consoleErrorCount": 0,
+  "securityErrorCount": 0,
+  "cspBlockedRequestCount": 0,
+  "githubConfigured": true,
+  "githubConnectedBefore": true,
+  "reducedMotion": false,
+  "startupObserved": {
+    "visible": true,
+    "homeMounted": true,
+    "backgroundInert": true,
+    "backgroundHidden": true,
+    "skipFocused": true,
+    "elapsedMs": 113.79999999701977
+  },
+  "naturalCompletionMs": 1779,
+  "escapeDismissalMs": 25,
+  "githubConnectedAfter": true,
+  "status": "passed"
+}

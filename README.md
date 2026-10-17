@@ -31,7 +31,7 @@ npm run tauri build
 
 ## First-use flow
 
-The first launch opens **Home**. Choose **Show me around** for the interactive guide, open a project, or select **Try demo** to practice safely. The guide explains each step in plain language and can also be opened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account. Use **Home** to leave the workspace and **Continue workspace** to return to its current draft.
+The app opens **Home** after a brief branded startup animation. Select **Skip intro**, press Escape or Enter, or enable system reduced motion to go straight to Home. Account restoration starts immediately underneath the intro; navigation does not replay it. Choose **Show me around** for the interactive guide, open a project, or select **Try demo** to practice safely. The guide explains each step in plain language and can also be opened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account. Use **Home** to leave the workspace and **Continue workspace** to return to its current draft.
 
 1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
 2. **Connect GitHub.** Select **Sign in with GitHub**, approve access in your browser using the one-time code, and return to your repositories. No app registration or configuration is needed from users. Browse All, Public, or Private repositories, search loaded metadata, and sort by recent updates or name. The list loads up to 100 repositories per page and offers Load more for larger accounts.

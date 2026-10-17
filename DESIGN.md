@@ -77,6 +77,16 @@ Respect reduced motion and visible keyboard focus. Filled-control hover states u
 
 The workspace Push action and publishing's final Create & push action use a green confirmation slider. The handle follows the pointer directly; releasing before the end returns it with a short spring. Releasing at the end confirms once. Keyboard users move with arrows or End, then confirm with Enter or Space; Escape cancels. Taps, track clicks, and moving to the end without confirming never start work. Changes to the repository, publication details, or account reset an armed slider. The compact workspace control gets its own full-width row on narrow screens; publishing keeps its final slider across the footer.
 
+## Startup motion
+
+The launch sequence is one authored brand moment in the existing GitHub palette. An original thin blue commit graph draws outward around the prompt cat; its blink and tilt overlap a Skiper TextRoll wordmark. The near-black veil lifts into the already mounted Home. The graph is decorative and does not depict repository history or progress. The existing Vengeance button provides a visible **Skip intro** control.
+
+The path drawing lasts at most 900ms, the composition begins to recede at 1170ms, and the veil lifts from 1220–1640ms. No repeated loop, splash delay based on network, simulated command, spinner, percentage, or sound is used. Animation failure cannot trap the app: a 2300ms fallback dismisses it. The system's reduced-motion preference bypasses the intro before mount and dismisses active playback when it changes. Hidden documents also dismiss it.
+
+Home and the auth providers mount beneath an inert, accessibility-hidden wrapper. Keyboard focus stays on Skip during the intro; Skip, Escape, Enter, or an app shortcut dismisses it without executing a hidden action. The handoff focuses **Open repository** when appropriate and preserves a real dialog's focus, including native folder drops. The startup context suppresses duplicate automatic logo playback behind the veil. Navigation does not replay the sequence and all intro controls stay out of the Glass Box.
+
+The references are [AnimMaster's Page Transitions and SVG Animations](https://animmasterlib.dev/), [Motion SVG drawing](https://motion.dev/docs/react-svg-animation), and [Motion's scoped animation cleanup](https://motion.dev/docs/react-use-animate). This is original code using the existing Motion dependency and attributed Skiper/Vengeance components.
+
 ## Product truth and source ownership
 
 Motion does not mutate Git state or imply an unsupported operation succeeded. The browser remains an explicit demo; history gestures remain previews; credentials stay in Rust and the OS credential store. [Motion sources](docs/MOTION_SOURCES.md) records the original AnimMaster-inspired effects and their paid-source boundary. Skiper attribution and Vengeance MIT notices remain in source and in-app credits.

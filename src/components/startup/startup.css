@@ -1,0 +1,143 @@
+.startup-app {
+  width: 100%;
+  min-height: 100dvh;
+}
+.startup-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ui-canvas);
+  color: var(--ui-text);
+}
+.startup-composition {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(680px, 100%);
+  padding: 0 22px 34px;
+  text-align: center;
+}
+.startup-illustration {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 226px;
+  margin-bottom: 5px;
+}
+.startup-graph {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.startup-mascot {
+  position: relative;
+  padding: 6px 22px;
+  background: var(--ui-canvas);
+}
+.startup-mascot .logo-mark {
+  width: 170px;
+  height: 170px;
+}
+.startup-wordmark {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(34px, 5.4vw, 58px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+}
+.startup-period {
+  color: var(--ui-accent);
+}
+.startup-wordmark .skiper-text-roll {
+  clip-path: inset(0);
+}
+/* Keep the measured layout, and reveal just the incoming brand lettering. */
+.startup-wordmark .skiper-text-roll > span:first-child {
+  visibility: hidden;
+}
+.startup-caption {
+  margin: 13px 0 0;
+  color: var(--ui-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.startup-screen .startup-skip {
+  position: absolute;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  right: max(32px, env(safe-area-inset-right));
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  gap: 10px;
+  padding: 7px 11px;
+  border: 1px solid var(--ui-border);
+  border-radius: 7px;
+  background: var(--ui-panel);
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.startup-skip:hover,
+.startup-skip:focus-visible {
+  color: var(--ui-text);
+  border-color: var(--ui-border-strong);
+}
+.startup-skip kbd {
+  padding: 1px 4px;
+  border: 1px solid var(--ui-border);
+  border-radius: 3px;
+  font-size: 10px;
+}
+@media (max-width: 600px) {
+  .startup-composition {
+    padding-bottom: 24px;
+  }
+  .startup-illustration {
+    height: 186px;
+  }
+  .startup-mascot {
+    padding: 6px 10px;
+  }
+  .startup-mascot .logo-mark {
+    width: 138px;
+    height: 138px;
+  }
+  .startup-caption {
+    font-size: 12px;
+  }
+  .startup-screen .startup-skip {
+    bottom: 22px;
+    right: 20px;
+  }
+}
+@media (max-height: 480px) {
+  .startup-composition {
+    padding-bottom: 48px;
+  }
+  .startup-illustration {
+    height: 140px;
+  }
+  .startup-mascot .logo-mark {
+    width: 112px;
+    height: 112px;
+  }
+  .startup-wordmark {
+    font-size: 34px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .startup-screen {
+    display: none;
+  }
+}

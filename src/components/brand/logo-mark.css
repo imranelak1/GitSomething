@@ -5,14 +5,18 @@
   flex: 0 0 auto;
   overflow: visible;
 }
+/* Motion uses fill-box on SVG transforms; keep every pivot local to its shape. */
 .logo-head {
-  transform-origin: 56px 78px;
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
 }
 .logo-prompt {
-  transform-origin: 55px 55px;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
 }
 .logo-fork-node {
-  transform-origin: 116px 57px;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
 }
 .brand .logo-mark {
   width: 36px;

@@ -1,0 +1,148 @@
+{
+  "testedAt": "2026-10-17T15:58:13.328Z",
+  "baseURL": "http://127.0.0.1:1431",
+  "boundary": "Signed-out browser and mocked native lifecycle only. Auth restoration is deferred in an explicit fixture; no real account, native window, credentials, provider requests, or Git mutations.",
+  "checks": [
+    "Startup keeps background controls inert and keyboard focus contained while account restoration starts underneath",
+    "One finite intro hands focus to Home without waiting for auth or replaying background logo entrances",
+    "The blinking prompt stays in the face and the branch pulse remains centered throughout motion",
+    "Prompt, branch pulse, and head anchors stay stable at startup, Home, and small titlebar sizes",
+    "Pointer Skip dismisses immediately; Home/workspace navigation never replays startup or adds Glass Box activity",
+    "Escape, Enter, and supported app shortcuts dismiss startup without opening hidden panels or running commands",
+    "Reduced motion bypasses startup before mount and dismisses an active intro without replaying when preference changes back",
+    "A simulated background visibility event dismisses startup and cleans up its animation",
+    "A mocked native folder drop dismisses startup and preserves the publishing dialog focus without running Git",
+    "Startup composition and Skip remain usable at 390px, 320px, and short landscape sizes",
+    "Actual recorded startup frames provide a motion contact strip and WebM preview",
+    "All startup checks finish with zero browser errors and zero provider requests"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "screenshots": [
+    "artifacts/startup/desktop-startup.png",
+    "artifacts/startup/desktop-home.png",
+    "artifacts/startup/reduced-home.png",
+    "artifacts/startup/startup-390x844.png",
+    "artifacts/startup/startup-320x568.png",
+    "artifacts/startup/startup-844x390.png",
+    "artifacts/startup/startup-contact-strip.png"
+  ],
+  "geometry": [
+    {
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "wordmark": {
+        "left": 86.3125,
+        "right": 303.671875,
+        "top": 468.15625,
+        "bottom": 510.65625,
+        "width": 217.359375,
+        "height": 42.5
+      },
+      "graph": {
+        "left": 22,
+        "right": 368,
+        "top": 305.28125,
+        "bottom": 435.03125,
+        "width": 346,
+        "height": 129.75
+      },
+      "skip": {
+        "left": 233.796875,
+        "right": 370,
+        "top": 784,
+        "bottom": 822,
+        "width": 136.203125,
+        "height": 38
+      }
+    },
+    {
+      "width": 320,
+      "height": 568,
+      "documentWidth": 320,
+      "wordmark": {
+        "left": 51.3125,
+        "right": 268.671875,
+        "top": 330.15625,
+        "bottom": 372.65625,
+        "width": 217.359375,
+        "height": 42.5
+      },
+      "graph": {
+        "left": 22,
+        "right": 298,
+        "top": 180.40625,
+        "bottom": 283.90625,
+        "width": 276,
+        "height": 103.5
+      },
+      "skip": {
+        "left": 163.796875,
+        "right": 300,
+        "top": 508,
+        "bottom": 546,
+        "width": 136.203125,
+        "height": 38
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "documentWidth": 844,
+      "wordmark": {
+        "left": 313.3125,
+        "right": 530.671875,
+        "top": 204.546875,
+        "bottom": 247.046875,
+        "width": 217.359375,
+        "height": 42.5
+      },
+      "graph": {
+        "left": 104,
+        "right": 740,
+        "top": 10.296875,
+        "bottom": 248.796875,
+        "width": 636,
+        "height": 238.5
+      },
+      "skip": {
+        "left": 675.796875,
+        "right": 812,
+        "top": 324,
+        "bottom": 362,
+        "width": 136.203125,
+        "height": 38
+      }
+    }
+  ],
+  "introVisibleMilliseconds": 1788,
+  "logoGeometry": [
+    {
+      "width": 170,
+      "maximumPromptEscape": -29.899993896484375,
+      "maximumNodeDrift": 0.00003411968959808029,
+      "maximumHeadPivotDrift": 2.6482785301919966e-7,
+      "minimumEyeScale": 0.120161,
+      "maximumNodeScale": 1.25999
+    },
+    {
+      "width": 100,
+      "maximumPromptEscape": -17.96875,
+      "maximumNodeDrift": 0.00006103515625,
+      "maximumHeadPivotDrift": 1.5597313754159108e-7,
+      "minimumEyeScale": 0.12003,
+      "maximumNodeScale": 1.26
+    },
+    {
+      "width": 32,
+      "maximumPromptEscape": -5.75,
+      "maximumNodeDrift": 0.000002132480599880018,
+      "maximumHeadPivotDrift": 4.991144367539999e-8,
+      "minimumEyeScale": 0.120046,
+      "maximumNodeScale": 1.26
+    }
+  ],
+  "video": "artifacts/startup/startup-intro.webm",
+  "status": "passed"
+}

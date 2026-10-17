@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { LogoMark } from './components/brand/LogoMark';
+import { useStartup } from './components/startup/startup-context';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
@@ -86,6 +87,7 @@ import { Magnetic } from './components/registry/animmaster/Magnetic';
 const DiffViewer = lazy(() => import('./components/DiffViewer'));
 
 export default function App() {
+  const { dismiss: dismissStartup } = useStartup();
   const auth = useGitHubAuth();
   const { activities, record, settle } = useActivity();
   const {
@@ -333,6 +335,7 @@ export default function App() {
     let unlisten: (() => void) | undefined;
     getCurrentWebview()
       .onDragDropEvent((event) => {
+        dismissStartup();
         if (event.payload.type === 'enter' || event.payload.type === 'over') setDragging(true);
         else if (event.payload.type === 'leave') setDragging(false);
         else if (event.payload.type === 'drop') {
@@ -359,7 +362,7 @@ export default function App() {
       disposed = true;
       unlisten?.();
     };
-  }, [setNotice, record]);
+  }, [setNotice, record, dismissStartup]);
 
   const tryCommand = (text: string) => {
     if (!workspaceVisited) {
