@@ -12,11 +12,17 @@ import {
   Monitor,
   RefreshCw,
   Search,
+  X,
 } from 'lucide-react';
 import { useGitHubAuth } from '@/hooks/useGitHubAuth';
 import { useGitHubRepositories } from '@/hooks/useGitHubRepositories';
 import { safeActivityText } from '@/lib/activity';
-import { filterGitHubRepositories, isGitHubRepositoryUrl } from '@/lib/github-repositories';
+import {
+  selectGitHubRepositories,
+  isGitHubRepositoryUrl,
+  type GitHubRepositorySort,
+  type GitHubRepositoryVisibility,
+} from '@/lib/github-repositories';
 import './github-repositories.css';
 
 function updatedLabel(value: string): string | null {
@@ -34,17 +40,33 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
   const repositories = useGitHubRepositories();
   const reducedMotion = useReducedMotion();
   const [query, setQuery] = useState('');
+  const [visibility, setVisibility] = useState<GitHubRepositoryVisibility>('all');
+  const [sort, setSort] = useState<GitHubRepositorySort>('updated');
   const [openError, setOpenError] = useState('');
   const [opening, setOpening] = useState<string | null>(null);
   const signedIn = auth.desktop && auth.connected && Boolean(auth.account?.login);
   const identity = signedIn ? `${auth.account?.login}:${auth.revision}` : '';
   const currentIdentity = useRef(identity);
   const openingRequest = useRef<string | null>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   currentIdentity.current = identity;
-  const filtered = filterGitHubRepositories(repositories.repositories, query);
+  const filtered = selectGitHubRepositories(repositories.repositories, query, visibility, sort);
+  const counts = {
+    all: repositories.repositories.length,
+    private: repositories.repositories.filter((repository) => repository.private).length,
+    public: repositories.repositories.filter((repository) => !repository.private).length,
+  };
+  const hasFilters = Boolean(query.trim()) || visibility !== 'all';
+
+  function clearFilters() {
+    setQuery('');
+    setVisibility('all');
+  }
 
   useEffect(() => {
     setQuery('');
+    setVisibility('all');
+    setSort('updated');
     setOpenError('');
     setOpening(null);
     openingRequest.current = null;
@@ -81,6 +103,9 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
         <div className="github-repositories-title">
           <Github size={18} aria-hidden="true" />
           <h2 id="github-repositories-title">GitHub repositories</h2>
+          {signedIn && repositories.loaded && (
+            <span className="github-repositories-total">{counts.all}</span>
+          )}
         </div>
         {signedIn && (
           <button
@@ -119,21 +144,75 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
       ) : (
         <>
           <p className="github-repositories-account">
-            Repositories accessible to <strong>@{auth.account?.login}</strong>. Use Open repository
-            for folders on this computer.
+            <strong>@{auth.account?.login}</strong>
+            <span>Public, private, and shared repositories.</span>
           </p>
-          <label className="github-repositories-search">
-            <Search size={16} aria-hidden="true" />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Filter loaded repositories"
-              aria-label="Filter loaded GitHub repositories"
-              autoComplete="off"
-              spellCheck={false}
-            />
-          </label>
+          <div className="github-repositories-toolbar">
+            <div className="github-repositories-search">
+              <Search size={16} aria-hidden="true" />
+              <input
+                ref={searchInput}
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Filter loaded repositories"
+                aria-label="Filter loaded GitHub repositories"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              {query && (
+                <button
+                  type="button"
+                  className="github-repositories-search-clear"
+                  aria-label="Clear repository search"
+                  onClick={() => {
+                    setQuery('');
+                    searchInput.current?.focus();
+                  }}
+                >
+                  <X size={14} aria-hidden="true" />
+                </button>
+              )}
+            </div>
+            <label className="github-repositories-sort">
+              <span>Sort</span>
+              <select
+                value={sort}
+                onChange={(event) => setSort(event.target.value as GitHubRepositorySort)}
+                aria-label="Sort GitHub repositories"
+              >
+                <option value="updated">Recently updated</option>
+                <option value="name">Name A–Z</option>
+              </select>
+            </label>
+          </div>
+          <div className="github-repositories-filterbar">
+            <div
+              className="github-repositories-filters"
+              role="group"
+              aria-label="Repository visibility"
+            >
+              {(['all', 'public', 'private'] as const).map((filter) => (
+                <button
+                  type="button"
+                  key={filter}
+                  aria-label={`${filter[0].toUpperCase()}${filter.slice(1)} repositories`}
+                  aria-description={`${counts[filter]} loaded repositories`}
+                  aria-pressed={visibility === filter}
+                  onClick={() => setVisibility(filter)}
+                >
+                  {filter[0].toUpperCase()}
+                  {filter.slice(1)}
+                  <span>{counts[filter]}</span>
+                </button>
+              ))}
+            </div>
+            {hasFilters && (
+              <button type="button" className="github-repositories-reset" onClick={clearFilters}>
+                Clear filters
+              </button>
+            )}
+          </div>
 
           {repositories.error && (
             <div className="github-repositories-error" role="alert">
@@ -154,7 +233,7 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
             </p>
           )}
 
-          {repositories.repositories.length > 0 && (
+          {filtered.length > 0 && (
             <motion.ul
               className="github-repositories-list"
               aria-label="Repositories on GitHub"
@@ -239,14 +318,14 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
           {!repositories.loading && repositories.loaded && filtered.length === 0 && (
             <div className="github-repositories-empty" role="status">
               <p>
-                {query.trim()
+                {hasFilters
                   ? 'No loaded repositories match your filter.'
                   : 'GitHub returned no repositories for this account.'}
               </p>
               <span>
-                {query.trim()
+                {hasFilters
                   ? repositories.nextPage === null
-                    ? 'Try a repository name, description, or language.'
+                    ? 'Try another search or choose a different visibility filter.'
                     : 'Try another filter or load more repositories below.'
                   : 'Organization repositories may need approval from your organization.'}
               </span>
@@ -254,10 +333,16 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
           )}
           {repositories.repositories.length > 0 && (
             <div className="github-repositories-footer">
-              <span>
-                {query.trim() ? `${filtered.length} matching · ` : ''}
-                {repositories.repositories.length} loaded · most recently updated first
-              </span>
+              <div className="github-repositories-summary" aria-live="polite" aria-atomic="true">
+                <span>
+                  {hasFilters ? `${filtered.length} matching · ` : ''}
+                  {counts.all} loaded
+                  {repositories.nextPage === null ? ' · All available repositories' : ''}
+                </span>
+                {repositories.nextPage !== null && (
+                  <span>Search covers loaded repositories. Load more to include the rest.</span>
+                )}
+              </div>
               {repositories.nextPage !== null && (
                 <button
                   type="button"
@@ -269,6 +354,9 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
               )}
             </div>
           )}
+          <p className="github-repositories-local-hint">
+            These links open GitHub. To work with a folder on this computer, choose Open repository.
+          </p>
         </>
       )}
     </section>

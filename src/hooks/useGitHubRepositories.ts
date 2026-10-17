@@ -59,7 +59,7 @@ export function useGitHubRepositories() {
         label: append ? 'Load more GitHub repositories' : 'Read GitHub repositories',
         description:
           'Read the repositories this GitHub account owns or can access. No repositories are changed.',
-        command: `GET /user/repos?visibility=all&affiliation=owner,collaborator,organization_member&sort=updated&direction=desc&per_page=50&page=${page}`,
+        command: `GET /user/repos?visibility=all&affiliation=owner,collaborator,organization_member&sort=updated&direction=desc&per_page=100&page=${page}`,
         status: 'running',
       });
       const isCurrent = () =>
@@ -68,7 +68,7 @@ export function useGitHubRepositories() {
         generation.current === requestGeneration;
       try {
         const result = await invoke<GitHubRepositoryPage>('list_github_repositories', {
-          request: { page, perPage: 50 },
+          request: { page, perPage: 100 },
         });
         if (!isCurrent()) {
           settle(activityId, {

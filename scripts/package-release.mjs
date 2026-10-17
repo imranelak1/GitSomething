@@ -152,6 +152,16 @@ async function prepare() {
       name: 'GitSomething-release-banner.svg',
       kind: 'brand',
     },
+    {
+      source: path.join(root, 'public/brand/gitsomething-mark-animated.svg'),
+      name: 'GitSomething-mark-animated.svg',
+      kind: 'brand',
+    },
+    {
+      source: path.join(root, 'public/brand/gitsomething-logo-preview.html'),
+      name: 'GitSomething-logo-preview.html',
+      kind: 'brand',
+    },
   ];
   const notes = await readFile(files[2].source, 'utf8');
   if (

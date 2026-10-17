@@ -20,6 +20,7 @@ import type { RecentRepository } from '@/lib/recent-repositories';
 import { GitHubRepositories } from './github/GitHubRepositories';
 import { TextRoll } from './registry/skiper/TextRoll';
 import { AnimatedButton } from './registry/vengeance/AnimatedButton';
+import { LogoMark } from './brand/LogoMark';
 import './home-page.css';
 
 interface HomePageProps {
@@ -98,9 +99,12 @@ export function HomePage({
           )}
         </div>
 
-        <header className="home-intro">
-          <h1>A good place to pick up.</h1>
-          <p>Open a project, start one, or learn your way around.</p>
+        <header className="home-intro home-intro-brand">
+          <div>
+            <h1>A good place to pick up.</h1>
+            <p>Open a project, start one, or learn your way around.</p>
+          </div>
+          <LogoMark replayOnHover />
         </header>
 
         <div className="home-project-actions">

@@ -6,7 +6,7 @@ GitSomething uses GitHub's browser approval screen instead of asking users to cr
 
 1. Open the desktop app. On Home, select **Sign in with GitHub** under **GitHub repositories**, or open the GitHub account control.
 2. Copy the one-time code shown in GitSomething. On GitHub, enter that code and review the account and permissions before authorizing.
-3. Return to GitSomething. Your connected GitHub account replaces the sign-in card, and Home loads your accessible repositories.
+3. Return to GitSomething. The sign-in dialog closes automatically, and Home loads your accessible repositories.
 4. Browse those repositories or drop a local project folder onto the app to publish it. The final **Slide to create & push** creates local history, creates the GitHub repository, and pushes the first commit.
 
 You can use an existing local Git repository without connecting GitHub. A **commit** saves a version on your computer. **Push** sends those saved versions to the remote repository. Editing, reviewing changes, and making local commits work offline; sign-in, publication, fetch, pull, and push need a connection.
@@ -17,7 +17,9 @@ GitHub access is optional for the first-use guide. Reopen it with **A little hel
 
 The **GitHub repositories** section loads private, public, and shared repositories that the connected account can access. When signed in, this section appears beneath Home's open/new actions; local recent folders remain a separate list. Each GitHub row shows its owner, visibility, description, language, and last update when available. Long lists scroll within the section. **Open on GitHub** opens the validated repository URL in the system browser; it does not clone or open a local workspace.
 
-**Load more repositories** requests the next page. **Filter loaded repositories** searches the names, descriptions, and languages already loaded, so an empty filter result does not mean the repository is absent from GitHub. **Refresh** starts again from the newest page. A failed refresh retains the current account's loaded rows and offers a retry. Organization policies may restrict which repositories are returned. [GitHub documents the authenticated repository-list endpoint.](https://docs.github.com/en/rest/repos/repos#list-repositories-for-the-authenticated-user)
+The first request loads up to 100 repositories. **All**, **Public**, and **Private** narrow the loaded list, with counts for each visibility. **Filter loaded repositories** searches loaded names, descriptions, and languages; clear the search to return to the selected visibility. Sorting orders the loaded rows by last update or name. These controls act on repositories already loaded, so an empty result does not mean the repository is absent from GitHub.
+
+**Load more repositories** requests the next page when available. **Refresh** starts again from the newest page. A failed refresh retains the current account's loaded rows and offers a retry. Organization policies may restrict which repositories are returned. [GitHub documents the authenticated repository-list endpoint.](https://docs.github.com/en/rest/repos/repos#list-repositories-for-the-authenticated-user)
 
 Lists stay in memory and disappear when the account disconnects or changes. Late responses from an earlier sign-in cannot repopulate the current list. The Glass Box records the provider read and its result; filtering and browser navigation do not add interface noise.
 
@@ -62,7 +64,7 @@ This is broad repository access, subject to the user's existing permissions. It 
 
 ## Storage and disconnecting
 
-GitHub's access token is received and used by Rust and saved in the operating system's credential store. React receives account details and authorization progress, never the access token. Tokens do not belong in frontend storage, remote URLs, the Glass-Box console, or a project configuration file. A keychain failure is a sign-in error, not a reason to silently fall back to plaintext storage.
+GitHub's access token is received and used by Rust and saved in the operating system's credential store. On a later launch, the app restores the saved connection and loads the account's repositories without asking for another approval while the authorization remains valid. React receives account details and authorization progress, never the access token. Tokens do not belong in frontend storage, remote URLs, the Glass-Box console, or a project configuration file. A keychain failure is a sign-in error, not a reason to silently fall back to plaintext storage.
 
 When GitHub issues expiring access tokens, Rust stores the refresh token in the same credential store and renews access before it expires. Rotated credentials are saved before the connection is reported as ready. If authorization or the refresh token is revoked or expires, connect again. [GitHub documents expiring tokens and refresh requests for device authorization.](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
 
@@ -72,6 +74,8 @@ GitLab still uses a token entered for the individual publish operation; the GitH
 
 ## Verification boundary
 
-Automated browser checks can exercise the consent UI through mocked native responses. Rust tests can check polling, scope validation, redaction, and credential destination rules without approving an account. Neither proves an actual GitHub authorization, OS credential-store round trip, or network push.
+The packaged Windows alpha completed real GitHub browser approval on October 17, 2026. Home loaded accessible public and private repositories, including another page, and restarting the packaged application restored the connection from the Windows credential store without another sign-in. [VERIFICATION.md](VERIFICATION.md) records that live evidence separately from the automated fixtures. Private repository names and credentials are not part of the release evidence.
 
-The final manual check requires a configured native build and a real desktop session. Select **Sign in with GitHub**, approve GitHub consent, verify that Home lists your accessible repositories, load another page, and open one in the system browser. Restart to confirm that the account connection persists; disconnect and confirm the private list disappears. Denial, an expired one-time code, and revoked authorization also need real-account checks. Publishing and pushing require an explicitly selected disposable project; do not create a repository or approve consent on someone's behalf as an automated test.
+Automated browser checks exercise the consent and repository-list UI through explicit native fixtures; Rust tests check polling, scope validation, redaction, and credential destination rules. Those checks complement the live account test and do not prove remote publication or pushing. New release candidates still need a production-app check of sign-in, loaded repository controls, paging, browser links, logout, and restoration after restart.
+
+Live denial, an expired one-time code, revoked authorization, and installer installation/uninstallation remain separate checks. Publishing and pushing to GitHub also remain unverified in this release candidate and require an explicitly selected disposable project. Do not create a repository or approve consent on someone's behalf as an automated test.

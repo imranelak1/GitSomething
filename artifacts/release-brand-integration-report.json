@@ -1,0 +1,38 @@
+{
+  "testedAt": "2026-10-17T15:14:33.298Z",
+  "boundary": "Final cat-and-branch application mark in fixed production browser preview; no native IPC or provider calls.",
+  "checks": [
+    {
+      "width": 1440,
+      "logoLoaded": true,
+      "logoPath": "/brand/gitsomething-app-icon.svg",
+      "logoWidth": 30,
+      "logoHeight": 30,
+      "brandLeft": 24,
+      "brandRight": 219.390625,
+      "documentWidth": 1440
+    },
+    {
+      "width": 390,
+      "logoLoaded": true,
+      "logoPath": "/brand/gitsomething-app-icon.svg",
+      "logoWidth": 27,
+      "logoHeight": 27,
+      "brandLeft": 15,
+      "brandRight": 193.578125,
+      "documentWidth": 390
+    },
+    {
+      "width": 320,
+      "logoLoaded": true,
+      "logoPath": "/brand/gitsomething-app-icon.svg",
+      "logoWidth": 27,
+      "logoHeight": 27,
+      "brandLeft": 15,
+      "brandRight": 193.578125,
+      "documentWidth": 320
+    }
+  ],
+  "errors": [],
+  "status": "passed"
+}

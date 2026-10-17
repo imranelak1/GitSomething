@@ -1,34 +1,58 @@
 # GitSomething brand assets
 
-GitSomething's mark is an original **branch cat**: an angular silver head with asymmetric ears, commit-node eyes joined by a Git fork, and a blue tail that branches into two commit endpoints. Its flat geometry stays recognizable at small application sizes and gives GitSomething a friendly developer mascot.
+GitSomething's original **prompt cat** has a silver, asymmetric head, a `>_` expression, and a blue tail that splits into two commit nodes. The prompt makes the character feel at home in a developer tool; the branching tail gives it a motion vocabulary that belongs to GitSomething. The larger head and fewer facial details replace the previous fork-faced cat.
 
-The brand uses the application's existing GitHub-inspired colors: near-black `#0d1117`, blue `#58a6ff`, silver `#f0f6fc`, and a restrained purple `#bc8cff` for learning. Purple appears in the release banner's teaching copy; the core application mark stays blue and silver.
+The palette remains the application's GitHub-inspired near-black `#0d1117`, blue `#58a6ff`, and silver `#f0f6fc`. Light artwork uses ink and `#0969da`. Purple `#bc8cff` remains reserved for teaching surfaces. The cat does not change color to communicate operation status.
 
-The artwork was drawn from original paths for GitSomething. It does not contain, trace, or modify GitHub's Octocat or Git logo assets, and it does not imply GitHub endorsement. GitHub's [logo rules](https://brand.github.com/foundations/logo) prohibit modifying its logo or using it as another product's brand; the cat concept is therefore expressed through a separate silhouette and drawing. This describes the asset's source and design choices, rather than legal clearance.
+The paths were drawn for this project. They do not contain, trace, or modify Octocat or Git logo artwork and do not imply GitHub endorsement. GitHub's [logo rules](https://brand.github.com/foundations/logo) prohibit modifying its logo or adopting it as another product's brand. This describes the source of our artwork, rather than providing legal clearance.
 
-All files below are in [public/brand](../public/brand). SVG files are the editable originals; the PNG exports are ready to upload or distribute.
+## Source and exports
 
-| File                              | Use                                                   |
-| --------------------------------- | ----------------------------------------------------- |
-| `gitsomething-app-icon.svg`       | Master 1024 × 1024 application tile                   |
-| `gitsomething-app-icon-1024.png`  | Input for Tauri's native icon generator               |
-| `github-oauth-logo-256.png`       | GitHub OAuth App logo upload, 256 × 256               |
-| `github-oauth-logo-512.png`       | Larger GitHub/provider logo, 512 × 512                |
-| `gitsomething-mark.svg`           | Transparent mark for dark backgrounds                 |
-| `gitsomething-mark-light.svg`     | Transparent mark for light backgrounds                |
-| `gitsomething-wordmark-dark.svg`  | Transparent blue/silver wordmark for dark backgrounds |
-| `gitsomething-wordmark-light.svg` | Transparent blue/ink wordmark for light backgrounds   |
-| `gitsomething-release-banner.svg` | Editable 1280 × 640 social and release image          |
-| `gitsomething-release-banner.png` | Ready-to-upload 1280 × 640 release image              |
+The small shared [geometry file](../src/components/brand/logo-shapes.json) supplies the React component and the export generator. All generated files live in [public/brand](../public/brand).
 
-The favicon is [public/gitsomething.svg](../public/gitsomething.svg). The application title bar and welcome guide share the master tile. Wordmark and banner lettering uses outlined **Space Grotesk Semibold**, the project's existing display typeface, so exported files do not depend on installed fonts. The typeface's SIL Open Font License is included in the project's font dependency; no new font or artwork dependency was introduced.
+| File                                                                 | Use                                                                          |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `gitsomething-app-icon.svg`                                          | Static 1024 × 1024 application tile                                          |
+| `gitsomething-app-icon-1024.png`                                     | Input to Tauri's native icon generator                                       |
+| `github-oauth-logo-256.png`                                          | Ready to upload to the registered GitHub OAuth app                           |
+| `github-oauth-logo-512.png`                                          | Larger provider icon and Apple touch icon                                    |
+| `gitsomething-mark.svg` / `gitsomething-mark-light.svg`              | Transparent static marks                                                     |
+| `gitsomething-wordmark-dark.svg` / `gitsomething-wordmark-light.svg` | Transparent horizontal lockups                                               |
+| `gitsomething-mark-animated.svg`                                     | Standalone vector animation; one short playback                              |
+| `gitsomething-logo-preview.html`                                     | Offline motion preview with replay, pause, speed, theme, and static controls |
+| `gitsomething-release-banner.svg` / `.png`                           | 1280 × 640 release image                                                     |
 
-Keep the artwork square and preserve its aspect ratio. Do not recolor the cat or fork as a warning/status indicator. Leave at least one commit endpoint's width around a standalone mark. Use the solid tile for desktop, dock, taskbar, browser, and provider icons; use the transparent mark on a controlled background. The favicon uses the same artwork with its own square view box.
+The [favicon](../public/gitsomething.svg), native icons, provider images, wordmarks, and banner share the same resting drawing. Wordmark and banner typography uses the existing outlined Space Grotesk Semibold, licensed under the SIL Open Font License through the project's font dependency. The [typography source](../scripts/brand-typography.json) contains those outlines; exports need no installed font.
 
-To regenerate native platform icons from the checked-in master PNG:
+## Motion specification
+
+The app's [LogoMark](../src/components/brand/LogoMark.tsx) uses the existing Motion for React dependency. Home has a larger mark beside its existing introduction; the title bar and guide use small decorative instances. One roughly one-second sequence runs on entry. Hover can replay it after it settles. The mark never blocks navigation and never loops continuously.
+
+| Part        | Geometry and role                       | Motion                                                      |
+| ----------- | --------------------------------------- | ----------------------------------------------------------- |
+| Head        | Asymmetric ears and a broad silver face | A six-degree curious tilt, returning to the exact rest pose |
+| Prompt      | Two thick, dark strokes forming `>_`    | Brief blink; the face remains recognizable at rest          |
+| Tail        | Continuous blue trunk and branch        | Silver trace follows the tail toward the new commit         |
+| Commit node | Open ring at the branch tip             | Small arrival pulse, then its original size                 |
+| Body        | Broad blue seated silhouette            | Fixed anchor throughout the sequence                        |
+
+The head starts immediately, the blink begins at 280ms, and the tail trace runs from 120–960ms. The final node settles by 990ms. Deceleration uses `cubic-bezier(.22, 1, .36, 1)`; there is no random motion, global logo spin, or unbounded particle system. The static figure is visible before animation starts.
+
+Reduced motion gives the complete static mark, including when the preference changes while the app is open. Hidden documents cancel active motion; effects and listeners are cleaned up on unmount. Repeated hover during playback does not enqueue more sequences. The mark is decorative wherever nearby text already names GitSomething. A standalone labeled instance exposes one accessible name.
+
+The standalone preview is self-contained and works offline. It includes actual 16, 24, 32, 48, 64, and 128px samples, a light background, 0.5×/0.25× speed, pause/resume, and a static preview. Its exported SVG uses CSS keyframes; the app uses Motion so interactive interruption can be canceled cleanly. Native desktop and OAuth images stay static because those platforms do not display our web animation.
+
+## Regenerate and use
 
 ```powershell
-npm run tauri -- icon public/brand/gitsomething-app-icon-1024.png
+npm run brand:build
+npm run tauri -- icon public/brand/gitsomething-app-icon-1024.png --output src-tauri/icons
 ```
 
-To add the provider logo, open the registered GitSomething OAuth App's settings on GitHub and upload `github-oauth-logo-256.png`. This changes the registered application's presentation; it does not change its public Client ID or create another registration.
+The generator uses Playwright and an installed Edge on Windows, or Playwright's Chromium elsewhere. Keep the mark square, preserve its proportions, and leave at least one commit-node diameter around a standalone symbol. Use the solid tile for native/provider icons and transparent marks on controlled backgrounds.
+
+Open the registered OAuth application's settings on GitHub and upload `github-oauth-logo-256.png` to update its consent-screen presentation. This does not change its public Client ID or create another app registration. GitSomething cannot update that owner-only setting through ordinary user sign-in.
+
+## Design references
+
+The skill search found [SVG Logo Designer](https://github.com/rknall/claude-skills/tree/main/svg-logo-designer), [Logo Design](https://github.com/kaankiziltug/logo-design-skill), and [Animated Logo Cycle](https://github.com/stianlars1/larsen-skills/tree/main/plugins/larsen-skills/skills/animated-logo-cycle). SVG Logo Designer, the installed Impeccable animation guidance, and Apple Design informed the implemented vector, motion, and accessibility work. The two alternative skills were researched, rather than installed or executed. [Motion's SVG documentation](https://motion.dev/docs/react-svg-animation) informed the path animation implementation. No external mascot artwork was imported.

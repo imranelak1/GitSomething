@@ -4,6 +4,8 @@ A desktop Git client built around a clear working directory, readable diffs, and
 
 This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
+The Windows x64 **0.1.0-alpha.1** candidate is prepared as an unsigned draft release. See [release notes](docs/releases/v0.1.0-alpha.1.md), [verification](docs/VERIFICATION.md), and the [brand and motion guide](docs/BRAND.md). The original prompt-cat mark has a brief Motion animation with a static reduced-motion alternative; the [standalone preview](public/brand/gitsomething-logo-preview.html) also works offline.
+
 Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box shows Git commands and results, operation failures, and real account or publishing events. Guided Git commands use the same engine. Navigation, scrolling, resizing, appearance controls, and lesson openings stay out of the transcript. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
 
 ## Run locally
@@ -32,7 +34,7 @@ npm run tauri build
 The first launch opens **Home**. Choose **Show me around** for the interactive guide, open a project, or select **Try demo** to practice safely. The guide explains each step in plain language and can also be opened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account. Use **Home** to leave the workspace and **Continue workspace** to return to its current draft.
 
 1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
-2. **Connect GitHub.** Select **Sign in with GitHub**, approve access in your browser using the one-time code, and return to your repositories. No app registration or configuration is needed from users.
+2. **Connect GitHub.** Select **Sign in with GitHub**, approve access in your browser using the one-time code, and return to your repositories. No app registration or configuration is needed from users. Browse All, Public, or Private repositories, search loaded metadata, and sort by recent updates or name. The list loads up to 100 repositories per page and offers Load more for larger accounts.
 3. **Review before sharing.** Choose a repository name and Public or Private visibility. Publishing creates the initial local commit, creates the hosted repository, and pushes the first version. GitLab keeps its operation-specific token flow.
 4. **Save your next change.** Review a changed file, pick the files for this save (**stage**), and describe the change before creating a **commit**. A commit saves a version on your computer; **Slide to push** uploads saved versions to GitHub. Drag the handle to the end and release, or focus it, press End, then Enter. Publishing a new folder uses the same deliberate confirmation before creating the cloud repository and pushing.
 

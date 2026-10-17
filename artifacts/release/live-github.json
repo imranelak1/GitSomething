@@ -1,0 +1,41 @@
+{
+  "testedAt": "2026-10-17T15:18:45.415Z",
+  "boundary": "Actual release app and user-approved GitHub OAuth connection. Counts/scopes only; no account identity, repository names, private URLs, tokens or device/session codes recorded.",
+  "configured": true,
+  "connected": true,
+  "scopesPresent": true,
+  "rows": 78,
+  "privateRows": 27,
+  "publicRows": 51,
+  "repositoryError": null,
+  "ownerSetupControls": 0,
+  "firstPageRows": 50,
+  "paginationRequested": true,
+  "restartVerifiedAt": "2026-10-17T15:20:06.501Z",
+  "restart": {
+    "connectionRestored": true,
+    "repositoriesReloaded": true,
+    "loadedRows": 50,
+    "reauthorizationRequired": false
+  },
+  "rebuiltCandidate": {
+    "configured": true,
+    "connected": true,
+    "rows": 78,
+    "firstPageCoversLoadedAccount": true,
+    "filterCounts": {
+      "all": 78,
+      "public": 51,
+      "private": 27
+    },
+    "privateRows": 27,
+    "publicRows": 51,
+    "nameSortVerified": true,
+    "exactSearchRows": 1,
+    "searchCleared": true,
+    "searchFocusRestored": true,
+    "repositoryError": false,
+    "reauthorizationRequired": false,
+    "checkedAt": "2026-10-17T15:31:17.618Z"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T14:13:00.552Z",
+  "testedAt": "2026-10-17T15:30:02.352Z",
   "browser": "155.0.4283.62",
   "scope": "Direct GitHub sign-in, Device Flow presentation, and repository metadata through mocked native IPC; no live OAuth or provider requests",
   "checks": [
@@ -9,13 +9,15 @@
     "An unconfigured development build keeps sign-in disabled and never asks users to register an app or enter credentials",
     "Sign in with GitHub directly starts device approval and loads a bounded metadata page through Rust IPC",
     "The authenticated Home list shows private and public repositories, owner, language, and dates with text escaped",
+    "Public and Private filters combine with search, retain honest loaded counts, and clear back to the complete loaded list",
+    "Name and update sorting use loaded metadata; search clearing and visibility controls make no additional requests",
     "Filtering uses loaded name/description/language metadata without new requests and explains pagination limits",
     "Pagination merges repeated repository IDs, updates metadata, stops at the final page, and rejects unsafe destination URLs",
     "Opening a repository uses the native trusted-browser IPC and reports launch failures without navigating the webview",
     "A failed refresh keeps current-account data usable and retry recovers the first page",
     "A repository response for a different account is rejected before rendering",
     "Disconnect hides private metadata immediately and discards a late response from the removed session",
-    "Signing into another account starts with a clean list and filter",
+    "Signing into another account starts with a clean list, search, visibility, and sort state",
     "An empty provider result is explained without suggesting that organization access is guaranteed",
     "Repository browsing remains readable at 320px, 390px, and 1440px with reduced motion",
     "OAuth codes and repository metadata stay out of browser storage; all checks produce zero provider traffic and browser errors"

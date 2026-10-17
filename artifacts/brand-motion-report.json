@@ -1,0 +1,34 @@
+{
+  "testedAt": "2026-10-17T15:29:08.885Z",
+  "baseURL": "http://127.0.0.1:1420",
+  "boundary": "Signed-out browser app and offline standalone SVG/HTML fixtures. No native IPC, accounts, credentials, provider traffic, or Git mutations.",
+  "checks": [
+    "Finite app intro returns to exact static artwork and resting geometry",
+    "Hover produces a brief blink, bounded head rotation, and commit trace without overlapping replays",
+    "Enabling reduced motion during animation cancels immediately to rest and prevents hover replay",
+    "Home, titlebar, and guide logo instances coexist without duplicate accessibility IDs",
+    "Navigating during logo motion cleans up unmounted instances and keeps the workspace usable",
+    "Animated branding fits Home and titlebar at 1440px, 390px, and 320px without overflow",
+    "System reduced motion set before mount displays static artwork throughout",
+    "Offline preview replay, speed, pause/resume, light background, and static controls work",
+    "Offline size ladder uses actual pixel sizes and system reduced motion overrides replay",
+    "Standalone vector motion contact strip records finite poses without raster animation assets",
+    "All brand checks finish with zero browser errors and zero provider traffic"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "screenshots": [
+    "artifacts/brand-motion/app-1440.png",
+    "artifacts/brand-motion/app-390.png",
+    "artifacts/brand-motion/app-320.png",
+    "artifacts/brand-motion/offline-preview.png",
+    "artifacts/brand-motion/size-ladder.png",
+    "artifacts/brand-motion/motion-contact-strip.png"
+  ],
+  "motion": {
+    "minimumAngle": -5.999972975483472,
+    "minimumEye": 0.120046,
+    "sampleCount": 110
+  },
+  "status": "passed"
+}

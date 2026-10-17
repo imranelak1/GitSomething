@@ -177,23 +177,27 @@ try {
   await waitFor(`Boolean(document.querySelector('.home-page'))`, 'Home must open.');
   await evaluate('document.fonts.ready.then(() => true)');
   const brand = await evaluate(`(() => {
-    const image = document.querySelector('.brand img');
-    const bounds = image?.getBoundingClientRect();
+    const mark = document.querySelector('.brand .logo-mark');
+    const bounds = mark?.getBoundingClientRect();
     return {
-      loaded: Boolean(image?.complete && image.naturalWidth > 0 && image.naturalHeight > 0),
+      rendered: Boolean(mark instanceof SVGElement && mark.querySelector('path')),
       width: bounds?.width || 0,
       height: bounds?.height || 0,
-      path: image ? new URL(image.currentSrc).pathname : '',
+      identity: mark?.getAttribute('data-brand'),
+      viewBoxWidth: mark?.viewBox?.baseVal.width || 0,
+      viewBoxHeight: mark?.viewBox?.baseVal.height || 0,
       text: document.querySelector('.brand')?.textContent.trim(),
       setupFields: document.querySelectorAll('.github-owner-setup,.github-owner-disclosure,input[aria-label="GitHub OAuth client ID"]').length,
     };
   })()`);
-  assert.equal(brand.loaded, true);
+  assert.equal(brand.rendered, true);
   assert.ok(
     brand.width >= 16 && brand.height >= 16,
     'The application mark must have visible dimensions.',
   );
-  assert.equal(brand.path, '/brand/gitsomething-app-icon.svg');
+  assert.equal(brand.identity, 'gitsomething');
+  assert.equal(brand.viewBoxWidth, 128);
+  assert.equal(brand.viewBoxHeight, 128);
   assert.match(brand.text, /GitSomething/);
   assert.equal(brand.setupFields, 0);
   report.brand = brand;
@@ -252,7 +256,17 @@ try {
   assert.deepEqual(report.runtimeErrors, []);
   assert.deepEqual(report.securityErrors, []);
   assert.deepEqual(report.cspBlockedRequests, []);
-  screenshot = await send('Page.captureScreenshot', { format: 'png' });
+  // Let the Home TextRoll entrance finish before recording visual evidence.
+  await new Promise((resolve) => setTimeout(resolve, 1300));
+  // A connected Home can contain private repository names. Never record it as
+  // release proof; signed-in visuals belong to explicit browser fixtures.
+  if ((await ipc('github_auth_status')).connected) {
+    report.screenshotSkipped =
+      'Authenticated account; repository metadata is excluded from native visual evidence.';
+  } else {
+    assert.equal(await evaluate(`Boolean(document.querySelector('.github-device-flow'))`), false);
+    screenshot = await send('Page.captureScreenshot', { format: 'png' });
+  }
   check('Native smoke returns to Home without JavaScript exceptions or blocked CSP requests');
   report.status = 'passed';
 } catch (error) {

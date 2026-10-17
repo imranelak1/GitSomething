@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GitSomething — logo motion</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d1117;color:#f0f6fc;font:15px/1.6 system-ui,sans-serif;color-scheme:dark}body.light{background:#fff;color:#0d1117;color-scheme:light}main{max-width:1040px;padding:40px 32px;margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:24px;border-bottom:1px solid #3d444d;padding-bottom:20px}h1{font-size:22px;margin:0;letter-spacing:-.6px}header p{margin:2px 0 0;color:#9198a1}.stage{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px;padding:56px 24px}.stage svg{display:block;width:100%;max-width:300px;margin:auto;overflow:visible}.stage h2{font-size:32px;line-height:1.2;letter-spacing:-1px;margin:0 0 16px}.stage p{max-width:35ch;color:#9198a1}button,select{border:1px solid #3d444d;background:transparent;color:inherit;border-radius:7px;padding:9px 14px;font:inherit;cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #58a6ff;outline-offset:4px}.controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:20px 0;border-top:1px solid #3d444d}.controls label{display:inline-flex;align-items:center;gap:8px}.sizes{display:flex;align-items:end;gap:40px;padding:32px 0;flex-wrap:wrap}.sizes figure{margin:0;text-align:center}.sizes svg{display:block;overflow:visible}.sizes figcaption{font-size:12px;color:#9198a1;margin-top:12px}.footer{font-size:12px;color:#9198a1;border-top:1px solid #3d444d;padding-top:20px}#motion-status{font-size:13px;color:#9198a1}body.light .logo-head>path:first-child{fill:#0d1117}body.light .logo-prompt{stroke:#f0f6fc}body.light .logo-head>path:nth-child(2){fill:#58a6ff}@media(max-width:600px){main{padding:24px}.stage{grid-template-columns:1fr;padding:24px 0;gap:16px}.stage svg{max-width:180px}.stage h2{font-size:26px}.sizes{gap:22px}header{display:block}header p{margin-top:6px}}
+.logo-head{transform-origin:56px 78px}.logo-prompt{transform-origin:55px 55px}.logo-node{transform-origin:116px 57px}
+.logo-trace{stroke-dasharray:1;stroke-dashoffset:0}
+.is-playing .logo-head{animation:curious calc(.9s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-playing .logo-prompt{animation:blink calc(.23s * var(--speed,1)) calc(.28s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-playing .logo-trace{animation:commit calc(.84s * var(--speed,1)) calc(.12s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-playing .logo-node{animation:arrive calc(.34s * var(--speed,1)) calc(.65s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-paused *{animation-play-state:paused!important}
+@keyframes curious{0%,100%{transform:rotate(0deg)}36%{transform:rotate(-6deg)}}
+@keyframes blink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.12)}}
+@keyframes commit{0%{stroke-dashoffset:1;opacity:0}15%{opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arrive{0%,100%{transform:scale(1)}50%{transform:scale(1.26)}}
+.reduce-motion *{animation:none!important}
+@media(prefers-reduced-motion:reduce){.is-playing *{animation:none!important}}
+</style>
+<main><header><div><h1>GitSomething</h1><p>Original prompt cat · vector motion preview</p></div><span id="motion-status" role="status">Ready to replay</span></header>
+<section class="stage"><div class="main-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title"><title id="brand-title">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+</div><div><h2>A little curiosity.<br>A new branch.</h2><p>A prompt for a face. A commit graph for a tail. A short moment of curiosity, then back to work.</p></div></section>
+<div class="controls"><button id="replay" type="button">Replay animation</button><button id="pause" type="button" aria-pressed="false">Pause</button><label>Speed <select id="speed"><option value="1">Normal</option><option value="2">0.5×</option><option value="4">0.25×</option></select></label><button id="theme" type="button" aria-pressed="false">Light background</button><label><input type="checkbox" id="reduce">Static preview</label></div>
+<section class="sizes" aria-label="Actual logo sizes"><figure><svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title-16"><title id="brand-title-16">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+<figcaption>16px</figcaption></figure><figure><svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title-24"><title id="brand-title-24">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+<figcaption>24px</figcaption></figure><figure><svg width="32" height="32" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title-32"><title id="brand-title-32">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+<figcaption>32px</figcaption></figure><figure><svg width="48" height="48" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title-48"><title id="brand-title-48">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+<figcaption>48px</figcaption></figure><figure><svg width="64" height="64" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title-64"><title id="brand-title-64">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+<figcaption>64px</figcaption></figure><figure><svg width="128" height="128" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title-128"><title id="brand-title-128">GitSomething</title>
+<g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
+<figcaption>128px</figcaption></figure></section>
+<p class="footer">One short sequence, no continuous loop. Your system’s reduced-motion preference always takes priority. Native app icons and GitHub authorization screens use the static mark. Original artwork; independent of GitHub.</p></main>
+<script>
+const stage=document.querySelector('.main-logo'),status=document.querySelector('#motion-status'),pause=document.querySelector('#pause'),reduce=document.querySelector('#reduce'),preference=matchMedia('(prefers-reduced-motion: reduce)');
+function replay(){stage.classList.remove('is-playing','is-paused');pause.textContent='Pause';pause.setAttribute('aria-pressed','false');if(preference.matches||reduce.checked||document.hidden){status.textContent='Static preview';return}void stage.offsetWidth;stage.classList.add('is-playing');status.textContent='Playing'}
+document.querySelector('#replay').onclick=replay;
+pause.onclick=()=>{if(!stage.classList.contains('is-playing'))return;const paused=stage.classList.toggle('is-paused');pause.textContent=paused?'Resume':'Pause';pause.setAttribute('aria-pressed',String(paused));status.textContent=paused?'Paused':'Playing'};
+document.querySelector('#speed').onchange=e=>{stage.style.setProperty('--speed',e.target.value);replay()};
+document.querySelector('#theme').onclick=e=>{const light=document.body.classList.toggle('light');e.target.textContent=light?'Dark background':'Light background';e.target.setAttribute('aria-pressed',String(light))};
+reduce.onchange=()=>{stage.classList.toggle('reduce-motion',reduce.checked);replay()};preference.onchange=replay;
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stage.classList.remove('is-playing','is-paused');status.textContent='Ready to replay'}});
+stage.addEventListener('animationend',e=>{if(e.animationName==='arrive'){status.textContent='Ready to replay';stage.classList.remove('is-playing')}});
+replay();
+</script></html>

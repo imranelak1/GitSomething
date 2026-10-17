@@ -1,0 +1,42 @@
+{
+  "testedAt": "2026-10-17T15:30:55.984Z",
+  "expectedVersion": "0.1.0-alpha.1",
+  "boundary": "Actual packaged native application, shared OAuth configuration, and bundled Monaco worker under production CSP. Read-only Rust status IPC and explicitly selected demo only; no OAuth initiation/consent, browser launch, provider writes, Git mutations, or credential-store writes.",
+  "checks": [
+    "Actual packaged Tauri version and product name match the alpha release manifests",
+    "Packaged Rust auth reports shared GitHub configuration and only safe account metadata",
+    "Packaged Home displays the loaded application mark without end-user OAuth setup fields",
+    "Bundled Monaco renders code and starts its worker under the packaged production CSP",
+    "Native smoke returns to Home without JavaScript exceptions or blocked CSP requests"
+  ],
+  "runtimeErrors": [],
+  "securityErrors": [],
+  "cspBlockedRequests": [],
+  "origin": "http://tauri.localhost",
+  "version": "0.1.0-alpha.1",
+  "githubConfigured": true,
+  "githubConnected": true,
+  "brand": {
+    "rendered": true,
+    "width": 36,
+    "height": 36,
+    "identity": "gitsomething",
+    "viewBoxWidth": 128,
+    "viewBoxHeight": 128,
+    "text": "GitSomething.",
+    "setupFields": 0
+  },
+  "monaco": {
+    "packagedWorkerAssets": [
+      "/assets/editor.worker-0LA2xM0q.js"
+    ],
+    "workerTargets": [
+      {
+        "type": "worker",
+        "scheme": "packaged"
+      }
+    ]
+  },
+  "screenshotSkipped": "Authenticated account; repository metadata is excluded from native visual evidence.",
+  "status": "passed"
+}

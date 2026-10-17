@@ -20,14 +20,46 @@ export interface GitHubRepositoryPage {
   accountLogin: string;
 }
 
+export type GitHubRepositoryVisibility = 'all' | 'public' | 'private';
+export type GitHubRepositorySort = 'updated' | 'name';
+
 /** Loaded data only: filtering never sends a query or credentials to GitHub. */
 export function filterGitHubRepositories(repositories: GitHubRepository[], query: string) {
-  const term = query.trim().toLocaleLowerCase();
-  if (!term) return repositories;
-  return repositories.filter((repository) =>
-    [repository.fullName, repository.description, repository.language].some((value) =>
-      value?.toLocaleLowerCase().includes(term),
-    ),
+  const terms = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return repositories;
+  return repositories.filter((repository) => {
+    const metadata = [repository.fullName, repository.description, repository.language]
+      .filter(Boolean)
+      .join(' ')
+      .toLocaleLowerCase();
+    return terms.every((term) => metadata.includes(term));
+  });
+}
+
+const repositoryNameOrder = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
+
+/** Search and visibility apply together; sorting never mutates the paginated source. */
+export function selectGitHubRepositories(
+  repositories: GitHubRepository[],
+  query: string,
+  visibility: GitHubRepositoryVisibility,
+  sort: GitHubRepositorySort,
+) {
+  const filtered = filterGitHubRepositories(repositories, query).filter(
+    (repository) => visibility === 'all' || repository.private === (visibility === 'private'),
+  );
+  const nameOrder = (left: GitHubRepository, right: GitHubRepository) =>
+    repositoryNameOrder.compare(left.name, right.name) ||
+    repositoryNameOrder.compare(left.fullName, right.fullName) ||
+    left.id - right.id;
+  const timestamp = (value: string) => {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+  return filtered.sort((left, right) =>
+    sort === 'name'
+      ? nameOrder(left, right)
+      : timestamp(right.updatedAt) - timestamp(left.updatedAt) || nameOrder(left, right),
   );
 }
 

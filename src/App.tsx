@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { LogoMark } from './components/brand/LogoMark';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
@@ -547,7 +548,7 @@ export default function App() {
           }}
           aria-label="Go to home"
         >
-          <img src="/brand/gitsomething-app-icon.svg" alt="" />
+          <LogoMark intro={screen === 'home'} replayOnHover />
           <span>
             GitSomething<span className="brand-period">.</span>
           </span>

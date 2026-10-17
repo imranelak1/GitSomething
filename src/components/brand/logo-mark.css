@@ -1,0 +1,65 @@
+.logo-mark {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.logo-head {
+  transform-origin: 56px 78px;
+}
+.logo-prompt {
+  transform-origin: 55px 55px;
+}
+.logo-fork-node {
+  transform-origin: 116px 57px;
+}
+.brand .logo-mark {
+  width: 36px;
+  height: 36px;
+  margin: -3px;
+}
+.onboarding-brand .logo-mark {
+  width: 31px;
+  height: 31px;
+  margin: -3px;
+}
+.home-intro-brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.home-intro-brand > div {
+  min-width: 0;
+}
+.home-intro-brand .logo-mark {
+  width: 100px;
+  height: 100px;
+  margin: -14px 0 -14px 12px;
+}
+@media (max-width: 700px) {
+  .brand .logo-mark {
+    width: 32px;
+    height: 32px;
+  }
+  .home-intro-brand {
+    gap: 14px;
+  }
+  .home-intro-brand .logo-mark {
+    width: 68px;
+    height: 68px;
+    margin: 0 -6px 0 0;
+  }
+}
+@media (max-width: 380px) {
+  .home-intro-brand .logo-mark {
+    width: 52px;
+    height: 52px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark * {
+    animation: none !important;
+  }
+}

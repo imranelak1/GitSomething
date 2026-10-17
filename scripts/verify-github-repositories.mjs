@@ -139,6 +139,7 @@ async function installFixture(page, options = {}) {
                     {
                       description: 'Learn by reading <script>window.fixtureXss = true</script>.',
                       language: 'TypeScript',
+                      updatedAt: '2026-10-15T10:30:00Z',
                     },
                     login,
                   ),
@@ -147,13 +148,22 @@ async function installFixture(page, options = {}) {
                   repository(
                     2,
                     'friendly-guide',
-                    { description: 'Updated metadata from a later page.', language: 'TypeScript' },
+                    {
+                      description: 'Updated metadata from a later page.',
+                      language: 'TypeScript',
+                      updatedAt: '2026-10-15T10:30:00Z',
+                    },
                     login,
                   ),
                   repository(
                     3,
                     'archived-fork',
-                    { archived: true, fork: true, htmlUrl: 'javascript:window.fixtureXss = true' },
+                    {
+                      archived: true,
+                      fork: true,
+                      updatedAt: '2026-10-16T10:30:00Z',
+                      htmlUrl: 'javascript:window.fixtureXss = true',
+                    },
                     login,
                   ),
                 ],
@@ -408,7 +418,7 @@ try {
         ({ command }) => command === 'list_github_repositories',
       ).args,
   );
-  assert.deepEqual(firstRequest, { request: { page: 1, perPage: 50 } });
+  assert.deepEqual(firstRequest, { request: { page: 1, perPage: 100 } });
   await fixture(native, () => {
     window.__GITSOMETHING_GITHUB_TEST__.mode = 'success';
     window.__GITSOMETHING_GITHUB_TEST__.resolvePending();
@@ -438,11 +448,93 @@ try {
     name: 'Filter loaded GitHub repositories',
     exact: true,
   });
+  const allRepositories = repositories(native).getByRole('button', {
+    name: 'All repositories',
+    exact: true,
+  });
+  const publicRepositories = repositories(native).getByRole('button', {
+    name: 'Public repositories',
+    exact: true,
+  });
+  const privateRepositories = repositories(native).getByRole('button', {
+    name: 'Private repositories',
+    exact: true,
+  });
+  await expect(allRepositories).toHaveAttribute('aria-pressed', 'true');
+  await expect(allRepositories).toHaveText(/All\s*2/);
+  await expect(publicRepositories).toHaveText(/Public\s*1/);
+  await expect(privateRepositories).toHaveText(/Private\s*1/);
+  await privateRepositories.click();
+  await expect(privateRepositories).toHaveAttribute('aria-pressed', 'true');
+  await expect(rows(native)).toHaveCount(1);
+  await expect(rows(native)).toContainText('alpha-fixture/terminal-lab');
+  await filter.fill('TypeScript');
+  await expect(rows(native)).toHaveCount(0);
+  await expect(allRepositories).toHaveText(/All\s*2/);
+  await expect(publicRepositories).toHaveText(/Public\s*1/);
+  await expect(privateRepositories).toHaveText(/Private\s*1/);
+  await repositories(native)
+    .getByRole('button', { name: 'Clear repository search', exact: true })
+    .click();
+  await expect(filter).toHaveValue('');
+  await expect(filter).toBeFocused();
+  await expect(privateRepositories).toHaveAttribute('aria-pressed', 'true');
+  await expect(rows(native)).toHaveCount(1);
+  await filter.fill('TypeScript');
+  await repositories(native).getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(filter).toHaveValue('');
+  await expect(allRepositories).toHaveAttribute('aria-pressed', 'true');
+  await expect(rows(native)).toHaveCount(2);
+  await publicRepositories.click();
+  await expect(publicRepositories).toHaveAttribute('aria-pressed', 'true');
+  await expect(rows(native)).toHaveCount(1);
+  await expect(rows(native)).toContainText('alpha-fixture/friendly-guide');
+  await repositories(native).getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(rows(native)).toHaveCount(2);
+  check(
+    'Public and Private filters combine with search, retain honest loaded counts, and clear back to the complete loaded list',
+  );
+
+  const sort = native.getByRole('combobox', { name: 'Sort GitHub repositories', exact: true });
+  await expect(sort).toHaveValue('updated');
+  await expect(rows(native).first()).toContainText('alpha-fixture/terminal-lab');
+  await sort.selectOption('name');
+  await expect(rows(native).first()).toContainText('alpha-fixture/friendly-guide');
+  await sort.selectOption('updated');
+  await expect(rows(native).first()).toContainText('alpha-fixture/terminal-lab');
+  await filter.fill('TypeScript');
+  await expect(rows(native)).toHaveCount(1);
+  await repositories(native)
+    .getByRole('button', { name: 'Clear repository search', exact: true })
+    .click();
+  await expect(filter).toHaveValue('');
+  await expect(filter).toBeFocused();
+  await expect(rows(native)).toHaveCount(2);
+  assert.equal(
+    await fixture(
+      native,
+      () =>
+        window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
+          ({ command }) => command === 'list_github_repositories',
+        ).length,
+    ),
+    requestCount,
+  );
+  check(
+    'Name and update sorting use loaded metadata; search clearing and visibility controls make no additional requests',
+  );
+
   await filter.fill('typescript');
   await expect(rows(native)).toHaveCount(1);
+  await filter.fill('friendly typescript');
+  await expect(rows(native)).toHaveCount(1);
+  await filter.fill('friendly rust');
+  await expect(rows(native)).toHaveCount(0);
   await filter.fill('not-yet-loaded');
   await expect(repositories(native)).toContainText('No loaded repositories match your filter.');
-  await expect(repositories(native)).toContainText('load more repositories below');
+  await expect(repositories(native)).toContainText(
+    'Search covers loaded repositories. Load more to include the rest.',
+  );
   assert.equal(
     await fixture(
       native,
@@ -462,6 +554,9 @@ try {
     .getByRole('button', { name: 'Load more repositories', exact: true })
     .click();
   await expect(rows(native)).toHaveCount(3);
+  await expect(allRepositories).toHaveText(/All\s*3/);
+  await expect(publicRepositories).toHaveText(/Public\s*2/);
+  await expect(privateRepositories).toHaveText(/Private\s*1/);
   await expect(repositories(native)).toContainText('Updated metadata from a later page.');
   await expect(repositories(native)).toContainText('Archived');
   await expect(repositories(native)).toContainText('Fork');
@@ -543,6 +638,9 @@ try {
   );
   check('A repository response for a different account is rejected before rendering');
 
+  await privateRepositories.click();
+  await filter.fill('terminal');
+  await sort.selectOption('name');
   await fixture(native, () => {
     window.__GITSOMETHING_GITHUB_TEST__.mode = 'defer';
   });
@@ -576,7 +674,11 @@ try {
       .inputValue(),
     '',
   );
-  check('Signing into another account starts with a clean list and filter');
+  await expect(allRepositories).toHaveAttribute('aria-pressed', 'true');
+  await expect(sort).toHaveValue('updated');
+  check(
+    'Signing into another account starts with a clean list, search, visibility, and sort state',
+  );
 
   await fixture(native, () => {
     window.__GITSOMETHING_GITHUB_TEST__.mode = 'empty';

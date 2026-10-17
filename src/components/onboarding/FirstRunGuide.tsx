@@ -20,6 +20,7 @@ import { Button } from '../ui/button';
 import { TextRoll } from '../registry/skiper/TextRoll';
 import { GitHubConnectCard } from '../auth/GitHubConnectCard';
 import { BranchBloom } from '../registry/animmaster/BranchBloom';
+import { LogoMark } from '../brand/LogoMark';
 import { useGitHubAuth } from '@/hooks/useGitHubAuth';
 import './onboarding.css';
 
@@ -130,7 +131,7 @@ export function FirstRunGuide({
                 <div className="onboarding-main">
                   <header className="onboarding-header">
                     <div className="onboarding-brand">
-                      <img src="/brand/gitsomething-app-icon.svg" alt="" />
+                      <LogoMark />
                       <span>Welcome to GitSomething.</span>
                     </div>
                     <Dialog.Close className="icon-button" aria-label="Close getting started guide">

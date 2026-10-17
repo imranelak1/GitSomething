@@ -3,6 +3,7 @@ import {
   filterGitHubRepositories,
   isGitHubRepositoryUrl,
   mergeGitHubRepositories,
+  selectGitHubRepositories,
   type GitHubRepository,
 } from './github-repositories';
 
@@ -52,6 +53,44 @@ describe('GitHub repository browsing boundaries', () => {
     ]);
     expect(first.name).toBe('original');
     expect(incoming).toHaveLength(2);
+  });
+
+  it('combines visibility with multi-term metadata search without disclosing other matches', () => {
+    const source = [
+      repository(1, 'git-guide', { private: true, language: 'Rust' }),
+      repository(2, 'public-guide', { description: 'A guide to Rust' }),
+      repository(3, 'private-web', { private: true, language: 'TypeScript' }),
+    ];
+    expect(selectGitHubRepositories(source, 'guide RUST', 'private', 'updated')).toEqual([
+      source[0],
+    ]);
+    expect(selectGitHubRepositories(source, 'rust', 'public', 'updated')).toEqual([source[1]]);
+    expect(selectGitHubRepositories(source, 'missing', 'all', 'name')).toEqual([]);
+  });
+
+  it('sorts names and update times deterministically without changing pagination source order', () => {
+    const source = [
+      repository(4, 'zebra', { updatedAt: 'not-a-date' }),
+      repository(3, 'project10', { updatedAt: '2026-10-16T10:00:00Z' }),
+      repository(2, 'project2', { updatedAt: '2026-10-17T10:00:00Z' }),
+      repository(1, 'Alpha', { updatedAt: '2026-10-17T10:00:00Z' }),
+    ];
+    const originalOrder = [...source];
+    expect(selectGitHubRepositories(source, '', 'all', 'name').map((item) => item.id)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    expect(selectGitHubRepositories(source, '', 'all', 'updated').map((item) => item.id)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    expect(source).toEqual(originalOrder);
+    expect(
+      selectGitHubRepositories(
+        [repository(2, 'same'), repository(1, 'same')],
+        '',
+        'all',
+        'updated',
+      ).map((item) => item.id),
+    ).toEqual([1, 2]);
   });
 
   it('allows only HTTPS GitHub repository destinations without credentials, query, or fragments', () => {

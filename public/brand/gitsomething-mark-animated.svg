@@ -1,0 +1,23 @@
+<svg class="is-playing" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="brand-title"><title id="brand-title">GitSomething prompt cat</title>
+<style>
+.logo-head{transform-origin:56px 78px}.logo-prompt{transform-origin:55px 55px}.logo-node{transform-origin:116px 57px}
+.logo-trace{stroke-dasharray:1;stroke-dashoffset:0}
+.is-playing .logo-head{animation:curious calc(.9s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-playing .logo-prompt{animation:blink calc(.23s * var(--speed,1)) calc(.28s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-playing .logo-trace{animation:commit calc(.84s * var(--speed,1)) calc(.12s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-playing .logo-node{animation:arrive calc(.34s * var(--speed,1)) calc(.65s * var(--speed,1)) cubic-bezier(.22,1,.36,1) both}
+.is-paused *{animation-play-state:paused!important}
+@keyframes curious{0%,100%{transform:rotate(0deg)}36%{transform:rotate(-6deg)}}
+@keyframes blink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.12)}}
+@keyframes commit{0%{stroke-dashoffset:1;opacity:0}15%{opacity:1}78%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes arrive{0%,100%{transform:scale(1)}50%{transform:scale(1.26)}}
+.reduce-motion *{animation:none!important}
+@media(prefers-reduced-motion:reduce){.is-playing *{animation:none!important}}
+</style><g stroke="#58a6ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M76 98H86C98 98 104 91 104 79V44"/><path d="M104 76V74C104 64 116 68 116 58"/></g>
+<path class="logo-trace" d="M76 98H86C98 98 104 91 104 79V74C104 64 116 68 116 58" pathLength="1" stroke="#f0f6fc" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+<circle cx="104" cy="43" r="6" fill="#58a6ff"/><circle cx="104" cy="43" r="2.5" fill="#0d1117"/>
+<g class="logo-node"><circle cx="116" cy="57" r="6" fill="#58a6ff"/><circle cx="116" cy="57" r="2.5" fill="#0d1117"/></g>
+<path d="M38 74C30 84 28 95 34 101C37 104 43 105 49 105H79C85 105 88 102 88 98C88 90 81 80 74 74Z" fill="#58a6ff"/>
+<g class="logo-head"><path d="M22 54V21C22 18 24 17 27 19L47 32C55 30 64 30 72 32L84 23C87 21 90 22 90 26V56C90 75 76 85 56 85C35 85 22 75 22 54Z" fill="#f0f6fc"/><path d="M30 30L40 36L30 39Z" fill="#58a6ff"/>
+<g class="logo-prompt" stroke="#0d1117" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M38 49L45 55L38 61"/><path d="M60 62H71"/></g></g>
+</svg>
