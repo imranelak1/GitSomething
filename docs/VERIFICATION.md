@@ -2,7 +2,25 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
-## Current Studio results: October 16, 2026
+## Current GitHub palette results: October 17, 2026
+
+The latest user direction uses GitHub's dark palette with restrained Branchline character and short explanations at staging, commit, and push. Shared semantic colors live in `src/theme.css`; [the design system](../DESIGN.md) records the palette and educational intent.
+
+| Check                                  | Result                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                        | TypeScript and 2 frontend unit tests passed.                                                                        |
+| `npm run build`                        | Production build passed.                                                                                            |
+| Native debug build                     | Passed with the updated blue/slate application icon.                                                                |
+| Production workflow suite              | 24 checks passed, zero browser errors or provider requests. [Report](../artifacts/github-dark-browser-report.json). |
+| Focused palette and presentation suite | 7 checks passed, zero browser errors or provider requests. [Report](../artifacts/github-dark-palette-report.json).  |
+
+The production suites ran against `http://127.0.0.1:1431`. The focused runner sampled **81 text/background combinations**, all meeting WCAG AA. Primary button text measured at least **4.63:1**, the empty checkbox boundary **3.26:1**, the sampled control icon **4.82:1**, and keyboard focus **6.85:1**. It checks the workspace, first-use guide, practice, browser publishing/progress, and mocked device-code presentation at desktop, 320px, and 390px widths.
+
+The batched review found no clipping, overflow, or contrast defects. [Workspace](../artifacts/github-dark/desktop-working-directory.png), [guide](../artifacts/github-dark-guide/1440-welcome.png), and [320px GitHub approval](../artifacts/github-dark-guide/320-device-code.png) show the final palette. The small educational changes describe what staging selects, distinguish local commits from pushing, and explain Push through the existing accessible tooltip.
+
+To reproduce, build first, start `npm run preview -- --port 1431`, set `BRANCHLINE_TEST_URL=http://127.0.0.1:1431`, and run `npm run test:ui` and `node scripts/verify-palette.mjs`. This pass changes presentation and teaching copy; the engine and OAuth implementation are unchanged. Live OAuth, credential-store round trips, and provider pushes remain outside these browser tests. Prior backend and native IPC proof is retained below.
+
+## Previous Studio results: October 16, 2026
 
 The Studio redesign replaces the previous lime/violet palette with an ink editor, warm paper panels, cobalt navigation, coral project creation, butter-yellow committing, and mint success states. Motion for React powers the actual SVG, layout, spring, and gesture interactions. [Source ownership](MOTION_SOURCES.md) distinguishes original AnimMaster-inspired components from the paid catalog.
 

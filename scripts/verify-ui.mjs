@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
-const screenshots = new URL('studio/', artifacts);
+const screenshots = new URL('github-dark/', artifacts);
 await mkdir(screenshots, { recursive: true });
 const executablePath = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const browser = await chromium.launch({
@@ -33,7 +33,7 @@ const capture = async (page, name) => {
     path: new URL(name, screenshots).pathname.replace(/^\/([A-Z]:)/, '$1'),
     fullPage: true,
   });
-  report.screenshots.push(`artifacts/studio/${name}`);
+  report.screenshots.push(`artifacts/github-dark/${name}`);
 };
 function monitor(page, surface) {
   page.on('pageerror', (error) =>
@@ -141,9 +141,9 @@ try {
     composer: getComputedStyle(document.querySelector('.commit-composer')).backgroundColor,
   }));
   assert.deepEqual(report.palette, {
-    rail: 'rgb(66, 99, 235)',
-    files: 'rgb(244, 241, 232)',
-    composer: 'rgb(242, 215, 92)',
+    rail: 'rgb(13, 17, 23)',
+    files: 'rgb(21, 27, 35)',
+    composer: 'rgb(21, 27, 35)',
   });
   const publishPrompt = await desktop.locator('.publish-prompt').boundingBox();
   const publishPromptAction = await desktop.locator('.publish-prompt-action').boundingBox();
@@ -152,10 +152,10 @@ try {
       publishPromptAction &&
       publishPromptAction.y + publishPromptAction.height <=
         publishPrompt.y + publishPrompt.height - 4,
-    'The sidebar publishing action must fit fully inside its coral tile',
+    'The sidebar publishing action must fit fully inside its sidebar tile',
   );
   check(
-    'Cobalt navigation, paper files, and butter composer render; the sidebar publishing action stays visible',
+    'GitHub dark navigation, charcoal files, and composer render; the sidebar publishing action stays visible',
   );
   assert.equal(await desktop.locator('.journey-node').count(), 5);
   assert.equal(await desktop.locator('.journey-lines path').count(), 4);
@@ -658,7 +658,7 @@ try {
   process.exitCode = 1;
 } finally {
   await writeFile(
-    new URL('studio-browser-report.json', artifacts),
+    new URL('github-dark-browser-report.json', artifacts),
     `${JSON.stringify(report, null, 2)}\n`,
   );
   await browser.close();
