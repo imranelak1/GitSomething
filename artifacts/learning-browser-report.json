@@ -1,23 +1,23 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T01:23:15.202Z",
+  "testedAt": "2026-10-17T12:56:13.909Z",
   "browser": "155.0.4283.62",
-  "scope": "Guided Git, action visibility, contextual learning, and responsive terminal",
+  "scope": "Guided Git, operation visibility, contextual learning, and responsive terminal",
   "checks": [
     "Lessons wait for an explicit Learn action, the learning strip stays compact, and the terminal leaves a usable diff workspace",
-    "Staging a file shows both the requested button action and its equivalent Git operation",
+    "Staging a file shows its equivalent Git operation without a duplicate button-click entry",
     "Typed status, log, and branch commands return the current practice repository state",
     "Up and Down recall command history and preserve an unfinished draft",
     "Quoted exact paths stage and unstage files through the same state as the workspace; staged diffs render",
     "Destructive commands and command chains show an explanation while leaving practice files and staging unchanged",
     "A typed commit saves staged practice changes, removes them from Changes, and appears in history",
-    "Actions and Commands filters separate interface requests from Git commands and their output",
+    "Events and Commands filters separate provider or failure events from Git commands; generic interface actions are absent",
     "Purple learning content explains local commits; examples prefill and focus the terminal without executing",
     "Terminal lessons switch topics and their command examples also require an explicit Enter to run",
     "Clear hides prior output and the next command remains visible with current repository state",
     "Scrolling back pauses automatic following; Follow latest returns to the newest output",
     "The terminal keyboard toggle collapses and reopens without losing command results",
-    "Buttons inside portal dialogs also appear in the terminal action stream",
+    "Opening and closing portal help dialogs leaves the Git terminal transcript unchanged",
     "At 390px and 320px, terminal input and learning controls fit and safe commands remain usable",
     "Reduced motion removes the learning transition while keeping terminal interactions available",
     "The browser demo makes zero provider requests and reports no browser or Monaco errors"
@@ -177,9 +177,9 @@
         "x": 0,
         "y": 402,
         "width": 390,
-        "height": 240.109375,
+        "height": 280.109375,
         "right": 390,
-        "bottom": 642.109375
+        "bottom": 682.109375
       }
     },
     {
@@ -215,9 +215,9 @@
         "x": 0,
         "y": 402,
         "width": 390,
-        "height": 240.109375,
+        "height": 280.109375,
         "right": 390,
-        "bottom": 642.109375
+        "bottom": 682.109375
       }
     },
     {
@@ -253,9 +253,9 @@
         "x": 0,
         "y": 402,
         "width": 320,
-        "height": 240.109375,
+        "height": 280.109375,
         "right": 320,
-        "bottom": 642.109375
+        "bottom": 682.109375
       }
     },
     {
@@ -291,9 +291,9 @@
         "x": 0,
         "y": 402,
         "width": 320,
-        "height": 240.109375,
+        "height": 280.109375,
         "right": 320,
-        "bottom": 642.109375
+        "bottom": 682.109375
       }
     }
   ],

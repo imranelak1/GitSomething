@@ -1,0 +1,9 @@
+{
+  "testedAt": "2026-10-17T12:59:37.579Z",
+  "boundary": "Actual native Tauri page over direct CDP; explicit demo, reversible UI controls and guided read only. No Git mutation or provider request.",
+  "checks": [
+    "Native resize, pane visibility and navigation leave transcript unchanged",
+    "A guided Git command still adds its result in the actual native app"
+  ],
+  "status": "passed"
+}

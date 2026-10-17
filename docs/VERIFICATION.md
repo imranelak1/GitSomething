@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Git and GitHub operations only: October 17, 2026
+
+The Glass Box now contains actual Git logs, guided commands and their output, repository-operation failures, and explicit GitHub authentication or publishing events. The global click/select recorder is removed. Interface requests are discarded before entering the history buffer, and lesson requests only drive the separate teaching panel. Resizing, scrolling, navigation, settings, copying, panel controls, and slider gestures do not create transcript rows. A genuine Git read triggered by reviewing a file remains a Git operation.
+
+The filters are **All operations**, **Commands**, and **Events**. Account and publishing events settle one row from running to success or error. Credentials are redacted, and private authorization codes or session data never enter those rows. Publishing errors remain available after dismissing their dialog. Actual command tokens retain their explanations and operation results.
+
+TypeScript, all **68 unit tests**, and the frontend production build passed. The [17 focused scope checks](../artifacts/terminal-scope-report.json) passed at desktop, 390px, and 320px, including exact transcript and copied-text equality across interface interactions, command safety, Git operations, preflight failures, publication lifecycle, and GitHub sign-in/disconnect fixtures. The 17 teaching-terminal and 24 general UI checks also passed. Browser checks use explicit native IPC fixtures for provider operations and make no real provider requests. [Screenshots](../artifacts/terminal-scope/) show the filtered transcript and operation statuses. Run `npm run test:terminal-scope` against the fixed production preview on port 1431.
+
+The full 16-check OAuth/onboarding suite also passed against the fixed production preview, including cancellation, late polling, denial, expiry, retry, and credential boundaries. All **74 browser checks** reported zero browser errors and zero provider requests.
+
+Two [actual native WebView checks](../artifacts/terminal-scope-native-report.json) also passed: reversible pane controls and navigation leave the transcript unchanged, while a guided Git command still adds its result. This smoke used the explicit demo and performed no native Git mutation or provider request.
+
 ## Roomier workspace: October 17, 2026
 
 The workspace now follows the content hierarchy of macOS document tools: a collapsible repository sidebar, resizable changed-files pane, commit form beneath the files, and a continuous full-height diff. The large workspace masthead and duplicate activity rail no longer consume the review canvas. The recent-commit journey lives in History. Teaching tips open over the workspace, the Glass Box lesson inspector starts closed, and the terminal uses a smaller 180px fresh preference while retaining saved settings. Very short windows start with the terminal collapsed; opening it keeps file selection, staging, and commit controls visible. Repository navigation has independent scrolling.

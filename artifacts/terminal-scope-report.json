@@ -1,0 +1,34 @@
+{
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T12:56:13.882Z",
+  "browser": "155.0.4283.62",
+  "scope": "Git and provider operations remain visible; interface interactions never enter the terminal or its clipboard export",
+  "checks": [
+    "Navigation, file inspection, filtering, sidebar toggles, palette search, and Home/Continue leave transcript and copied output unchanged",
+    "Keyboard and pointer resizing, text preferences, reset, and window resizing stay out of the terminal and clipboard",
+    "Lessons still open and prepare commands; topic selection, help dialogs, and terminal toggles create no transcript entries",
+    "Scrolling and Follow latest preserve the exact Git transcript and copied text",
+    "Stage, unstage, and commit retain their equivalent Git operations and update practice repository state",
+    "An abandoned push confirmation creates no operation or slider-interaction noise",
+    "Fetch, Pull, and confirmed Push retain equivalent commands without generic button or slider entries",
+    "Guided help, rejected destructive commands, shell chains, and invalid commands keep their safety explanations in the terminal",
+    "Clear and Copy stay silent; the next guided command appears once with its output",
+    "390px resizing, learning, and terminal appearance do not pollute the Git transcript",
+    "320px resizing, learning, and terminal appearance do not pollute the Git transcript",
+    "Native preflight failures remain visible as operation events even when Git never starts",
+    "Only confirmed publishing creates an event, which updates from running to success without duplicate rows",
+    "Publishing errors remain in the operation transcript after dismissing the dialog",
+    "Actual disconnect and failed GitHub sign-in attempts remain visible, while opening account guidance stays silent",
+    "Commands hides provider events; All operations restores them without logging filter changes",
+    "Desktop and mobile checks produce no provider requests or browser errors"
+  ],
+  "screenshots": [
+    "artifacts/terminal-scope/1440-git-only-terminal.png",
+    "artifacts/terminal-scope/390-git-only-terminal.png",
+    "artifacts/terminal-scope/320-git-only-terminal.png",
+    "artifacts/terminal-scope/native-operation-events.png"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "status": "passed"
+}
