@@ -1,0 +1,732 @@
+{
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T01:28:04.392Z",
+  "browser": "155.0.4283.62",
+  "scope": "Workspace space allocation, pane resizing, accessible navigation, and responsive code review",
+  "checks": [
+    "Desktop and short windows give code review substantially more room; commit controls stay beside the diff",
+    "Both splitters support keyboard bounds and direct pointer resizing of their actual panes",
+    "Interrupted pointer resizing restores pane widths and leaves saved preferences unchanged",
+    "The keyboard sidebar toggle keeps hidden controls out of focus and preserves the active review",
+    "Pane widths survive reload and their available bounds reserve space for code when the window narrows",
+    "Push confirmation, on-demand learning, History graphs, and return to Changes remain functional",
+    "Malformed and out-of-range stored pane preferences recover to safe usable dimensions",
+    "At 320px and 390px, files, readable code, commit controls, terminal commands, and tabs remain reachable",
+    "All workspace interactions complete without provider requests, browser exceptions, or Monaco errors"
+  ],
+  "screenshots": [
+    "artifacts/workspace-layout/after-1440x1000.png",
+    "artifacts/workspace-layout/after-1280x800.png",
+    "artifacts/workspace-layout/after-1440x650.png",
+    "artifacts/workspace-layout/after-1440x650-terminal-open.png",
+    "artifacts/workspace-layout/after-history.png",
+    "artifacts/workspace-layout/after-320px.png",
+    "artifacts/workspace-layout/after-390px.png"
+  ],
+  "geometry": [
+    {
+      "surface": "1440x1000-default",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "sidebar": {
+        "x": 0,
+        "y": 58,
+        "width": 224,
+        "height": 942,
+        "right": 224,
+        "bottom": 1000
+      },
+      "workspace": {
+        "x": 224,
+        "y": 219,
+        "width": 1216,
+        "height": 519,
+        "right": 1440,
+        "bottom": 738
+      },
+      "changes": {
+        "x": 224,
+        "y": 219,
+        "width": 1216,
+        "height": 519,
+        "right": 1440,
+        "bottom": 738
+      },
+      "files": {
+        "x": 224,
+        "y": 219,
+        "width": 304,
+        "height": 297.109375,
+        "right": 528,
+        "bottom": 516.109375
+      },
+      "diff": {
+        "x": 528,
+        "y": 219,
+        "width": 912,
+        "height": 518,
+        "right": 1440,
+        "bottom": 737
+      },
+      "editor": {
+        "x": 528,
+        "y": 263,
+        "width": 912,
+        "height": 434,
+        "right": 1440,
+        "bottom": 697
+      },
+      "composer": {
+        "x": 224,
+        "y": 516.109375,
+        "width": 304,
+        "height": 220.890625,
+        "right": 528,
+        "bottom": 737
+      },
+      "terminal": {
+        "x": 224,
+        "y": 750,
+        "width": 1216,
+        "height": 224,
+        "right": 1440,
+        "bottom": 974
+      },
+      "terminalInput": {
+        "x": 299.640625,
+        "y": 917,
+        "width": 1059.34375,
+        "height": 32,
+        "right": 1358.984375,
+        "bottom": 949
+      },
+      "previousEditorHeight": 67,
+      "editorHeightGain": 367
+    },
+    {
+      "surface": "1280x800-default",
+      "width": 1280,
+      "height": 800,
+      "scrollWidth": 1280,
+      "sidebar": {
+        "x": 0,
+        "y": 50,
+        "width": 224,
+        "height": 750,
+        "right": 224,
+        "bottom": 800
+      },
+      "workspace": {
+        "x": 224,
+        "y": 211,
+        "width": 1056,
+        "height": 327,
+        "right": 1280,
+        "bottom": 538
+      },
+      "changes": {
+        "x": 224,
+        "y": 211,
+        "width": 1056,
+        "height": 327,
+        "right": 1280,
+        "bottom": 538
+      },
+      "files": {
+        "x": 224,
+        "y": 211,
+        "width": 304,
+        "height": 149.609375,
+        "right": 528,
+        "bottom": 360.609375
+      },
+      "diff": {
+        "x": 528,
+        "y": 211,
+        "width": 752,
+        "height": 326,
+        "right": 1280,
+        "bottom": 537
+      },
+      "editor": {
+        "x": 528,
+        "y": 255,
+        "width": 752,
+        "height": 242,
+        "right": 1280,
+        "bottom": 497
+      },
+      "composer": {
+        "x": 224,
+        "y": 360.609375,
+        "width": 304,
+        "height": 176.390625,
+        "right": 528,
+        "bottom": 537
+      },
+      "terminal": {
+        "x": 224,
+        "y": 550,
+        "width": 1056,
+        "height": 224,
+        "right": 1280,
+        "bottom": 774
+      },
+      "terminalInput": {
+        "x": 299.640625,
+        "y": 717,
+        "width": 899.34375,
+        "height": 32,
+        "right": 1198.984375,
+        "bottom": 749
+      },
+      "previousEditorHeight": 80,
+      "editorHeightGain": 162
+    },
+    {
+      "surface": "1440x650-default",
+      "width": 1440,
+      "height": 650,
+      "scrollWidth": 1440,
+      "sidebar": {
+        "x": 0,
+        "y": 50,
+        "width": 224,
+        "height": 600,
+        "right": 224,
+        "bottom": 650
+      },
+      "workspace": {
+        "x": 224,
+        "y": 170,
+        "width": 1216,
+        "height": 398,
+        "right": 1440,
+        "bottom": 568
+      },
+      "changes": {
+        "x": 224,
+        "y": 170,
+        "width": 1216,
+        "height": 398,
+        "right": 1440,
+        "bottom": 568
+      },
+      "files": {
+        "x": 224,
+        "y": 170,
+        "width": 304,
+        "height": 290,
+        "right": 528,
+        "bottom": 460
+      },
+      "diff": {
+        "x": 528,
+        "y": 170,
+        "width": 912,
+        "height": 397,
+        "right": 1440,
+        "bottom": 567
+      },
+      "editor": {
+        "x": 528,
+        "y": 214,
+        "width": 912,
+        "height": 313,
+        "right": 1440,
+        "bottom": 527
+      },
+      "composer": {
+        "x": 224,
+        "y": 460,
+        "width": 304,
+        "height": 107,
+        "right": 528,
+        "bottom": 567
+      },
+      "terminal": {
+        "x": 224,
+        "y": 580,
+        "width": 1216,
+        "height": 44,
+        "right": 1440,
+        "bottom": 624
+      },
+      "terminalInput": null,
+      "previousEditorHeight": 80,
+      "editorHeightGain": 233
+    },
+    {
+      "surface": "1440x650-terminal-open",
+      "width": 1440,
+      "height": 650,
+      "scrollWidth": 1440,
+      "sidebar": {
+        "x": 0,
+        "y": 50,
+        "width": 224,
+        "height": 600,
+        "right": 224,
+        "bottom": 650
+      },
+      "workspace": {
+        "x": 224,
+        "y": 170,
+        "width": 1216,
+        "height": 238,
+        "right": 1440,
+        "bottom": 408
+      },
+      "changes": {
+        "x": 224,
+        "y": 170,
+        "width": 1216,
+        "height": 238,
+        "right": 1440,
+        "bottom": 408
+      },
+      "files": {
+        "x": 224,
+        "y": 170,
+        "width": 304,
+        "height": 130,
+        "right": 528,
+        "bottom": 300
+      },
+      "diff": {
+        "x": 528,
+        "y": 170,
+        "width": 912,
+        "height": 237,
+        "right": 1440,
+        "bottom": 407
+      },
+      "editor": {
+        "x": 528,
+        "y": 214,
+        "width": 912,
+        "height": 153,
+        "right": 1440,
+        "bottom": 367
+      },
+      "composer": {
+        "x": 224,
+        "y": 300,
+        "width": 304,
+        "height": 107,
+        "right": 528,
+        "bottom": 407
+      },
+      "terminal": {
+        "x": 224,
+        "y": 420,
+        "width": 1216,
+        "height": 204,
+        "right": 1440,
+        "bottom": 624
+      },
+      "terminalInput": {
+        "x": 299.640625,
+        "y": 567,
+        "width": 1059.34375,
+        "height": 32,
+        "right": 1358.984375,
+        "bottom": 599
+      }
+    },
+    {
+      "surface": "1024px-bounded-panes",
+      "width": 1024,
+      "height": 800,
+      "scrollWidth": 1024,
+      "sidebar": {
+        "x": 0,
+        "y": 50,
+        "width": 320,
+        "height": 750,
+        "right": 320,
+        "bottom": 800
+      },
+      "workspace": {
+        "x": 320,
+        "y": 211,
+        "width": 704,
+        "height": 327,
+        "right": 1024,
+        "bottom": 538
+      },
+      "changes": {
+        "x": 320,
+        "y": 211,
+        "width": 704,
+        "height": 327,
+        "right": 1024,
+        "bottom": 538
+      },
+      "files": {
+        "x": 320,
+        "y": 211,
+        "width": 264,
+        "height": 149.609375,
+        "right": 584,
+        "bottom": 360.609375
+      },
+      "diff": {
+        "x": 584,
+        "y": 211,
+        "width": 440,
+        "height": 326,
+        "right": 1024,
+        "bottom": 537
+      },
+      "editor": {
+        "x": 584,
+        "y": 255,
+        "width": 440,
+        "height": 242,
+        "right": 1024,
+        "bottom": 497
+      },
+      "composer": {
+        "x": 320,
+        "y": 360.609375,
+        "width": 264,
+        "height": 176.390625,
+        "right": 584,
+        "bottom": 537
+      },
+      "terminal": {
+        "x": 320,
+        "y": 550,
+        "width": 704,
+        "height": 224,
+        "right": 1024,
+        "bottom": 774
+      },
+      "terminalInput": {
+        "x": 395.640625,
+        "y": 717,
+        "width": 547.34375,
+        "height": 32,
+        "right": 942.984375,
+        "bottom": 749
+      }
+    },
+    {
+      "surface": "recovered-preferences",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "sidebar": {
+        "x": 0,
+        "y": 58,
+        "width": 224,
+        "height": 942,
+        "right": 224,
+        "bottom": 1000
+      },
+      "workspace": {
+        "x": 224,
+        "y": 219,
+        "width": 1216,
+        "height": 519,
+        "right": 1440,
+        "bottom": 738
+      },
+      "changes": {
+        "x": 224,
+        "y": 219,
+        "width": 1216,
+        "height": 519,
+        "right": 1440,
+        "bottom": 738
+      },
+      "files": {
+        "x": 224,
+        "y": 219,
+        "width": 304,
+        "height": 297.109375,
+        "right": 528,
+        "bottom": 516.109375
+      },
+      "diff": {
+        "x": 528,
+        "y": 219,
+        "width": 912,
+        "height": 518,
+        "right": 1440,
+        "bottom": 737
+      },
+      "editor": {
+        "x": 528,
+        "y": 263,
+        "width": 912,
+        "height": 434,
+        "right": 1440,
+        "bottom": 697
+      },
+      "composer": {
+        "x": 224,
+        "y": 516.109375,
+        "width": 304,
+        "height": 220.890625,
+        "right": 528,
+        "bottom": 737
+      },
+      "terminal": {
+        "x": 224,
+        "y": 750,
+        "width": 1216,
+        "height": 224,
+        "right": 1440,
+        "bottom": 974
+      },
+      "terminalInput": {
+        "x": 299.640625,
+        "y": 917,
+        "width": 1059.34375,
+        "height": 32,
+        "right": 1358.984375,
+        "bottom": 949
+      }
+    },
+    {
+      "surface": "recovered-preferences",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "sidebar": {
+        "x": 0,
+        "y": 58,
+        "width": 320,
+        "height": 942,
+        "right": 320,
+        "bottom": 1000
+      },
+      "workspace": {
+        "x": 320,
+        "y": 219,
+        "width": 1120,
+        "height": 519,
+        "right": 1440,
+        "bottom": 738
+      },
+      "changes": {
+        "x": 320,
+        "y": 219,
+        "width": 1120,
+        "height": 519,
+        "right": 1440,
+        "bottom": 738
+      },
+      "files": {
+        "x": 320,
+        "y": 219,
+        "width": 248,
+        "height": 297.109375,
+        "right": 568,
+        "bottom": 516.109375
+      },
+      "diff": {
+        "x": 568,
+        "y": 219,
+        "width": 872,
+        "height": 518,
+        "right": 1440,
+        "bottom": 737
+      },
+      "editor": {
+        "x": 568,
+        "y": 263,
+        "width": 872,
+        "height": 434,
+        "right": 1440,
+        "bottom": 697
+      },
+      "composer": {
+        "x": 320,
+        "y": 516.109375,
+        "width": 248,
+        "height": 220.890625,
+        "right": 568,
+        "bottom": 737
+      },
+      "terminal": {
+        "x": 320,
+        "y": 750,
+        "width": 1120,
+        "height": 224,
+        "right": 1440,
+        "bottom": 974
+      },
+      "terminalInput": {
+        "x": 395.640625,
+        "y": 917,
+        "width": 963.34375,
+        "height": 32,
+        "right": 1358.984375,
+        "bottom": 949
+      }
+    },
+    {
+      "surface": "320px-default",
+      "width": 320,
+      "height": 960,
+      "scrollWidth": 320,
+      "sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "workspace": {
+        "x": 0,
+        "y": 254,
+        "width": 320,
+        "height": 451,
+        "right": 320,
+        "bottom": 705
+      },
+      "changes": {
+        "x": 0,
+        "y": 254,
+        "width": 320,
+        "height": 650,
+        "right": 320,
+        "bottom": 904
+      },
+      "files": {
+        "x": 0,
+        "y": 254,
+        "width": 320,
+        "height": 148,
+        "right": 320,
+        "bottom": 402
+      },
+      "diff": {
+        "x": 0,
+        "y": 402,
+        "width": 320,
+        "height": 280.109375,
+        "right": 320,
+        "bottom": 682.109375
+      },
+      "editor": {
+        "x": 0,
+        "y": 446,
+        "width": 320,
+        "height": 196.109375,
+        "right": 320,
+        "bottom": 642.109375
+      },
+      "composer": {
+        "x": 0,
+        "y": 682.109375,
+        "width": 320,
+        "height": 220.890625,
+        "right": 320,
+        "bottom": 903
+      },
+      "terminal": {
+        "x": 0,
+        "y": 717,
+        "width": 320,
+        "height": 219,
+        "right": 320,
+        "bottom": 936
+      },
+      "terminalInput": {
+        "x": 60.640625,
+        "y": 879,
+        "width": 186.34375,
+        "height": 32,
+        "right": 246.984375,
+        "bottom": 911
+      }
+    },
+    {
+      "surface": "390px-default",
+      "width": 390,
+      "height": 960,
+      "scrollWidth": 390,
+      "sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "workspace": {
+        "x": 0,
+        "y": 254,
+        "width": 390,
+        "height": 451,
+        "right": 390,
+        "bottom": 705
+      },
+      "changes": {
+        "x": 0,
+        "y": 254,
+        "width": 390,
+        "height": 650,
+        "right": 390,
+        "bottom": 904
+      },
+      "files": {
+        "x": 0,
+        "y": 254,
+        "width": 390,
+        "height": 148,
+        "right": 390,
+        "bottom": 402
+      },
+      "diff": {
+        "x": 0,
+        "y": 402,
+        "width": 390,
+        "height": 280.109375,
+        "right": 390,
+        "bottom": 682.109375
+      },
+      "editor": {
+        "x": 0,
+        "y": 446,
+        "width": 390,
+        "height": 196.109375,
+        "right": 390,
+        "bottom": 642.109375
+      },
+      "composer": {
+        "x": 0,
+        "y": 682.109375,
+        "width": 390,
+        "height": 220.890625,
+        "right": 390,
+        "bottom": 903
+      },
+      "terminal": {
+        "x": 0,
+        "y": 717,
+        "width": 390,
+        "height": 219,
+        "right": 390,
+        "bottom": 936
+      },
+      "terminalInput": {
+        "x": 60.640625,
+        "y": 879,
+        "width": 256.34375,
+        "height": 32,
+        "right": 316.984375,
+        "bottom": 911
+      }
+    }
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "status": "passed"
+}

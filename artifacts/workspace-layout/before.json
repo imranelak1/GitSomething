@@ -1,0 +1,346 @@
+[
+  {
+    "width": 1440,
+    "height": 1000,
+    "metrics": {
+      ".titlebar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 58
+      },
+      ".sidebar": {
+        "x": 64,
+        "y": 58,
+        "width": 224,
+        "height": 942
+      },
+      ".repository-toolbar": {
+        "x": 288,
+        "y": 58,
+        "width": 1152,
+        "height": 54
+      },
+      ".workspace-masthead": {
+        "x": 288,
+        "y": 112,
+        "width": 1152,
+        "height": 146
+      },
+      ".demo-ribbon": {
+        "x": 316,
+        "y": 258,
+        "width": 1096,
+        "height": 20
+      },
+      ".view-tabs": {
+        "x": 316,
+        "y": 283,
+        "width": 1096,
+        "height": 48
+      },
+      ".learning-flow": {
+        "x": 288,
+        "y": 331,
+        "width": 1152,
+        "height": 50
+      },
+      ".workspace-content": {
+        "x": 316,
+        "y": 381,
+        "width": 1096,
+        "height": 287
+      },
+      ".changes-view": {
+        "x": 316,
+        "y": 389,
+        "width": 1096,
+        "height": 279
+      },
+      ".changes-panel": {
+        "x": 317,
+        "y": 390,
+        "width": 292,
+        "height": 177
+      },
+      ".diff-panel": {
+        "x": 609,
+        "y": 390,
+        "width": 802,
+        "height": 177
+      },
+      ".editor-container": {
+        "x": 609,
+        "y": 462,
+        "width": 802,
+        "height": 67
+      },
+      ".commit-composer": {
+        "x": 317,
+        "y": 567,
+        "width": 1094,
+        "height": 100
+      },
+      ".glass-box": null,
+      ".glass-body": null
+    }
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "metrics": {
+      ".titlebar": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 50
+      },
+      ".sidebar": {
+        "x": 64,
+        "y": 50,
+        "width": 224,
+        "height": 750
+      },
+      ".repository-toolbar": {
+        "x": 288,
+        "y": 50,
+        "width": 992,
+        "height": 54
+      },
+      ".workspace-masthead": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      ".demo-ribbon": {
+        "x": 316,
+        "y": 104,
+        "width": 936,
+        "height": 20
+      },
+      ".view-tabs": {
+        "x": 316,
+        "y": 129,
+        "width": 936,
+        "height": 48
+      },
+      ".learning-flow": {
+        "x": 288,
+        "y": 177,
+        "width": 992,
+        "height": 50
+      },
+      ".workspace-content": {
+        "x": 316,
+        "y": 227,
+        "width": 936,
+        "height": 241
+      },
+      ".changes-view": {
+        "x": 316,
+        "y": 235,
+        "width": 936,
+        "height": 280
+      },
+      ".changes-panel": {
+        "x": 317,
+        "y": 236,
+        "width": 292,
+        "height": 190
+      },
+      ".diff-panel": {
+        "x": 609,
+        "y": 236,
+        "width": 642,
+        "height": 190
+      },
+      ".editor-container": {
+        "x": 609,
+        "y": 308,
+        "width": 642,
+        "height": 80
+      },
+      ".commit-composer": {
+        "x": 317,
+        "y": 426,
+        "width": 934,
+        "height": 88
+      },
+      ".glass-box": null,
+      ".glass-body": null
+    }
+  },
+  {
+    "width": 1440,
+    "height": 650,
+    "metrics": {
+      ".titlebar": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 50
+      },
+      ".sidebar": {
+        "x": 64,
+        "y": 50,
+        "width": 224,
+        "height": 600
+      },
+      ".repository-toolbar": {
+        "x": 288,
+        "y": 50,
+        "width": 1152,
+        "height": 54
+      },
+      ".workspace-masthead": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      ".demo-ribbon": {
+        "x": 316,
+        "y": 104,
+        "width": 1096,
+        "height": 20
+      },
+      ".view-tabs": {
+        "x": 316,
+        "y": 129,
+        "width": 1096,
+        "height": 48
+      },
+      ".learning-flow": {
+        "x": 288,
+        "y": 177,
+        "width": 1152,
+        "height": 50
+      },
+      ".workspace-content": {
+        "x": 316,
+        "y": 227,
+        "width": 1096,
+        "height": 175
+      },
+      ".changes-view": {
+        "x": 316,
+        "y": 235,
+        "width": 1096,
+        "height": 280
+      },
+      ".changes-panel": {
+        "x": 317,
+        "y": 236,
+        "width": 292,
+        "height": 190
+      },
+      ".diff-panel": {
+        "x": 609,
+        "y": 236,
+        "width": 802,
+        "height": 190
+      },
+      ".editor-container": {
+        "x": 609,
+        "y": 308,
+        "width": 802,
+        "height": 80
+      },
+      ".commit-composer": {
+        "x": 317,
+        "y": 426,
+        "width": 1094,
+        "height": 88
+      },
+      ".glass-box": null,
+      ".glass-body": null
+    }
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "metrics": {
+      ".titlebar": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 50
+      },
+      ".sidebar": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      ".repository-toolbar": {
+        "x": 0,
+        "y": 50,
+        "width": 390,
+        "height": 95
+      },
+      ".workspace-masthead": {
+        "x": 0,
+        "y": 145,
+        "width": 390,
+        "height": 87
+      },
+      ".demo-ribbon": {
+        "x": 16,
+        "y": 232,
+        "width": 358,
+        "height": 20
+      },
+      ".view-tabs": {
+        "x": 16,
+        "y": 255,
+        "width": 358,
+        "height": 44
+      },
+      ".learning-flow": {
+        "x": 0,
+        "y": 299,
+        "width": 390,
+        "height": 48
+      },
+      ".workspace-content": {
+        "x": 16,
+        "y": 347,
+        "width": 358,
+        "height": 180
+      },
+      ".changes-view": {
+        "x": 16,
+        "y": 355,
+        "width": 358,
+        "height": 348
+      },
+      ".changes-panel": {
+        "x": 17,
+        "y": 356,
+        "width": 356,
+        "height": 132
+      },
+      ".diff-panel": {
+        "x": 17,
+        "y": 488,
+        "width": 356,
+        "height": 82
+      },
+      ".editor-container": {
+        "x": 17,
+        "y": 522,
+        "width": 356,
+        "height": 17
+      },
+      ".commit-composer": {
+        "x": 17,
+        "y": 570,
+        "width": 356,
+        "height": 132
+      },
+      ".glass-box": null,
+      ".glass-body": null
+    }
+  }
+]

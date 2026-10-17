@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T01:09:06.742Z",
+  "testedAt": "2026-10-17T01:28:04.423Z",
   "browser": "155.0.4283.62",
   "checks": [
     "Monaco mounts locally; initial commit requires a message and staged files",
@@ -159,7 +159,7 @@
     }
   ],
   "palette": {
-    "rail": "rgb(13, 17, 23)",
+    "sidebar": "rgb(21, 27, 35)",
     "files": "rgb(21, 27, 35)",
     "composer": "rgb(21, 27, 35)"
   },

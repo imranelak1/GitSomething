@@ -2,6 +2,23 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Roomier workspace: October 17, 2026
+
+The workspace now follows the content hierarchy of macOS document tools: a collapsible repository sidebar, resizable changed-files pane, commit form beneath the files, and a continuous full-height diff. The large workspace masthead and duplicate activity rail no longer consume the review canvas. The recent-commit journey lives in History. Teaching tips open over the workspace, the Glass Box lesson inspector starts closed, and the terminal uses a smaller 180px fresh preference while retaining saved settings. Very short windows start with the terminal collapsed; opening it keeps file selection, staging, and commit controls visible. Repository navigation has independent scrolling.
+
+| Viewport                             | Previous code height | Current code height             |
+| ------------------------------------ | -------------------- | ------------------------------- |
+| 1440 × 1000                          | 67px                 | 434px                           |
+| 1280 × 800                           | 80px                 | 242px                           |
+| 1440 × 650, initial view             | 80px                 | 313px                           |
+| 1440 × 650, terminal explicitly open | Previously clipped   | 153px, fully above the terminal |
+
+The frontend production build, TypeScript, and all **67 unit tests** passed. **86 browser checks** passed: nine [workspace layout checks](../artifacts/workspace-layout-report.json), 24 general UI, 13 Home/terminal-preference, 17 teaching-terminal, and 23 push-slider checks. These cover real pane geometry, pointer and keyboard resizing, interrupted-drag rollback, remembered widths, malformed preferences, sidebar visibility and focus, the 320px/390px layouts, and existing Git action contracts. The mobile code pane is 196px tall and its controls remain reachable through the workspace's scroll region. Browser checks reported zero errors or provider requests; native push/publish requests in existing contract suites remain fixtures. The Rust Git engine is unchanged.
+
+[Before/after screenshots and measured geometry](../artifacts/workspace-layout/) show the changed layout. [DESIGN.md](../DESIGN.md) records the official Apple Layout, Split Views, Sidebars, and WWDC inspector/AppKit references and their application to this web interface. Run `npm run test:workspace` against the fixed production preview on port 1431 to repeat the focused checks.
+
+The [actual native WebView smoke](../artifacts/workspace-layout-native-report.json) passed three checks for the full-height canvas, keyboard pane resizing/restoration, and sidebar visibility without losing the selected diff. Its code viewport measured 434px tall. This smoke used the explicit demo and performed no Git or provider mutation; the desktop app is left in that workspace for review.
+
 ## GitSomething rename: October 17, 2026
 
 Renamed the app, welcome guide, educational and authentication copy, document title, icon asset, npm package, Rust crate/binary, Tauri product/window metadata, and project documentation to **GitSomething**. The private project repository is now [imranelak1/GitSomething](https://github.com/imranelak1/GitSomething); the local remote points to the new URL. Compatibility identifiers remain stable so saved preferences and GitHub credentials stay available.

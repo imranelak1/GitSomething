@@ -1,10 +1,10 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T01:09:06.757Z",
+  "testedAt": "2026-10-17T01:23:15.202Z",
   "browser": "155.0.4283.62",
   "scope": "Guided Git, action visibility, contextual learning, and responsive terminal",
   "checks": [
-    "The learning strip is compact and the open terminal leaves a usable diff workspace",
+    "Lessons wait for an explicit Learn action, the learning strip stays compact, and the terminal leaves a usable diff workspace",
     "Staging a file shows both the requested button action and its equivalent Git operation",
     "Typed status, log, and branch commands return the current practice repository state",
     "Up and Down recall command history and preserve an unfinished draft",
@@ -36,36 +36,36 @@
       "height": 1000,
       "scrollWidth": 1440,
       "terminal": {
-        "x": 288,
-        "y": 686,
-        "width": 1152,
-        "height": 288,
+        "x": 224,
+        "y": 750,
+        "width": 1216,
+        "height": 224,
         "right": 1440,
         "bottom": 974
       },
       "input": {
-        "x": 363.640625,
+        "x": 299.640625,
         "y": 917,
-        "width": 685.34375,
+        "width": 1059.34375,
         "height": 32,
-        "right": 1048.984375,
+        "right": 1358.984375,
         "bottom": 949
       },
       "learning": {
-        "x": 288,
-        "y": 331.90625,
-        "width": 1152,
-        "height": 50,
+        "x": 224,
+        "y": 178,
+        "width": 1216,
+        "height": 41,
         "right": 1440,
-        "bottom": 381.90625
+        "bottom": 219
       },
       "editor": {
-        "x": 609,
-        "y": 390.90625,
-        "width": 802,
-        "height": 176.09375,
-        "right": 1411,
-        "bottom": 567
+        "x": 528,
+        "y": 219,
+        "width": 912,
+        "height": 518,
+        "right": 1440,
+        "bottom": 737
       }
     },
     {
@@ -74,36 +74,36 @@
       "height": 1000,
       "scrollWidth": 1440,
       "terminal": {
-        "x": 288,
-        "y": 686,
-        "width": 1152,
-        "height": 288,
+        "x": 224,
+        "y": 750,
+        "width": 1216,
+        "height": 224,
         "right": 1440,
         "bottom": 974
       },
       "input": {
-        "x": 363.640625,
+        "x": 299.640625,
         "y": 917,
-        "width": 685.34375,
+        "width": 1059.34375,
         "height": 32,
-        "right": 1048.984375,
+        "right": 1358.984375,
         "bottom": 949
       },
       "learning": {
-        "x": 288,
-        "y": 331.90625,
-        "width": 1152,
-        "height": 50,
+        "x": 224,
+        "y": 178,
+        "width": 1216,
+        "height": 41,
         "right": 1440,
-        "bottom": 381.90625
+        "bottom": 219
       },
       "editor": {
-        "x": 609,
-        "y": 390.90625,
-        "width": 802,
-        "height": 176.09375,
-        "right": 1411,
-        "bottom": 567
+        "x": 528,
+        "y": 219,
+        "width": 912,
+        "height": 518,
+        "right": 1440,
+        "bottom": 737
       }
     },
     {
@@ -112,36 +112,36 @@
       "height": 1000,
       "scrollWidth": 1440,
       "terminal": {
-        "x": 288,
-        "y": 686,
-        "width": 1152,
-        "height": 288,
+        "x": 224,
+        "y": 750,
+        "width": 1216,
+        "height": 224,
         "right": 1440,
         "bottom": 974
       },
       "input": {
-        "x": 363.640625,
+        "x": 299.640625,
         "y": 917,
-        "width": 685.34375,
+        "width": 749.34375,
         "height": 32,
         "right": 1048.984375,
         "bottom": 949
       },
       "learning": {
-        "x": 288,
-        "y": 331.90625,
-        "width": 1152,
-        "height": 50,
+        "x": 224,
+        "y": 178,
+        "width": 1216,
+        "height": 41,
         "right": 1440,
-        "bottom": 381.90625
+        "bottom": 219
       },
       "editor": {
-        "x": 609,
-        "y": 390.90625,
-        "width": 802,
-        "height": 176.09375,
-        "right": 1411,
-        "bottom": 567
+        "x": 528,
+        "y": 219,
+        "width": 912,
+        "height": 518,
+        "right": 1440,
+        "bottom": 737
       }
     },
     {
@@ -151,9 +151,9 @@
       "scrollWidth": 390,
       "terminal": {
         "x": 0,
-        "y": 653,
+        "y": 717,
         "width": 390,
-        "height": 283,
+        "height": 219,
         "right": 390,
         "bottom": 936
       },
@@ -167,19 +167,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 309.5,
+        "y": 213,
         "width": 390,
-        "height": 48,
+        "height": 41,
         "right": 390,
-        "bottom": 357.5
+        "bottom": 254
       },
       "editor": {
-        "x": 17,
-        "y": 498.5,
-        "width": 356,
-        "height": 82,
-        "right": 373,
-        "bottom": 580.5
+        "x": 0,
+        "y": 402,
+        "width": 390,
+        "height": 240.109375,
+        "right": 390,
+        "bottom": 642.109375
       }
     },
     {
@@ -189,9 +189,9 @@
       "scrollWidth": 390,
       "terminal": {
         "x": 0,
-        "y": 676.0625,
+        "y": 717,
         "width": 390,
-        "height": 259.9375,
+        "height": 219,
         "right": 390,
         "bottom": 936
       },
@@ -205,19 +205,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 309.5,
+        "y": 213,
         "width": 390,
-        "height": 259.859375,
+        "height": 41,
         "right": 390,
-        "bottom": 569.359375
+        "bottom": 254
       },
       "editor": {
-        "x": 17,
-        "y": 710.359375,
-        "width": 356,
-        "height": 82,
-        "right": 373,
-        "bottom": 792.359375
+        "x": 0,
+        "y": 402,
+        "width": 390,
+        "height": 240.109375,
+        "right": 390,
+        "bottom": 642.109375
       }
     },
     {
@@ -227,9 +227,9 @@
       "scrollWidth": 320,
       "terminal": {
         "x": 0,
-        "y": 653,
+        "y": 717,
         "width": 320,
-        "height": 283,
+        "height": 219,
         "right": 320,
         "bottom": 936
       },
@@ -243,19 +243,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 344.859375,
+        "y": 213,
         "width": 320,
-        "height": 48,
+        "height": 41,
         "right": 320,
-        "bottom": 392.859375
+        "bottom": 254
       },
       "editor": {
-        "x": 17,
-        "y": 533.859375,
-        "width": 286,
-        "height": 82,
-        "right": 303,
-        "bottom": 615.859375
+        "x": 0,
+        "y": 402,
+        "width": 320,
+        "height": 240.109375,
+        "right": 320,
+        "bottom": 642.109375
       }
     },
     {
@@ -265,9 +265,9 @@
       "scrollWidth": 320,
       "terminal": {
         "x": 0,
-        "y": 669.46875,
+        "y": 717,
         "width": 320,
-        "height": 266.53125,
+        "height": 219,
         "right": 320,
         "bottom": 936
       },
@@ -281,19 +281,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 344.859375,
+        "y": 213,
         "width": 320,
-        "height": 245.78125,
+        "height": 41,
         "right": 320,
-        "bottom": 590.640625
+        "bottom": 254
       },
       "editor": {
-        "x": 17,
-        "y": 731.640625,
-        "width": 286,
-        "height": 82,
-        "right": 303,
-        "bottom": 813.640625
+        "x": 0,
+        "y": 402,
+        "width": 320,
+        "height": 240.109375,
+        "right": 320,
+        "bottom": 642.109375
       }
     }
   ],

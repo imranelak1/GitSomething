@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T01:11:21.187Z",
+  "testedAt": "2026-10-17T01:23:12.620Z",
   "browser": "155.0.4283.62",
   "scope": "Slider interaction, demo Git behavior, and mocked native push/publish IPC contracts",
   "checks": [
@@ -42,10 +42,10 @@
       "width": 1440,
       "height": 1000,
       "scrollWidth": 1440,
-      "x": 1194,
-      "y": 65.5,
-      "right": 1386,
-      "bottom": 103.5,
+      "x": 1202,
+      "y": 66.5,
+      "right": 1394,
+      "bottom": 104.5,
       "trackWidth": 192,
       "trackHeight": 38
     },
@@ -58,8 +58,8 @@
         "height": 52
       },
       "track": {
-        "x": 1194,
-        "y": 65.5,
+        "x": 1202,
+        "y": 66.5,
         "width": 192,
         "height": 38
       },
@@ -71,9 +71,9 @@
       "height": 844,
       "scrollWidth": 390,
       "x": 16,
-      "y": 96,
+      "y": 100,
       "right": 348,
-      "bottom": 134,
+      "bottom": 138,
       "trackWidth": 332,
       "trackHeight": 38
     },
@@ -87,7 +87,7 @@
       },
       "track": {
         "x": 16,
-        "y": 96,
+        "y": 100,
         "width": 332,
         "height": 38
       },
@@ -99,9 +99,9 @@
       "height": 844,
       "scrollWidth": 320,
       "x": 16,
-      "y": 96,
+      "y": 100,
       "right": 278,
-      "bottom": 134,
+      "bottom": 138,
       "trackWidth": 262,
       "trackHeight": 38
     },
@@ -115,7 +115,7 @@
       },
       "track": {
         "x": 16,
-        "y": 96,
+        "y": 100,
         "width": 262,
         "height": 38
       },

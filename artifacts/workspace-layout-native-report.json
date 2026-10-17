@@ -1,0 +1,17 @@
+{
+  "testedAt": "2026-10-17T01:30:10.134Z",
+  "boundary": "Actual GitSomething Tauri WebView; explicit demo workspace and reversible pane interactions only. No Git mutation, provider operation, or credential change.",
+  "checks": [
+    "Actual native workspace renders a full-height diff with the commit form beside it",
+    "Native keyboard pane resizing works and restores the original width",
+    "Native sidebar visibility changes without losing the selected review"
+  ],
+  "errors": [],
+  "editor": {
+    "x": 528,
+    "y": 263,
+    "width": 984,
+    "height": 434
+  },
+  "status": "passed"
+}
