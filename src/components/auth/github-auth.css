@@ -99,6 +99,12 @@
   border-top: 1px solid var(--ui-border);
   color: var(--ui-muted);
 }
+.github-auth-build-note {
+  margin: 12px 0 0;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
 .github-auth-local-note svg {
   flex: none;
   margin-top: 3px;

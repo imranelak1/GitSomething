@@ -57,8 +57,6 @@ interface GitHubAuthContextValue extends GitHubAuthStatus {
   disconnect: () => Promise<void>;
   refresh: () => Promise<void>;
   openBrowser: () => Promise<void>;
-  configure: (clientId: string) => Promise<boolean>;
-  openSetup: () => Promise<void>;
 }
 
 interface AuthAttemptActivity {
@@ -136,50 +134,6 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     }
   }, [desktop]);
 
-  const configure = useCallback(
-    async (clientId: string) => {
-      if (!desktop || starting.current || pendingSession.current || status.connected) return false;
-      starting.current = true;
-      const currentGeneration = ++generation.current;
-      setError(null);
-      try {
-        const current = await invoke<GitHubAuthStatus>('github_auth_configure', { clientId });
-        if (!mounted.current || currentGeneration !== generation.current) return false;
-        identity.current = '';
-        setRevision((value) => value + 1);
-        setStatus(current);
-        setStage('idle');
-        setError(current.error ?? null);
-        return current.configured;
-      } catch (reason) {
-        if (mounted.current && currentGeneration === generation.current) {
-          setError(messageFrom(reason, 'Could not save GitHub setup. Try again.'));
-        }
-        return false;
-      } finally {
-        if (currentGeneration === generation.current) starting.current = false;
-      }
-    },
-    [desktop, status.connected],
-  );
-
-  const openSetup = useCallback(async () => {
-    if (!desktop) return;
-    try {
-      await invoke('github_auth_open_setup');
-      if (mounted.current) setError(null);
-    } catch (reason) {
-      if (mounted.current) {
-        setError(
-          messageFrom(
-            reason,
-            'Could not open GitHub settings. Visit github.com/settings/applications/new.',
-          ),
-        );
-      }
-    }
-  }, [desktop]);
-
   const cancel = useCallback(async () => {
     const attempt = authActivity.current;
     authActivity.current = null;
@@ -230,7 +184,14 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
   }, [desktop]);
 
   const connect = useCallback(async () => {
-    if (!desktop || starting.current || pendingSession.current || status.connected) return;
+    if (
+      !desktop ||
+      !status.configured ||
+      starting.current ||
+      pendingSession.current ||
+      status.connected
+    )
+      return;
     starting.current = true;
     const attempt: AuthAttemptActivity = {
       id: record({
@@ -345,7 +306,16 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       );
       setError(messageFrom(reason, 'Could not start GitHub sign-in. Try again.'));
     }
-  }, [clearTimer, desktop, finishAuthActivity, openBrowser, record, refresh, status.connected]);
+  }, [
+    clearTimer,
+    desktop,
+    finishAuthActivity,
+    openBrowser,
+    record,
+    refresh,
+    status.connected,
+    status.configured,
+  ]);
 
   const disconnect = useCallback(async () => {
     if (!desktop || starting.current) return;
@@ -417,8 +387,6 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       disconnect,
       refresh,
       openBrowser,
-      configure,
-      openSetup,
     }),
     [
       status,
@@ -432,8 +400,6 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       disconnect,
       refresh,
       openBrowser,
-      configure,
-      openSetup,
     ],
   );
 

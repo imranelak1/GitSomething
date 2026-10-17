@@ -13,7 +13,6 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useGitHubAuth } from '../../hooks/useGitHubAuth';
-import { GitHubOwnerSetup } from './GitHubOwnerSetup';
 import { TextRoll } from '../registry/skiper/TextRoll';
 import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
 import { Button } from '../ui/button';
@@ -156,13 +155,13 @@ export function GitHubConnectCard({ compact = false }: { compact?: boolean }) {
                 )}
               </div>
             </div>
-          ) : auth.configured ? (
+          ) : (
             <div className="github-signin-actions">
               <Button
                 type="button"
                 className="github-signin-button"
                 onClick={() => void auth.connect()}
-                disabled={auth.stage === 'starting'}
+                disabled={!auth.configured || auth.stage === 'starting'}
               >
                 {auth.stage === 'starting' ? (
                   <LoaderCircle size={16} className="github-auth-spinner" />
@@ -176,15 +175,13 @@ export function GitHubConnectCard({ compact = false }: { compact?: boolean }) {
                 <LockKeyhole size={12} /> Saved in your OS credential store
               </span>
             </div>
-          ) : (
-            <GitHubOwnerSetup />
           )}
 
-          {auth.desktop &&
-            auth.configured &&
-            !auth.connected &&
-            !waiting &&
-            auth.stage !== 'starting' && <GitHubOwnerSetup collapsed />}
+          {auth.desktop && !auth.configured && (
+            <p className="github-auth-build-note" role="status">
+              GitHub sign-in is unavailable in this development build.
+            </p>
+          )}
 
           {auth.error && (
             <div className="github-auth-error" role="alert">

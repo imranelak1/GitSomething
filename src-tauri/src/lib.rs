@@ -2,10 +2,14 @@ pub mod git_engine;
 pub mod github_auth;
 pub mod github_repositories;
 
+#[cfg(test)]
+#[path = "../build/github_oauth.rs"]
+mod github_oauth_build;
+
 use git_engine::{EngineResult, FileDiff, RepositorySnapshot};
 use github_auth::{
-    github_auth_cancel, github_auth_configure, github_auth_disconnect, github_auth_open_browser,
-    github_auth_open_setup, github_auth_poll, github_auth_start, github_auth_status, AuthState,
+    github_auth_cancel, github_auth_disconnect, github_auth_open_browser, github_auth_poll,
+    github_auth_start, github_auth_status, AuthState,
 };
 use github_repositories::{list_github_repositories, open_github_repository};
 use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
@@ -988,8 +992,6 @@ pub fn run() {
             github_auth_open_browser,
             github_auth_cancel,
             github_auth_disconnect,
-            github_auth_configure,
-            github_auth_open_setup,
             list_github_repositories,
             open_github_repository
         ])

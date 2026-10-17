@@ -21,7 +21,7 @@ Open the Vite URL printed in the terminal for the browser preview. The browser u
 npm run tauri dev
 ```
 
-The first native build compiles libgit2 and platform dependencies and takes longer than subsequent builds. To create a production desktop bundle:
+The first native build compiles libgit2 and platform dependencies and takes longer than subsequent builds. Before creating a production desktop bundle, the maintainer configures GitSomething's shared public OAuth Client ID once in the project's ignored `.env.local`. Release builds require that setting; installed users only sign in and approve access. See [maintainer configuration](docs/GITHUB_AUTH.md#maintainer-configuration-before-distribution).
 
 ```powershell
 npm run tauri build
@@ -32,7 +32,7 @@ npm run tauri build
 The first launch opens **Home**. Choose **Show me around** for the interactive guide, open a project, or select **Try demo** to practice safely. The guide explains each step in plain language and can also be opened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account. Use **Home** to leave the workspace and **Continue workspace** to return to its current draft.
 
 1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
-2. **Connect GitHub.** Approve access in your browser using the one-time code shown in GitSomething. There is no GitHub token field. The app owner configures the public OAuth Client ID once; see [GitHub sign-in setup](docs/GITHUB_AUTH.md).
+2. **Connect GitHub.** Select **Sign in with GitHub**, approve access in your browser using the one-time code, and return to your repositories. No app registration or configuration is needed from users.
 3. **Review before sharing.** Choose a repository name and Public or Private visibility. Publishing creates the initial local commit, creates the hosted repository, and pushes the first version. GitLab keeps its operation-specific token flow.
 4. **Save your next change.** Review a changed file, pick the files for this save (**stage**), and describe the change before creating a **commit**. A commit saves a version on your computer; **Slide to push** uploads saved versions to GitHub. Drag the handle to the end and release, or focus it, press End, then Enter. Publishing a new folder uses the same deliberate confirmation before creating the cloud repository and pushing.
 

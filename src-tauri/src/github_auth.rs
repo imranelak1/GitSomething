@@ -190,26 +190,47 @@ struct OwnerConfiguration {
     client_id: String,
 }
 
-fn client_id(path: Option<&Path>) -> Option<String> {
-    let saved = path.and_then(|path| {
+fn legacy_client_id(path: Option<&Path>) -> Option<String> {
+    path.and_then(|path| {
         let metadata = std::fs::metadata(path).ok()?;
         if metadata.len() > 4096 {
             return None;
         }
         let saved: OwnerConfiguration = serde_json::from_slice(&std::fs::read(path).ok()?).ok()?;
         valid_client_id(&saved.client_id).then_some(saved.client_id)
-    });
-    saved.or_else(|| {
-        std::env::var("BRANCHLINE_GITHUB_CLIENT_ID")
+    })
+}
+
+fn deployment_client_id() -> Option<String> {
+    let embedded = option_env!("GITSOMETHING_GITHUB_CLIENT_ID")
+        .or(option_env!("BRANCHLINE_GITHUB_CLIENT_ID"))
+        .map(str::trim)
+        .filter(|id| valid_client_id(id))
+        .map(str::to_owned);
+    if cfg!(debug_assertions) {
+        std::env::var("GITSOMETHING_GITHUB_CLIENT_ID")
             .ok()
-            .or_else(|| option_env!("BRANCHLINE_GITHUB_CLIENT_ID").map(str::to_owned))
+            .or_else(|| std::env::var("BRANCHLINE_GITHUB_CLIENT_ID").ok())
             .map(|id| id.trim().to_owned())
             .filter(|id| valid_client_id(id))
+            .or(embedded)
+    } else {
+        // Installed applications always use the publisher's shared registration.
+        embedded
+    }
+}
+
+fn client_id(path: Option<&Path>) -> Option<String> {
+    deployment_client_id().or_else(|| {
+        // Compatibility for existing development installs, never an end-user setup path.
+        cfg!(debug_assertions)
+            .then(|| legacy_client_id(path))
+            .flatten()
     })
 }
 
 fn require_client_id(path: Option<&Path>) -> EngineResult<String> {
-    client_id(path).ok_or_else(|| "Set up GitHub sign-in with GitSomething's public OAuth client ID and enable Device Flow in GitHub settings.".into())
+    client_id(path).ok_or_else(|| "GitHub sign-in is unavailable in this development build.".into())
 }
 
 fn client() -> EngineResult<reqwest::Client> {
@@ -519,13 +540,21 @@ impl AuthState {
         let mut inner = self.0.lock().await;
         if !inner.restored {
             match load().await {
-                Ok(Some(credential)) if client_id(inner.config_path.as_deref()).as_deref() == Some(&credential.client_id) => {
+                Ok(Some(credential))
+                    if client_id(inner.config_path.as_deref()).as_deref()
+                        == Some(&credential.client_id) =>
+                {
                     match restore_credential(credential).await {
                         Ok(credential) => inner.credential = Some(credential),
                         Err(error) => inner.error = Some(error),
                     }
                 }
-                Ok(Some(_)) => inner.error = Some("Your saved GitHub connection expired or belongs to another app registration. Connect again.".into()),
+                Ok(Some(_)) => {
+                    inner.error = Some(
+                        "Your saved GitHub connection is no longer available. Sign in again."
+                            .into(),
+                    )
+                }
                 Ok(None) => (),
                 Err(error) => inner.error = Some(error),
             }
@@ -597,63 +626,6 @@ impl AuthState {
 }
 
 #[tauri::command]
-pub async fn github_auth_configure(
-    app: AppHandle,
-    state: State<'_, AuthState>,
-    client_id: String,
-) -> EngineResult<AuthStatus> {
-    let client_id = client_id.trim().to_owned();
-    if !valid_client_id(&client_id) {
-        return Err("Paste the public Client ID from your GitHub OAuth App. Access tokens and client secrets are not accepted.".into());
-    }
-    let path = app
-        .path()
-        .app_config_dir()
-        .map_err(|_| "Could not locate GitHub setup storage.".to_string())?
-        .join("github-oauth.json");
-    let mut inner = state.0.lock().await;
-    if inner.credential.is_some() || inner.session.is_some() {
-        return Err(
-            "Disconnect or cancel the current GitHub sign-in before changing app setup.".into(),
-        );
-    }
-    let parent = path
-        .parent()
-        .ok_or("Could not locate GitHub setup storage.")?;
-    std::fs::create_dir_all(parent)
-        .map_err(|_| "Could not create GitHub setup storage.".to_string())?;
-    let contents = serde_json::to_vec(&OwnerConfiguration { client_id })
-        .map_err(|_| "Could not prepare GitHub setup.".to_string())?;
-    let temporary = parent.join(format!("github-oauth-{}.tmp", Uuid::new_v4()));
-    let persist = || -> std::io::Result<()> {
-        use std::io::Write;
-        let mut file = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&temporary)?;
-        file.write_all(&contents)?;
-        file.sync_all()?;
-        drop(file);
-        std::fs::rename(&temporary, &path)
-    };
-    if persist().is_err() {
-        let _ = std::fs::remove_file(&temporary);
-        return Err("Could not save GitHub setup. Check the app's configuration-folder permissions and try again.".into());
-    }
-    inner.config_path = Some(path);
-    inner.error = None;
-    inner.restored = true;
-    drop(inner);
-    Ok(state.status().await)
-}
-
-#[tauri::command]
-pub fn github_auth_open_setup(app: AppHandle) -> EngineResult<()> {
-    app.opener().open_url("https://github.com/settings/applications/new", None::<&str>)
-        .map_err(|_| "Could not open GitHub. Visit github.com/settings/applications/new to register the OAuth app.".into())
-}
-
-#[tauri::command]
 pub async fn github_auth_status(state: State<'_, AuthState>) -> EngineResult<AuthStatus> {
     Ok(state.status().await)
 }
@@ -681,10 +653,13 @@ pub async fn github_auth_start(state: State<'_, AuthState>) -> EngineResult<Devi
             "Could not reach GitHub. Check your connection and retry sign-in.".to_string()
         })?;
     if !response.status().is_success() {
-        return Err("GitHub could not start sign-in. The app owner should verify the OAuth client ID and enable Device Flow.".into());
+        return Err(
+            "GitHub sign-in could not start. Try again later or update GitSomething.".into(),
+        );
     }
-    let data: DeviceResponse = response.json().await
-        .map_err(|_| "GitHub could not start device sign-in. The app owner should verify the client ID and enable Device Flow.".to_string())?;
+    let data: DeviceResponse = response.json().await.map_err(|_| {
+        "GitHub sign-in could not start. Try again later or update GitSomething.".to_string()
+    })?;
     let code = Zeroizing::new(data.device_code);
     if data.verification_uri != VERIFY_URL
         || code.is_empty()
@@ -937,7 +912,7 @@ mod owner_setup_tests {
     }
 
     #[test]
-    fn saved_public_configuration_wins_and_serializes_no_credentials() {
+    fn legacy_debug_configuration_is_public_and_cannot_override_deployment_identity() {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("github-oauth.json");
         let configuration = OwnerConfiguration {
@@ -950,13 +925,12 @@ mod owner_setup_tests {
         );
         std::fs::write(&path, &json).unwrap();
         assert_eq!(
-            client_id(Some(&path)).as_deref(),
+            legacy_client_id(Some(&path)).as_deref(),
             Some("Ov23liExamplePublicID")
         );
-        assert_eq!(
-            require_client_id(Some(&path)).unwrap(),
-            "Ov23liExamplePublicID"
-        );
+        let expected = deployment_client_id()
+            .or_else(|| cfg!(debug_assertions).then(|| "Ov23liExamplePublicID".to_owned()));
+        assert_eq!(client_id(Some(&path)), expected);
     }
 
     #[test]

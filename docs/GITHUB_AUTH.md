@@ -11,7 +11,7 @@ GitSomething uses GitHub's browser approval screen instead of asking users to cr
 
 You can use an existing local Git repository without connecting GitHub. A **commit** saves a version on your computer. **Push** sends those saved versions to the remote repository. Editing, reviewing changes, and making local commits work offline; sign-in, publication, fetch, pull, and push need a connection.
 
-GitHub access is optional for the first-use guide. Reopen it with **A little help** or the command palette's **Getting started** action. The browser preview demonstrates the interface and cannot connect a real account or publish a real folder. If the desktop app offers **Set up GitHub sign-in**, the application owner needs to complete the configuration below. People installing a configured build can sign in directly.
+GitHub access is optional for the first-use guide. Reopen it with **A little help** or the command palette's **Getting started** action. The browser preview demonstrates the interface and cannot connect a real account or publish a real folder. People installing GitSomething only sign in and approve access; app registration and build configuration belong to the maintainer.
 
 ## Your repositories on Home
 
@@ -21,29 +21,33 @@ The **GitHub repositories** section loads private, public, and shared repositori
 
 Lists stay in memory and disappear when the account disconnects or changes. Late responses from an earlier sign-in cannot repopulate the current list. The Glass Box records the provider read and its result; filtering and browser navigation do not add interface noise.
 
-## One-time setup for the app owner
+## Maintainer configuration before distribution
 
-GitSomething needs its own public OAuth **Client ID** before GitHub can identify the app on the consent screen. Do not reuse another application's Client ID, a GitHub CLI credential, or a personal access token. The Client ID identifies the application and can be included in native builds. This device flow does not use a client secret. [GitHub documents the device authorization flow and its required Client ID.](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
+Register GitSomething once as its own OAuth app and embed its public **Client ID** in the native build. This is a release responsibility. People using the app never register an OAuth app, configure environment variables, or enter a Client ID. The device flow requires no client secret. Do not reuse another application's identifier, a GitHub CLI credential, or a personal access token. [GitHub documents the required device-flow configuration.](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
 
-1. Open [GitHub Developer settings](https://github.com/settings/developers), select **OAuth Apps**, then **New OAuth App** (or **Register a new application**).
+1. Open [GitHub Developer settings](https://github.com/settings/developers), select **OAuth Apps**, then **New OAuth App**.
 2. Set **Application name** to `GitSomething` and **Homepage URL** to the public project website or repository URL, such as `https://github.com/imranelak1/GitSomething`.
-3. Set **Authorization callback URL** to `http://127.0.0.1`. GitHub's registration form requires this field; this device flow does not start a callback listener or use that URL.
-4. Enable **Device Flow**, register the application, then copy its **Client ID**. If GitHub issues expiring tokens, GitSomething handles the returned refresh credentials.
-5. Return to GitSomething, open **Set up GitHub sign-in**, paste the public **Client ID** into **GitHub OAuth client ID**, and select **Save GitHub setup**. **Register GitSomething on GitHub** opens the registration page if you have not started yet. No client secret or personal access token is needed.
-6. Select **Sign in with GitHub** and approve the device code in your browser. Saving the identifier alone does not authorize an account.
+3. Set **Authorization callback URL** to `http://127.0.0.1`. Registration requires this field; GitSomething's device flow does not use a callback listener.
+4. Enable **Device Flow** in the registered application's settings and copy the public **Client ID**.
+5. Set the public identifier in the repository root's ignored `.env.local`:
 
-The public Client ID is saved in `github-oauth.json` inside Tauri's application configuration directory, outside this project. This owner setting takes precedence over environment/build configuration and survives native restarts. Setup can be changed only when GitHub is disconnected and no authorization is pending. Access and refresh credentials remain in the OS credential store.
-
-For development or distributing a configured build, you can alternatively set `BRANCHLINE_GITHUB_CLIENT_ID` in the shell that starts or builds the native app:
-
-```powershell
-$env:BRANCHLINE_GITHUB_CLIENT_ID = 'YOUR_GITSOMETHING_OAUTH_CLIENT_ID'
-npm run tauri dev
+```dotenv
+GITSOMETHING_GITHUB_CLIENT_ID=YOUR_GITSOMETHING_OAUTH_CLIENT_ID
 ```
 
-For a distributable build, set the same environment variable before `npm run tauri build`. The native build embeds the public identifier so people installing that build can sign in without configuring environment variables. The in-app owner setting can override it without rebuilding. `.env.example` lists the setting, but copying it to `.env` alone does not export an environment variable into Rust; use the shell setting above.
+Then start or build the desktop app:
 
-These registration fields follow [GitHub's OAuth app registration instructions](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). Existing registrations can be updated in the same OAuth Apps settings page. [GitHub explains how to modify an OAuth app.](https://docs.github.com/en/apps/oauth-apps/maintaining-oauth-apps/modifying-an-oauth-app)
+```powershell
+npm run tauri dev
+# Or create a distributable native build:
+npm run tauri build
+```
+
+The Rust build script reads only the named public Client ID from `.env.local`; it does not embed arbitrary environment values or secrets. CI can set `GITSOMETHING_GITHUB_CLIENT_ID` in its build environment instead. A release build refuses to complete without a valid identifier, preventing distribution of an app whose sign-in needs user setup. Keep `.env.local` out of version control, and never put an OAuth client secret or access token in this setting. The Client ID itself is public application metadata and is embedded in the distributable.
+
+The legacy `BRANCHLINE_GITHUB_CLIENT_ID` name remains supported. Explicit environment and embedded build configuration take precedence over a legacy locally saved `github-oauth.json` identifier. That saved setting is a debug-only compatibility fallback; there is no app registration or configuration screen in the product. A debug build without any configured identifier keeps local Git work available and shows **GitHub sign-in is unavailable in this development build.**
+
+Registration fields follow [GitHub's OAuth app registration instructions](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). Changing the registered app requires rebuilding and distributing GitSomething with the new identifier. After configuring the native build, verify the same **Sign in with GitHub** flow that users will see.
 
 ## What access is requested
 
@@ -70,4 +74,4 @@ GitLab still uses a token entered for the individual publish operation; the GitH
 
 Automated browser checks can exercise the consent UI through mocked native responses. Rust tests can check polling, scope validation, redaction, and credential destination rules without approving an account. Neither proves an actual GitHub authorization, OS credential-store round trip, or network push.
 
-The final manual check requires the owner's registered OAuth Client ID and a real desktop session. Complete the in-app owner setup, approve GitHub consent, verify that Home lists your accessible repositories, load another page, and open one in the system browser. Restart to confirm that setup and the account connection persist; disconnect and confirm the private list disappears. Denial, an expired one-time code, and revoked authorization also need real-account checks. Publishing and pushing require an explicitly selected disposable project; do not create a repository or approve consent on someone's behalf as an automated test.
+The final manual check requires a configured native build and a real desktop session. Select **Sign in with GitHub**, approve GitHub consent, verify that Home lists your accessible repositories, load another page, and open one in the system browser. Restart to confirm that the account connection persists; disconnect and confirm the private list disappears. Denial, an expired one-time code, and revoked authorization also need real-account checks. Publishing and pushing require an explicitly selected disposable project; do not create a repository or approve consent on someone's behalf as an automated test.

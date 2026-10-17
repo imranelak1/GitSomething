@@ -52,12 +52,40 @@ async function capture(page, name) {
 async function expectText(page, text) {
   await page.getByText(text, { exact: true }).waitFor({ timeout: 15_000 });
 }
+async function assertDirectSignIn(page) {
+  assert.equal(await page.getByLabel('GitHub OAuth client ID', { exact: true }).count(), 0);
+  assert.equal(
+    await page
+      .getByRole('button', { name: 'Register GitSomething on GitHub', exact: true })
+      .count(),
+    0,
+  );
+  assert.equal(
+    await page.getByRole('button', { name: 'Save GitHub setup', exact: true }).count(),
+    0,
+  );
+  assert.equal(await page.locator('.github-connect input').count(), 0);
+}
 async function waitForEditor(page) {
   await enterDemoWorkspace(page);
 }
 async function openAccount(page) {
   await page.getByRole('button', { name: 'GitHub account', exact: true }).click();
-  await page.locator('.github-connect').waitFor();
+  await page.locator('.github-account-dialog').waitFor();
+}
+async function closeAccount(page) {
+  await page.getByRole('button', { name: 'Close GitHub account', exact: true }).click();
+  await page.locator('.github-account-dialog').waitFor({ state: 'hidden' });
+}
+async function waitForAccountConnected(page) {
+  await page.locator('.github-account-dialog').waitFor({ state: 'hidden', timeout: 30_000 });
+  await page.waitForFunction(
+    () =>
+      document.querySelector('[aria-label="GitHub account"]')?.textContent ===
+      '@branchline-fixture',
+    null,
+    { timeout: 3_000 },
+  );
 }
 async function closeGuide(page) {
   await page.getByRole('button', { name: 'Close getting started guide', exact: true }).click();
@@ -290,7 +318,7 @@ try {
 
   await openAccount(first);
   await first.keyboard.press('Escape');
-  await first.locator('.onboarding-dialog').waitFor({ state: 'hidden' });
+  await first.locator('.github-account-dialog').waitFor({ state: 'hidden' });
   await first.waitForFunction(
     () => document.querySelector('[aria-label="GitHub account"]') === document.activeElement,
     null,
@@ -302,7 +330,7 @@ try {
       .evaluate((button) => button === document.activeElement),
     true,
   );
-  check('Escape closes the account guide and returns keyboard focus to its launcher');
+  check('Escape closes the focused account dialog and returns keyboard focus to its launcher');
 
   for (const width of [320, 390]) {
     const narrow = await browser.newPage({
@@ -353,20 +381,32 @@ try {
 
   const unavailable = await nativePage({ configured: false });
   await openAccount(unavailable);
-  await unavailable.getByRole('group', { name: 'Set up GitHub sign-in', exact: true }).waitFor();
+  await expectText(unavailable, 'GitHub sign-in is unavailable in this development build.');
   assert.equal(
-    await unavailable.getByRole('button', { name: 'Sign in with GitHub', exact: true }).count(),
-    0,
+    await unavailable
+      .getByRole('button', { name: 'Sign in with GitHub', exact: true })
+      .isDisabled(),
+    true,
   );
-  await unavailable.getByRole('button', { name: 'Continue locally', exact: true }).click();
-  await expectText(unavailable, 'Pick what belongs together.');
+  await assertDirectSignIn(unavailable);
+  assert.equal(
+    await unavailable.evaluate(() =>
+      window.__BRANCHLINE_AUTH_TEST__.commands.some(({ command }) =>
+        ['github_auth_start', 'github_auth_configure', 'github_auth_open_setup'].includes(command),
+      ),
+    ),
+    false,
+  );
+  await closeAccount(unavailable);
+  await unavailable.locator('.monaco-diff-editor').waitFor({ state: 'visible' });
   await unavailable.close();
   check(
-    'A build without an OAuth Client ID offers one-time owner setup while retaining local work',
+    'An unconfigured development build disables sign-in without exposing app registration and retains local work',
   );
 
   const native = await nativePage();
   await openAccount(native);
+  await assertDirectSignIn(native);
   await native.getByText('What am I allowing?', { exact: true }).click();
   await native
     .getByText(
@@ -374,20 +414,20 @@ try {
       { exact: false },
     )
     .waitFor();
-  await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
   await expectText(native, 'TEST-CODE');
   await native.waitForFunction(() =>
     window.__BRANCHLINE_AUTH_TEST__.commands.some(
       ({ command }) => command === 'github_auth_open_browser',
     ),
   );
-  assert.equal(await native.locator('.onboarding-dialog input[type="password"]').count(), 0);
+  assert.equal(await native.locator('.github-account-dialog input[type="password"]').count(), 0);
+  assert.equal(await native.locator('.onboarding-dialog').count(), 0);
   await capture(native, 'desktop-github-approval.png');
   await native.setViewportSize({ width: 320, height: 844 });
   await capture(native, 'mobile-320-github-approval.png');
   assert.equal(
     await native
-      .locator('.onboarding-dialog')
+      .locator('.github-account-dialog')
       .evaluate((dialog) => dialog.scrollWidth <= dialog.clientWidth + 1),
     true,
     '320px native approval has no horizontal overflow',
@@ -403,18 +443,11 @@ try {
   );
 
   await native.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
-  await native
-    .getByRole('button', { name: 'Disconnect', exact: true })
-    .waitFor({ timeout: 15_000 });
+  await waitForAccountConnected(native);
+  await openAccount(native);
+  await native.getByRole('button', { name: 'Disconnect', exact: true }).waitFor();
   await expectText(native, 'Signed in as @branchline-fixture');
   await capture(native, 'desktop-github-connected.png');
-  await native.waitForFunction(
-    () =>
-      document.querySelector('[aria-label="GitHub account"]')?.textContent ===
-      '@branchline-fixture',
-    null,
-    { timeout: 3_000 },
-  );
   assert.equal(
     await native.locator('[aria-label="GitHub account"]').textContent(),
     '@branchline-fixture',
@@ -440,14 +473,14 @@ try {
         mode,
         actualAlerts: await native.getByRole('alert').allTextContents(),
         commands: await native.evaluate(() => window.__BRANCHLINE_AUTH_TEST__.commands),
-        visibleContent: await native.locator('.onboarding-dialog').innerText(),
+        visibleContent: await native.locator('.github-account-dialog').innerText(),
       };
       await capture(native, 'failed-consent-state.png');
       throw error;
     }
     assert.equal(await native.getByText('TEST-CODE', { exact: true }).count(), 0);
     assert.equal(
-      await native.getByRole('button', { name: 'Continue locally', exact: true }).isEnabled(),
+      await native.getByRole('button', { name: 'Close GitHub account', exact: true }).isEnabled(),
       true,
     );
   }
@@ -478,12 +511,11 @@ try {
   // global poll count. Extra legitimate pending polls are allowed; the delays
   // before the next stage must still honor GitHub's minimum intervals.
   const timing = await nativePage();
-  await openAccount(timing);
   report.pollingClock = 'Real browser time; mode-tagged 5s/10s frontend polling checks';
   await timing.evaluate(() => {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'pending';
   });
-  await timing.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
+  await openAccount(timing);
   await timing.waitForFunction(
     () =>
       window.__BRANCHLINE_AUTH_TEST__.commands.some(
@@ -506,9 +538,7 @@ try {
   await timing.evaluate(() => {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'connected';
   });
-  await timing
-    .getByRole('button', { name: 'Disconnect', exact: true })
-    .waitFor({ timeout: 30_000 });
+  await waitForAccountConnected(timing);
   const timingCommands = await timing.evaluate(() => window.__BRANCHLINE_AUTH_TEST__.commands);
   const timingPolls = timingCommands.filter(({ command }) => command === 'github_auth_poll');
   const firstPending = timingPolls.findIndex(({ pollMode }) => pollMode === 'pending');
@@ -534,6 +564,7 @@ try {
   console.log(
     `Real-time polling gaps: first=${firstDelayMs}ms pending=${pendingDelayMs}ms slow_down=${slowDownDelayMs}ms`,
   );
+  await openAccount(timing);
   await timing.getByRole('button', { name: 'Disconnect', exact: true }).click();
   await timing.getByRole('button', { name: 'Sign in with GitHub', exact: true }).waitFor();
   check(
@@ -541,9 +572,10 @@ try {
   );
   await timing.close();
 
-  await closeGuide(native);
+  await closeAccount(native);
   await native.setViewportSize({ width: 320, height: 844 });
   await openPublish(native);
+  await assertDirectSignIn(native);
   assert.equal(await native.locator('.publish-dialog input[type="password"]').count(), 0);
   assert.equal(
     await native

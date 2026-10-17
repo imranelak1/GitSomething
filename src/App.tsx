@@ -57,6 +57,7 @@ import { TextRoll } from './components/registry/skiper/TextRoll';
 import { BranchJourney } from './components/BranchJourney';
 import { FirstRunGuide } from './components/onboarding/FirstRunGuide';
 import { GitHubConnectCard } from './components/auth/GitHubConnectCard';
+import { GitHubAccountDialog } from './components/auth/GitHubAccountDialog';
 import { useGitHubAuth } from './hooks/useGitHubAuth';
 import { useActivity } from './hooks/useActivity';
 import { executeGuidedCommand, type TerminalResult } from './lib/guided-commands';
@@ -158,6 +159,36 @@ export default function App() {
   }
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountAttempt = useRef<'requested' | 'started' | null>(null);
+  const previouslyConnected = useRef(auth.connected);
+  useEffect(() => {
+    const newlyConnected = auth.connected && !previouslyConnected.current;
+    previouslyConnected.current = auth.connected;
+    if (!accountOpen) return;
+    if (newlyConnected) {
+      accountAttempt.current = null;
+      setAccountOpen(false);
+      return;
+    }
+    if (accountAttempt.current === 'requested' && auth.configured && !auth.connected) {
+      accountAttempt.current = 'started';
+      if (!auth.pending && auth.stage !== 'starting') void auth.connect();
+    }
+  }, [accountOpen, auth.connected, auth.configured, auth.pending, auth.stage, auth.connect]);
+  const openGitHubAccount = () => {
+    accountAttempt.current = auth.connected ? null : 'requested';
+    setAccountOpen(true);
+  };
+  const changeGitHubAccount = (open: boolean) => {
+    setAccountOpen(open);
+    if (!open) {
+      const shouldCancel =
+        accountAttempt.current === 'started' || auth.pending || auth.stage === 'starting';
+      accountAttempt.current = null;
+      if (!auth.connected && shouldCancel) void auth.cancel();
+    }
+  };
   const [commitSaved, setCommitSaved] = useState(false);
   const reducedMotion = useReducedMotion();
   useEffect(() => {
@@ -442,7 +473,7 @@ export default function App() {
         setConsoleOpen((value) => (screen === 'home' ? true : !value));
       } else setNotice('Open a repository or try the demo workspace to use the Glass Box.');
     } else if (action === 'guide') openGettingStarted();
-    else if (action === 'github') openGettingStarted(1);
+    else if (action === 'github') openGitHubAccount();
     else if (action === 'learn') learn('stage');
     else if (action === 'terminal') tryCommand('help');
     else {
@@ -531,7 +562,7 @@ export default function App() {
           <button
             className={`github-account-button ${auth.connected ? 'connected' : ''}`}
             aria-label="GitHub account"
-            onClick={() => openGettingStarted(1)}
+            onClick={openGitHubAccount}
           >
             <Github size={14} />
             <span>{auth.connected ? `@${auth.account?.login}` : 'Sign in with GitHub'}</span>
@@ -559,7 +590,7 @@ export default function App() {
           onContinue={enterWorkspace}
           onTryDemo={tryDemo}
           onGuide={() => openGettingStarted()}
-          onConnectGitHub={() => openGettingStarted(1)}
+          onConnectGitHub={openGitHubAccount}
         />
       )}
       {workspaceVisited && (
@@ -766,7 +797,7 @@ export default function App() {
                 </span>
               </motion.button>
               <div className="sidebar-bottom">
-                <button onClick={() => openGettingStarted(1)}>
+                <button onClick={openGitHubAccount}>
                   <span className="profile-avatar">
                     {auth.account?.login.slice(0, 2).toUpperCase() || <Github size={14} />}
                   </span>
@@ -1234,6 +1265,7 @@ export default function App() {
         onAction={handleAction}
         hasWorkspace={workspaceVisited}
       />
+      <GitHubAccountDialog open={accountOpen} onOpenChange={changeGitHubAccount} />
       <FirstRunGuide
         open={onboardingOpen}
         onOpenChange={changeGettingStarted}

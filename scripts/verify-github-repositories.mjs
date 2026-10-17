@@ -20,7 +20,7 @@ const report = {
   testedAt: new Date().toISOString(),
   browser: await browser.version(),
   scope:
-    'One-time owner setup, Device Flow presentation, and repository metadata through mocked native IPC; no live OAuth or provider requests',
+    'Direct GitHub sign-in, Device Flow presentation, and repository metadata through mocked native IPC; no live OAuth or provider requests',
   checks: [],
   errors: [],
   providerRequests: [],
@@ -56,16 +56,27 @@ const rows = (page) => repositories(page).locator('.github-repositories-row');
 const fixture = (page, callback, argument) => page.evaluate(callback, argument);
 async function account(page) {
   await page.getByRole('button', { name: 'GitHub account', exact: true }).click();
-  await page.locator('.github-connect').waitFor();
+  await page.locator('.github-account-dialog').waitFor();
 }
 async function closeAccount(page) {
   await page.keyboard.press('Escape');
-  await page.locator('.onboarding-dialog').waitFor({ state: 'hidden' });
+  await page.locator('.github-account-dialog').waitFor({ state: 'hidden' });
 }
 async function finishConsent(page) {
-  await page.getByRole('button', { name: 'Sign in with GitHub', exact: true }).click();
+  await expectNoOwnerSetup(page);
   await expect(page.getByLabel('GitHub verification code')).toHaveText('FIXTURE-CODE');
-  await page.getByRole('button', { name: 'Disconnect', exact: true }).waitFor({ timeout: 15_000 });
+  await page.locator('.github-account-dialog').waitFor({ state: 'hidden', timeout: 15_000 });
+  await expect(page.getByRole('button', { name: 'GitHub account', exact: true })).toContainText(
+    '-fixture',
+  );
+}
+async function expectNoOwnerSetup(page) {
+  await expect(page.getByLabel('GitHub OAuth client ID', { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Register GitSomething on GitHub', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Save GitHub setup', exact: true })).toHaveCount(0);
+  await expect(page.locator('.github-connect input')).toHaveCount(0);
 }
 async function installFixture(page, options = {}) {
   await page.addInitScript((options) => {
@@ -73,7 +84,7 @@ async function installFixture(page, options = {}) {
     const callbacks = new Map();
     const listeners = new Map();
     const state = {
-      configured: options.configured ?? false,
+      configured: options.configured ?? true,
       connected: options.connected ?? false,
       login: options.login ?? 'alpha-fixture',
       mode: options.mode ?? 'defer',
@@ -81,6 +92,8 @@ async function installFixture(page, options = {}) {
       calls: [],
       pending: [],
       openMode: 'success',
+      deferInitialStatus: options.deferInitialStatus ?? false,
+      resolveInitialStatus: null,
     };
     const account = () => ({
       login: state.login,
@@ -93,8 +106,6 @@ async function installFixture(page, options = {}) {
       connected: state.connected,
       account: state.connected ? account() : null,
       scopes: state.connected ? ['repo', 'workflow', 'read:user', 'user:email'] : [],
-      clientId: state.configured ? 'Ov23liGitSomethingQA123' : null,
-      configurationSource: state.configured ? 'saved' : null,
     });
     const repository = (id, name, changes = {}, login = state.login) => ({
       id,
@@ -170,16 +181,13 @@ async function installFixture(page, options = {}) {
       },
       async invoke(command, args) {
         state.calls.push({ command, args });
-        if (command === 'github_auth_status') return status();
-        if (command === 'github_auth_open_setup') return;
-        if (command === 'github_auth_configure') {
-          if (
-            !/^[A-Za-z0-9]{10,128}$/.test(args.clientId) ||
-            /^[a-fA-F0-9]{40}$/.test(args.clientId)
-          )
-            throw new Error('Enter the public GitHub OAuth Client ID.');
-          state.configured = true;
-          state.connected = false;
+        if (command === 'github_auth_status') {
+          if (state.deferInitialStatus) {
+            state.deferInitialStatus = false;
+            return new Promise((resolve) => {
+              state.resolveInitialStatus = () => resolve(status());
+            });
+          }
           return status();
         }
         if (command === 'github_auth_start')
@@ -249,6 +257,121 @@ try {
   );
   await browserOnly.close();
 
+  const delayed = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  monitor(delayed, 'delayed-auth-readiness-fixture');
+  await installFixture(delayed, { deferInitialStatus: true });
+  await delayed.goto(baseURL);
+  await delayed.waitForFunction(
+    () => typeof window.__GITSOMETHING_GITHUB_TEST__.resolveInitialStatus === 'function',
+  );
+  await repositories(delayed)
+    .getByRole('button', { name: 'Sign in with GitHub', exact: true })
+    .click();
+  await expect(delayed.locator('.github-account-dialog')).toBeVisible();
+  assert.equal(
+    await fixture(
+      delayed,
+      () =>
+        window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
+          ({ command }) => command === 'github_auth_start',
+        ).length,
+    ),
+    0,
+  );
+  await fixture(delayed, () => window.__GITSOMETHING_GITHUB_TEST__.resolveInitialStatus());
+  await expect(delayed.getByLabel('GitHub verification code')).toHaveText('FIXTURE-CODE');
+  await expectNoOwnerSetup(delayed);
+  await capture(delayed, 'home-github-approval.png');
+  assert.equal(
+    await fixture(
+      delayed,
+      () =>
+        window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
+          ({ command }) => command === 'github_auth_start',
+        ).length,
+    ),
+    1,
+  );
+  await closeAccount(delayed);
+  await delayed.close();
+
+  const dismissed = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  monitor(dismissed, 'dismissed-auth-readiness-fixture');
+  await installFixture(dismissed, { deferInitialStatus: true });
+  await dismissed.goto(baseURL);
+  await dismissed.waitForFunction(
+    () => typeof window.__GITSOMETHING_GITHUB_TEST__.resolveInitialStatus === 'function',
+  );
+  await repositories(dismissed)
+    .getByRole('button', { name: 'Sign in with GitHub', exact: true })
+    .click();
+  await expect(dismissed.locator('.github-account-dialog')).toBeVisible();
+  await closeAccount(dismissed);
+  await fixture(dismissed, () => window.__GITSOMETHING_GITHUB_TEST__.resolveInitialStatus());
+  await dismissed.waitForTimeout(150);
+  assert.equal(
+    await fixture(dismissed, () =>
+      window.__GITSOMETHING_GITHUB_TEST__.calls.some(
+        ({ command }) => command === 'github_auth_start' || command === 'github_auth_cancel',
+      ),
+    ),
+    false,
+  );
+  await account(dismissed);
+  await expect(dismissed.getByLabel('GitHub verification code')).toHaveText('FIXTURE-CODE');
+  await closeAccount(dismissed);
+  await dismissed.close();
+  check(
+    'One click waits for delayed auth readiness, while closing cancels that intent without breaking a later sign-in',
+  );
+
+  const unavailable = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  monitor(unavailable, 'unconfigured-development-fixture');
+  await installFixture(unavailable, { configured: false });
+  await unavailable.goto(baseURL);
+  await repositories(unavailable)
+    .getByRole('button', { name: 'Sign in with GitHub', exact: true })
+    .click();
+  const unavailableSignIn = unavailable
+    .locator('.github-connect')
+    .getByRole('button', { name: 'Sign in with GitHub', exact: true });
+  await expect(unavailableSignIn).toBeVisible();
+  await expect(unavailableSignIn).toBeDisabled();
+  await expect(unavailable.locator('.github-connect')).toContainText(
+    'GitHub sign-in is unavailable in this development build.',
+  );
+  await expectNoOwnerSetup(unavailable);
+  await capture(unavailable, 'desktop-development-signin-unavailable.png');
+  for (const width of [320, 390]) {
+    await unavailable.setViewportSize({ width, height: 844 });
+    await unavailableSignIn.scrollIntoViewIfNeeded();
+    const geometry = await unavailable.locator('.github-connect').evaluate((element) => ({
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth,
+      left: element.getBoundingClientRect().left,
+      right: element.getBoundingClientRect().right,
+    }));
+    assert.ok(geometry.left >= -1 && geometry.right <= width + 1, `${width}px sign-in fits`);
+    assert.ok(
+      geometry.scrollWidth <= geometry.clientWidth + 1,
+      `${width}px sign-in has no horizontal overflow`,
+    );
+    await expectNoOwnerSetup(unavailable);
+    await capture(unavailable, `${width}-development-signin-unavailable.png`);
+  }
+  assert.equal(
+    await fixture(unavailable, () =>
+      window.__GITSOMETHING_GITHUB_TEST__.calls.some(({ command }) =>
+        ['github_auth_start', 'github_auth_configure', 'github_auth_open_setup'].includes(command),
+      ),
+    ),
+    false,
+  );
+  await unavailable.close();
+  check(
+    'An unconfigured development build keeps sign-in disabled and never asks users to register an app or enter credentials',
+  );
+
   const native = await browser.newPage({ viewport: { width: 1440, height: 960 } });
   monitor(native, 'native-fixture');
   await installFixture(native);
@@ -256,72 +379,24 @@ try {
   await repositories(native)
     .getByRole('button', { name: 'Sign in with GitHub', exact: true })
     .click();
-  await expect(
-    native.getByRole('group', { name: 'Set up GitHub sign-in', exact: true }),
-  ).toBeVisible();
-  const clientId = native.getByLabel('GitHub OAuth client ID', { exact: true });
-  await expect(clientId).toBeVisible();
-  assert.equal(await native.locator('.github-connect input[type="password"]').count(), 0);
-  await native
-    .getByRole('button', { name: 'Register GitSomething on GitHub', exact: true })
-    .click();
+  await expectNoOwnerSetup(native);
+  await expect(native.locator('.onboarding-dialog')).toHaveCount(0);
   await native.waitForFunction(() =>
     window.__GITSOMETHING_GITHUB_TEST__.calls.some(
-      ({ command }) => command === 'github_auth_open_setup',
+      ({ command }) => command === 'github_auth_start',
     ),
   );
-  const saveSetup = native.getByRole('button', { name: 'Save GitHub setup', exact: true });
-  if (await saveSetup.isEnabled()) await saveSetup.click();
-  else await clientId.press('Enter');
   assert.equal(
     await fixture(
       native,
       () =>
         window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
-          ({ command }) => command === 'github_auth_configure',
+          ({ command }) => command === 'github_auth_start',
         ).length,
     ),
-    0,
-  );
-  await capture(native, 'desktop-owner-setup.png');
-  for (const width of [320, 390]) {
-    await native.setViewportSize({ width, height: 844 });
-    await clientId.scrollIntoViewIfNeeded();
-    const geometry = await native
-      .getByRole('group', { name: 'Set up GitHub sign-in', exact: true })
-      .evaluate((element) => ({
-        scrollWidth: element.scrollWidth,
-        clientWidth: element.clientWidth,
-        left: element.getBoundingClientRect().left,
-        right: element.getBoundingClientRect().right,
-      }));
-    assert.ok(geometry.left >= -1 && geometry.right <= width + 1, `${width}px setup fits`);
-    assert.ok(
-      geometry.scrollWidth <= geometry.clientWidth + 1,
-      `${width}px setup has no horizontal overflow`,
-    );
-    await capture(native, `${width}-owner-setup.png`);
-  }
-  await native.setViewportSize({ width: 1440, height: 960 });
-  check(
-    'One-time owner setup opens the fixed native registration action and requires a public Client ID, never a token or secret',
-  );
-
-  await clientId.fill('Ov23liGitSomethingQA123');
-  await native.getByRole('button', { name: 'Save GitHub setup', exact: true }).click();
-  await expect(
-    native.getByRole('button', { name: 'Sign in with GitHub', exact: true }),
-  ).toBeVisible();
-  assert.equal(
-    await fixture(native, () =>
-      window.__GITSOMETHING_GITHUB_TEST__.calls.some(
-        ({ command }) => command === 'github_auth_start',
-      ),
-    ),
-    false,
+    1,
   );
   await finishConsent(native);
-  await closeAccount(native);
   await expect(repositories(native).getByRole('status')).toContainText(
     'Loading your GitHub repositories',
   );
@@ -340,7 +415,7 @@ try {
   });
   await expect(rows(native)).toHaveCount(2);
   check(
-    'Saving setup enables a separate Device Flow approval; connecting loads a bounded metadata page through Rust IPC',
+    'Sign in with GitHub directly starts device approval and loads a bounded metadata page through Rust IPC',
   );
 
   await expect(repositories(native)).toContainText('alpha-fixture/terminal-lab');
@@ -493,7 +568,6 @@ try {
     .getByRole('button', { name: 'Sign in with GitHub', exact: true })
     .click();
   await finishConsent(native);
-  await closeAccount(native);
   await expect(repositories(native)).toContainText('bravo-fixture/terminal-lab');
   assert.equal(await repositories(native).getByText('alpha-fixture/', { exact: false }).count(), 0);
   assert.equal(

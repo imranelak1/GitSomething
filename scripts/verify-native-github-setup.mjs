@@ -1,5 +1,5 @@
-// Actual Rust IPC against an unconfigured desktop app. No provider calls,
-// valid Client ID writes, credential-store changes, or Git mutations.
+// Actual Rust IPC against a development desktop app without publisher configuration.
+// No provider calls, credential-store changes, or Git mutations.
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 
@@ -75,16 +75,14 @@ try {
     ['account', 'configured', 'connected', 'scopes'],
   );
   check('Rebuilt native auth status exposes account state without credentials');
-  assert.equal(status.configured, false, 'Run this smoke before completing owner setup.');
+  assert.equal(status.configured, false, 'Run this smoke on an unconfigured development build.');
   assert.equal(status.connected, false);
-  await assert.rejects(ipc('github_auth_start'), /public OAuth client ID/);
-  await assert.rejects(
-    ipc('github_auth_configure', { clientId: 'ghp_invalid-fixture-not-a-credential' }),
-    /public Client ID/,
-  );
+  await assert.rejects(ipc('github_auth_start'), /unavailable in this development build/);
+  await assert.rejects(ipc('github_auth_configure'), /not found/i);
+  await assert.rejects(ipc('github_auth_open_setup'), /not found/i);
   assert.equal((await ipc('github_auth_status')).configured, false);
   check(
-    'Native setup rejects token-shaped input and missing configuration without saving a fake Client ID',
+    'Native registration and configuration commands are removed; unconfigured debug sign-in fails without exposing setup',
   );
   await assert.rejects(
     ipc('list_github_repositories', { request: { page: 1, perPage: 50 } }),
@@ -97,42 +95,23 @@ try {
   check('Native repository IPC rejects unauthenticated reads and unsafe browser destinations');
   await evaluate(`document.querySelector('button[aria-label="GitHub account"]').click()`);
   for (let attempt = 0; attempt < 40; attempt += 1) {
-    if (await evaluate(`Boolean(document.querySelector('.github-owner-setup input'))`)) break;
+    if (await evaluate(`Boolean(document.querySelector('.github-connect'))`)) break;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   const labels = await evaluate(`({
-    setup: document.querySelector('.github-owner-setup')?.textContent,
-    input: document.querySelector('.github-owner-setup input')?.labels[0]?.textContent,
-    forms: document.querySelectorAll('.github-connect form').length
+    content: document.querySelector('.github-connect')?.textContent,
+    inputs: document.querySelectorAll('.github-connect input').length,
+    setup: document.querySelectorAll('.github-owner-setup,.github-owner-disclosure').length,
+    signinDisabled: [...document.querySelectorAll('.github-connect button')].find(button => button.textContent.trim() === 'Sign in with GitHub')?.disabled
   })`);
-  assert.match(labels.setup, /Register GitSomething on GitHub/);
-  assert.match(labels.setup, /Device Flow/);
-  assert.equal(labels.input, 'GitHub OAuth client ID');
-  assert.equal(labels.forms, 0);
-  await evaluate(`document.querySelector('.github-owner-setup input').focus()`);
-  await send('Input.insertText', { text: 'ghp_invalid-fixture-not-a-credential' });
-  await evaluate(`document.querySelector('.github-owner-save').click()`);
-  // React state commits after the click handler returns.
-  for (let attempt = 0; attempt < 40; attempt += 1) {
-    if (await evaluate(`Boolean(document.querySelector('.github-owner-input-error'))`)) break;
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  assert.match(
-    await evaluate(`document.querySelector('.github-owner-input-error')?.textContent ?? ''`),
-    /public Client ID/,
-  );
+  assert.match(labels.content, /GitHub sign-in is unavailable in this development build/);
+  assert.doesNotMatch(labels.content, /Client ID|Register GitSomething|app setup/i);
+  assert.equal(labels.inputs, 0);
+  assert.equal(labels.setup, 0);
+  assert.equal(labels.signinDisabled, true);
   assert.equal((await ipc('github_auth_status')).configured, false);
-  await evaluate(`document.querySelector('.github-owner-setup input').select()`);
-  for (const type of ['keyDown', 'keyUp']) {
-    await send('Input.dispatchKeyEvent', {
-      type,
-      key: 'Backspace',
-      code: 'Backspace',
-      windowsVirtualKeyCode: 8,
-    });
-  }
   check(
-    'Actual desktop owner guide renders registration instructions and validates input without nested publishing forms',
+    'Actual desktop sign-in contains no registration or Client ID controls and explains development-only unavailability',
   );
   assert.deepEqual(errors, []);
   screenshot = await send('Page.captureScreenshot', { format: 'png' });
@@ -142,7 +121,7 @@ try {
 // Write artifacts after disconnecting CDP so Vite file watching cannot interrupt a check.
 await mkdir('artifacts/github-repositories', { recursive: true });
 await writeFile(
-  'artifacts/github-repositories/native-owner-setup.png',
+  'artifacts/github-repositories/native-development-signin.png',
   Buffer.from(screenshot.data, 'base64'),
 );
 await writeFile(
@@ -151,7 +130,7 @@ await writeFile(
     {
       testedAt: new Date().toISOString(),
       boundary:
-        'Actual rebuilt Tauri WebView and Rust IPC, unconfigured owner session. No fake Client ID persisted, OAuth authorization, provider request or Git mutation.',
+        'Actual rebuilt Tauri WebView and Rust IPC without publisher configuration. No OAuth authorization, provider request, registration, configuration write or Git mutation.',
       checks,
       errors,
       status: 'passed',

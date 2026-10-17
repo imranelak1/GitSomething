@@ -44,8 +44,10 @@ try {
   );
   report.checks.push('Native GitHub status exposes account state without credential fields');
   if (!auth.configured) {
-    await assert.rejects(ipc('github_auth_start'), /client id|configured|configuration/i);
-    report.checks.push('Unconfigured native builds reject sign-in with an owner setup message');
+    await assert.rejects(ipc('github_auth_start'), /unavailable in this development build/i);
+    report.checks.push(
+      'Unconfigured development builds reject sign-in without exposing publisher setup',
+    );
   }
   const closeGuide = page.getByRole('button', { name: 'Close getting started guide' });
   if (await closeGuide.isVisible()) await closeGuide.click();

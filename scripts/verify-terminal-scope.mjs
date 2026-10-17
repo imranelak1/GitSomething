@@ -460,7 +460,7 @@ try {
   await expect(native.locator('.github-auth-error')).toContainText(
     'Fixture GitHub sign-in unavailable.',
   );
-  await native.getByRole('button', { name: 'Close getting started guide', exact: true }).click();
+  await native.getByRole('button', { name: 'Close GitHub account', exact: true }).click();
   await expect(stream(native)).toContainText(/GitHub/);
   await expect(entries(native).last()).toHaveClass(/glass-entry-error/);
   await capture(native, 'native-operation-events.png');
