@@ -8,6 +8,8 @@ The Windows x64 **1.0.0-beta.1** prerelease is available on GitHub. [Download th
 
 [Windows checks](https://github.com/imranelak1/GitSomething/actions/workflows/windows-checks.yml) validates code changes on GitHub. See the [CI guide](docs/CI.md) for reproducible candidate builds and use the [bug report form](https://github.com/imranelak1/GitSomething/issues/new?template=bug_report.yml) when testing the beta.
 
+The **1.0.0-beta.2 candidate** adds **Clone & open** to GitHub repository rows. Choose a parent folder to download a working copy and open it in the workspace using your existing sign-in. The published beta.1 list only opens browser links. See the [cloning guide](docs/GITHUB_AUTH.md#clone-a-github-repository) and [beta.2 notes](docs/releases/v1.0.0-beta.2.md).
+
 Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box shows Git commands and results, operation failures, and real account or publishing events. Guided Git commands use the same engine. Navigation, scrolling, resizing, appearance controls, and lesson openings stay out of the transcript. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
 
 ## Run locally

@@ -47,7 +47,8 @@ import { open as chooseDirectory } from '@tauri-apps/plugin-dialog';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { invoke } from '@tauri-apps/api/core';
 import { useRepository } from './hooks/useRepository';
-import { isDesktop, type ChangedFile } from './lib/types';
+import { isDesktop, type ChangedFile, type RepositorySnapshot } from './lib/types';
+import type { GitHubRepository } from './lib/github-repositories';
 import { displayError } from './lib/console';
 import { Button } from './components/ui/button';
 import { GlassBox } from './components/GlassBox';
@@ -89,6 +90,8 @@ const DiffViewer = lazy(() => import('./components/DiffViewer'));
 export default function App() {
   const { dismiss: dismissStartup } = useStartup();
   const auth = useGitHubAuth();
+  const githubIdentity = useRef('');
+  githubIdentity.current = `${auth.account?.login || ''}:${auth.revision}`;
   const { activities, record, settle } = useActivity();
   const {
     repository,
@@ -98,6 +101,7 @@ export default function App() {
     notice,
     setNotice,
     open,
+    clone,
     stage,
     commit,
     sync,
@@ -222,6 +226,9 @@ export default function App() {
     }
     const result = await open(path);
     if (!result) return;
+    showRepository(result);
+  };
+  const showRepository = (result: RepositorySnapshot) => {
     drafts.current[repository.path] = message;
     if (result.path !== repository.path) {
       setMessage(drafts.current[result.path] || '');
@@ -232,6 +239,25 @@ export default function App() {
     }
     setRecentRepositories((previous) => rememberRepository(previous, result));
     enterWorkspace();
+  };
+  const cloneGitHubRepository = async (remote: GitHubRepository) => {
+    if (!isDesktop() || !auth.connected) {
+      throw new Error('Sign in with GitHub in the desktop app to clone a repository.');
+    }
+    const requestIdentity = githubIdentity.current;
+    const parentPath = await chooseDirectory({
+      directory: true,
+      multiple: false,
+      title: `Choose where to save ${remote.name}`,
+    });
+    if (typeof parentPath !== 'string') return false;
+    if (githubIdentity.current !== requestIdentity) {
+      throw new Error('Your GitHub connection changed. Choose the repository again.');
+    }
+    const result = await clone(parentPath, remote.cloneUrl);
+    showRepository(result);
+    setConsoleOpen(true);
+    return true;
   };
   const tryDemo = () => {
     if (!demo) {
@@ -595,6 +621,7 @@ export default function App() {
           onTryDemo={tryDemo}
           onGuide={() => openGettingStarted()}
           onConnectGitHub={openGitHubAccount}
+          onCloneRepository={cloneGitHubRepository}
         />
       )}
       {workspaceVisited && (

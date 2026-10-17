@@ -1446,7 +1446,7 @@ dependencies = [
 
 [[package]]
 name = "gitsomething"
-version = "1.0.0-beta.1"
+version = "1.0.0-beta.2"
 dependencies = [
  "git2",
  "ignore",

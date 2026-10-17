@@ -334,13 +334,50 @@
 .github-repositories-open {
   flex: 0 0 auto;
   gap: 5px;
-  margin-left: auto;
   padding: 3px 0 3px 9px;
   color: var(--ui-accent);
   font-size: 11px;
   line-height: 1.6;
   text-decoration: none;
   text-underline-offset: 3px;
+}
+.github-repositories-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 12px;
+  margin-left: auto;
+}
+.github-repositories-clone {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 6px;
+  background: var(--ui-panel);
+  color: var(--ui-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.github-repositories-clone:hover:not(:disabled) {
+  border-color: var(--ui-accent);
+  background: var(--ui-hover);
+}
+.github-repositories-clone > .vengeance-button-content > svg {
+  flex-shrink: 0;
+  color: var(--ui-accent);
+}
+.github-repositories-clone-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 12px 0;
+  color: var(--ui-text);
+  line-height: 1.6;
 }
 .github-repositories-open:hover {
   color: var(--ui-text);
@@ -536,6 +573,13 @@
   }
   .github-repositories-open {
     padding-left: 0;
+    min-height: 44px;
+  }
+  .github-repositories-actions {
+    gap: 10px;
+  }
+  .github-repositories-clone {
+    min-height: 44px;
   }
   .github-repositories-error {
     flex-wrap: wrap;

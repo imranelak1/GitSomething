@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import type { RecentRepository } from '@/lib/recent-repositories';
+import type { GitHubRepository } from '@/lib/github-repositories';
 import { GitHubRepositories } from './github/GitHubRepositories';
 import { TextRoll } from './registry/skiper/TextRoll';
 import { AnimatedButton } from './registry/vengeance/AnimatedButton';
@@ -36,6 +37,7 @@ interface HomePageProps {
   onTryDemo: () => void;
   onGuide: () => void;
   onConnectGitHub: () => void;
+  onCloneRepository: (repository: GitHubRepository) => Promise<boolean>;
 }
 
 function lastOpenedLabel(timestamp: number): string {
@@ -73,6 +75,7 @@ export function HomePage({
   onTryDemo,
   onGuide,
   onConnectGitHub,
+  onCloneRepository,
 }: HomePageProps) {
   const reducedMotion = useReducedMotion();
 
@@ -139,7 +142,9 @@ export function HomePage({
           </span>
         </div>
 
-        {accountName && <GitHubRepositories onConnect={onConnectGitHub} />}
+        {accountName && (
+          <GitHubRepositories onConnect={onConnectGitHub} onClone={onCloneRepository} busy={busy} />
+        )}
 
         <div className="home-content-grid">
           <section className="home-recent-section" aria-labelledby="home-recent-title">
@@ -280,7 +285,9 @@ export function HomePage({
           </aside>
         </div>
 
-        {!accountName && <GitHubRepositories onConnect={onConnectGitHub} />}
+        {!accountName && (
+          <GitHubRepositories onConnect={onConnectGitHub} onClone={onCloneRepository} busy={busy} />
+        )}
 
         <footer className="home-footer">
           <div className="home-github-status">

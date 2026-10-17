@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import {
   ArrowUpRight,
   CircleAlert,
+  Download,
   GitFork,
   Github,
   Globe,
@@ -22,7 +23,9 @@ import {
   isGitHubRepositoryUrl,
   type GitHubRepositorySort,
   type GitHubRepositoryVisibility,
+  type GitHubRepository,
 } from '@/lib/github-repositories';
+import { AnimatedButton } from '../registry/vengeance/AnimatedButton';
 import './github-repositories.css';
 
 function updatedLabel(value: string): string | null {
@@ -35,7 +38,15 @@ function updatedLabel(value: string): string | null {
   }).format(date);
 }
 
-export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
+export function GitHubRepositories({
+  onConnect,
+  onClone,
+  busy,
+}: {
+  onConnect: () => void;
+  onClone: (repository: GitHubRepository) => Promise<boolean>;
+  busy: boolean;
+}) {
   const auth = useGitHubAuth();
   const repositories = useGitHubRepositories();
   const reducedMotion = useReducedMotion();
@@ -44,6 +55,8 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
   const [sort, setSort] = useState<GitHubRepositorySort>('updated');
   const [openError, setOpenError] = useState('');
   const [opening, setOpening] = useState<string | null>(null);
+  const [cloning, setCloning] = useState<string | null>(null);
+  const cloneRequest = useRef(false);
   const signedIn = auth.desktop && auth.connected && Boolean(auth.account?.login);
   const identity = signedIn ? `${auth.account?.login}:${auth.revision}` : '';
   const currentIdentity = useRef(identity);
@@ -69,8 +82,28 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
     setSort('updated');
     setOpenError('');
     setOpening(null);
+    setCloning(null);
     openingRequest.current = null;
   }, [auth.account?.login, auth.connected, auth.revision]);
+
+  async function cloneRepository(repository: GitHubRepository) {
+    if (busy || cloneRequest.current || !identity) return;
+    cloneRequest.current = true;
+    const requestIdentity = identity;
+    setCloning(repository.cloneUrl);
+    setOpenError('');
+    try {
+      await onClone(repository);
+    } catch (reason) {
+      if (currentIdentity.current !== requestIdentity) return;
+      setOpenError(
+        safeActivityText(reason instanceof Error ? reason.message : String(reason)).slice(0, 500),
+      );
+    } finally {
+      cloneRequest.current = false;
+      if (currentIdentity.current === requestIdentity) setCloning(null);
+    }
+  }
 
   async function openRepository(event: MouseEvent<HTMLAnchorElement>, url: string) {
     if (!auth.desktop) return;
@@ -232,6 +265,14 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
               {openError}
             </p>
           )}
+          {cloning && (
+            <p className="github-repositories-clone-status" role="status">
+              <LoaderCircle className="github-repositories-spinner" size={15} aria-hidden="true" />
+              {busy
+                ? 'Downloading your working copy. Large repositories can take a little longer.'
+                : 'Choose a folder. A new repository folder will be created inside it.'}
+            </p>
+          )}
 
           {filtered.length > 0 && (
             <motion.ul
@@ -261,28 +302,56 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
                         )}
                         {repository.private ? 'Private' : 'Public'}
                       </span>
-                      {safeUrl && (
-                        <a
-                          className="github-repositories-open"
-                          href={repository.htmlUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(event) => void openRepository(event, repository.htmlUrl)}
-                          aria-label={`Open ${repository.fullName} on GitHub`}
-                          aria-disabled={opening === repository.htmlUrl || undefined}
-                        >
-                          <span>Open on GitHub</span>
-                          {opening === repository.htmlUrl ? (
-                            <LoaderCircle
-                              className="github-repositories-spinner"
-                              size={14}
-                              aria-hidden="true"
-                            />
-                          ) : (
-                            <ArrowUpRight size={14} aria-hidden="true" />
+                      <div className="github-repositories-actions">
+                        {safeUrl &&
+                          isGitHubRepositoryUrl(repository.cloneUrl) &&
+                          repository.cloneUrl.endsWith('.git') && (
+                            <AnimatedButton
+                              type="button"
+                              className="github-repositories-clone"
+                              onClick={() => void cloneRepository(repository)}
+                              disabled={busy || Boolean(cloning)}
+                              aria-label={`Clone and open ${repository.fullName}`}
+                            >
+                              {cloning === repository.cloneUrl ? (
+                                <LoaderCircle
+                                  className="github-repositories-spinner"
+                                  size={14}
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                <Download size={14} aria-hidden="true" />
+                              )}
+                              {cloning === repository.cloneUrl
+                                ? busy
+                                  ? 'Cloning…'
+                                  : 'Choose folder…'
+                                : 'Clone & open'}
+                            </AnimatedButton>
                           )}
-                        </a>
-                      )}
+                        {safeUrl && (
+                          <a
+                            className="github-repositories-open"
+                            href={repository.htmlUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(event) => void openRepository(event, repository.htmlUrl)}
+                            aria-label={`Open ${repository.fullName} on GitHub`}
+                            aria-disabled={opening === repository.htmlUrl || undefined}
+                          >
+                            <span>GitHub</span>
+                            {opening === repository.htmlUrl ? (
+                              <LoaderCircle
+                                className="github-repositories-spinner"
+                                size={14}
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <ArrowUpRight size={14} aria-hidden="true" />
+                            )}
+                          </a>
+                        )}
+                      </div>
                     </div>
                     {repository.description && (
                       <p className="github-repositories-description">{repository.description}</p>
@@ -355,7 +424,8 @@ export function GitHubRepositories({ onConnect }: { onConnect: () => void }) {
             </div>
           )}
           <p className="github-repositories-local-hint">
-            These links open GitHub. To work with a folder on this computer, choose Open repository.
+            Clone downloads a working copy to your computer. Already downloaded it? Choose Open
+            repository above.
           </p>
         </>
       )}

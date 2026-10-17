@@ -1,5 +1,6 @@
 pub mod git_engine;
 pub mod github_auth;
+pub mod github_clone;
 pub mod github_repositories;
 
 #[cfg(test)]
@@ -11,6 +12,7 @@ use github_auth::{
     github_auth_cancel, github_auth_disconnect, github_auth_open_browser, github_auth_poll,
     github_auth_start, github_auth_status, AuthState,
 };
+use github_clone::clone_github_repository;
 use github_repositories::{list_github_repositories, open_github_repository};
 use notify::{EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use serde::{Deserialize, Serialize};
@@ -46,6 +48,10 @@ impl AppState {
         })
         .await
         .map_err(|e| e.to_string())??;
+        self.path_lock(root)
+    }
+
+    fn path_lock(&self, root: PathBuf) -> EngineResult<Arc<tokio::sync::Mutex<()>>> {
         let mut locks = self
             .inner
             .locks
@@ -993,6 +999,7 @@ pub fn run() {
             github_auth_cancel,
             github_auth_disconnect,
             list_github_repositories,
+            clone_github_repository,
             open_github_repository
         ])
         .run(tauri::generate_context!())

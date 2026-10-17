@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 // provider, read the OS credential store, or create/change a repository.
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1431';
 const artifacts = new URL('../artifacts/', import.meta.url);
-const screenshots = new URL('github-repositories/', artifacts);
+const runId = new Date().toISOString().replace(/[:.]/g, '-');
+const screenshots = new URL(`github-repositories/${runId}/`, artifacts);
 await mkdir(screenshots, { recursive: true });
 const edge = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
 const browser = await chromium.launch({
@@ -20,7 +21,7 @@ const report = {
   testedAt: new Date().toISOString(),
   browser: await browser.version(),
   scope:
-    'Direct GitHub sign-in, Device Flow presentation, and repository metadata through mocked native IPC; no live OAuth or provider requests',
+    'GitHub sign-in, repository metadata, and Clone & open through mocked native IPC; no live OAuth, provider traffic, or filesystem changes',
   checks: [],
   errors: [],
   providerRequests: [],
@@ -49,7 +50,7 @@ async function capture(page, name) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(200);
   await page.screenshot({ path: fileURLToPath(new URL(name, screenshots)), fullPage: true });
-  report.screenshots.push(`artifacts/github-repositories/${name}`);
+  report.screenshots.push(`artifacts/github-repositories/${runId}/${name}`);
 }
 const repositories = (page) => page.locator('.github-repositories');
 const rows = (page) => repositories(page).locator('.github-repositories-row');
@@ -92,6 +93,12 @@ async function installFixture(page, options = {}) {
       calls: [],
       pending: [],
       openMode: 'success',
+      pickerMode: 'cancel',
+      pickerPath: 'C:\\GitSomething QA\\Projects',
+      resolvePicker: null,
+      cloneMode: 'success',
+      pendingClone: null,
+      emitted: [],
       deferInitialStatus: options.deferInitialStatus ?? false,
       resolveInitialStatus: null,
     };
@@ -177,6 +184,38 @@ async function installFixture(page, options = {}) {
         else item.resolve(result(item.page, item.login, mode));
       }
     };
+    state.emit = (event, payload) => {
+      state.emitted.push({ event, payload });
+      for (const [id, listener] of listeners) {
+        if (listener.event === event)
+          callbacks.get(listener.handler)?.({ event, id, payload });
+      }
+    };
+    state.cloneSnapshot = () => ({
+      path: `${state.pickerPath}\\terminal-lab`,
+      name: 'terminal-lab',
+      branch: 'trunk',
+      files: [],
+      commits: [],
+      branches: [],
+      guardian: null,
+    });
+    state.cloneLog = (status) =>
+      state.emit('git:log', {
+        id: 'fixture-clone',
+        operationId: 'fixture-clone',
+        tokens: [
+          { text: 'git', explanation: 'Git records project history.' },
+          { text: 'clone', explanation: 'Download a working copy.' },
+          {
+            text: `https://github.com/${state.login}/terminal-lab.git`,
+            explanation: 'The selected GitHub repository.',
+          },
+        ],
+        status,
+        message: status === 'success' ? 'Cloned your local working copy.' : 'Receiving Git objects.',
+        timestamp: Date.now(),
+      });
     window.__GITSOMETHING_GITHUB_TEST__ = state;
     window.__TAURI_EVENT_PLUGIN_INTERNALS__ = { unregisterListener() {} };
     window.__TAURI_INTERNALS__ = {
@@ -232,6 +271,37 @@ async function installFixture(page, options = {}) {
         if (command === 'open_github_repository') {
           if (state.openMode === 'error') throw 'Fixture browser could not open. Try again.';
           return;
+        }
+        if (command === 'plugin:dialog|open') {
+          if (state.pickerMode === 'defer')
+            return new Promise((resolve) => {
+              state.resolvePicker = (value = state.pickerPath) => {
+                state.resolvePicker = null;
+                resolve(value);
+              };
+            });
+          return state.pickerMode === 'cancel' ? null : state.pickerPath;
+        }
+        if (command === 'clone_github_repository') {
+          state.cloneLog('running');
+          if (state.cloneMode === 'existing') {
+            state.cloneLog('error');
+            throw 'A file or folder with this repository\'s name already exists there. Nothing was overwritten.';
+          }
+          if (state.cloneMode === 'error') {
+            state.cloneLog('error');
+            throw 'The clone could not finish. The new repository folder was preserved.';
+          }
+          if (state.cloneMode === 'defer')
+            return new Promise((resolve) => {
+              state.pendingClone = () => {
+                state.pendingClone = null;
+                state.cloneLog('success');
+                resolve(state.cloneSnapshot());
+              };
+            });
+          state.cloneLog('success');
+          return state.cloneSnapshot();
         }
         if (command === 'plugin:event|listen') {
           const id = ++nextId;
@@ -693,6 +763,151 @@ try {
     'An empty provider result is explained without suggesting that organization access is guaranteed',
   );
 
+  const cloning = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  monitor(cloning, 'clone-and-open-native-fixture');
+  await cloning.emulateMedia({ reducedMotion: 'reduce' });
+  await installFixture(cloning, { connected: true, mode: 'success' });
+  await cloning.goto(baseURL);
+  const cloneButton = repositories(cloning).getByRole('button', {
+    name: 'Clone and open alpha-fixture/terminal-lab',
+    exact: true,
+  });
+  await expect(cloneButton).toBeVisible();
+  const cloneState = () =>
+    fixture(cloning, () => ({
+      pickers: window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
+        ({ command }) => command === 'plugin:dialog|open',
+      ),
+      clones: window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
+        ({ command }) => command === 'clone_github_repository',
+      ),
+      logs: window.__GITSOMETHING_GITHUB_TEST__.emitted.filter(
+        ({ event }) => event === 'git:log',
+      ),
+      recents: JSON.parse(localStorage.getItem('branchline.recent-repositories.v1') || '[]'),
+    }));
+  await cloneButton.click();
+  await expect(cloneButton).toBeEnabled();
+  const cancelled = await cloneState();
+  assert.equal(cancelled.pickers.length, 1);
+  assert.deepEqual(cancelled.pickers[0].args, {
+    options: {
+      directory: true,
+      multiple: false,
+      title: 'Choose where to save terminal-lab',
+    },
+  });
+  assert.equal(cancelled.clones.length, 0);
+  assert.equal(cancelled.logs.length, 0);
+  assert.deepEqual(cancelled.recents, []);
+  await expect(cloning.locator('.home-page')).toBeVisible();
+  await expect(repositories(cloning).getByRole('alert')).toHaveCount(0);
+  check('Cancelling the native parent-folder picker leaves Home, recents, and the Git terminal untouched');
+
+  await fixture(cloning, () => {
+    window.__GITSOMETHING_GITHUB_TEST__.pickerMode = 'defer';
+  });
+  await cloneButton.evaluate((button) => {
+    button.click();
+    button.click();
+  });
+  await cloning.waitForFunction(
+    () => typeof window.__GITSOMETHING_GITHUB_TEST__.resolvePicker === 'function',
+  );
+  await expect(cloneButton).toBeDisabled();
+  await expect(repositories(cloning).getByRole('status')).toContainText('Choose a folder.');
+  assert.equal((await cloneState()).pickers.length, 2);
+  await fixture(cloning, () => window.__GITSOMETHING_GITHUB_TEST__.resolvePicker(null));
+  await expect(cloneButton).toBeEnabled();
+  assert.equal((await cloneState()).clones.length, 0);
+  check('Repeated clone clicks share one pending folder picker and never start duplicate operations');
+
+  for (const [mode, message] of [
+    ['existing', 'already exists there. Nothing was overwritten.'],
+    ['error', 'The new repository folder was preserved.'],
+  ]) {
+    await fixture(cloning, (mode) => {
+      window.__GITSOMETHING_GITHUB_TEST__.pickerMode = 'success';
+      window.__GITSOMETHING_GITHUB_TEST__.cloneMode = mode;
+    }, mode);
+    await cloneButton.click();
+    await expect(repositories(cloning).getByRole('alert')).toContainText(message);
+    await expect(cloneButton).toBeEnabled();
+    await expect(cloning.locator('.home-page')).toBeVisible();
+    assert.deepEqual((await cloneState()).recents, []);
+  }
+  check('Existing-folder and native clone failures stay on Home, explain preservation, and do not add recent repositories');
+
+  await fixture(cloning, () => {
+    window.__GITSOMETHING_GITHUB_TEST__.cloneMode = 'defer';
+  });
+  await cloneButton.click();
+  await cloning.waitForFunction(
+    () => typeof window.__GITSOMETHING_GITHUB_TEST__.pendingClone === 'function',
+  );
+  for (const action of await repositories(cloning)
+    .getByRole('button', { name: /^Clone and open / }).all()) {
+    await expect(action).toBeDisabled();
+  }
+  await expect(cloning.locator('.home-open-repository')).toBeDisabled();
+  await expect(repositories(cloning).getByRole('status')).toContainText('Downloading your working copy.');
+  await cloneButton.evaluate((button) => button.click());
+  const pendingClone = await cloneState();
+  assert.equal(pendingClone.clones.length, 3);
+  assert.deepEqual(pendingClone.clones.at(-1).args, {
+    parentPath: 'C:\\GitSomething QA\\Projects',
+    cloneUrl: 'https://github.com/alpha-fixture/terminal-lab.git',
+  });
+  await fixture(cloning, () => window.__GITSOMETHING_GITHUB_TEST__.pendingClone());
+  await expect(cloning.locator('.home-page')).toHaveCount(0);
+  await expect(cloning.locator('.app-body')).toBeVisible();
+  const stream = cloning.getByRole('log', { name: 'Git and GitHub operations', exact: true });
+  await expect(stream).toBeVisible();
+  await expect(stream.locator('.glass-entry-command')).toHaveCount(1);
+  await expect(stream).toContainText('https://github.com/alpha-fixture/terminal-lab.git');
+  await expect(stream).toContainText('Cloned your local working copy.');
+  const saved = (await cloneState()).recents;
+  assert.equal(saved.length, 1);
+  assert.deepEqual(Object.keys(saved[0]).sort(), ['branch', 'lastOpened', 'name', 'path']);
+  assert.equal(saved[0].path, 'C:\\GitSomething QA\\Projects\\terminal-lab');
+  assert.equal(saved[0].branch, 'trunk');
+  await capture(cloning, 'desktop-clone-workspace.png');
+  await cloning.getByRole('link', { name: 'Go to home', exact: true }).click();
+  await expect(cloning.locator('.home-recent-open')).toContainText('terminal-lab');
+  await expect(cloning.locator('.home-recent-open')).toContainText(saved[0].path);
+  check('Retry sends only parentPath and cloneUrl, blocks concurrent work, opens the returned working copy, and records one equivalent clone command plus a local recent');
+  await cloning.close();
+
+  const changedAccount = await browser.newPage({ viewport: { width: 1440, height: 960 } });
+  monitor(changedAccount, 'clone-picker-account-change-fixture');
+  await changedAccount.emulateMedia({ reducedMotion: 'reduce' });
+  await installFixture(changedAccount, { connected: true, mode: 'success' });
+  await changedAccount.goto(baseURL);
+  await fixture(changedAccount, () => {
+    window.__GITSOMETHING_GITHUB_TEST__.pickerMode = 'defer';
+  });
+  await repositories(changedAccount).getByRole('button', {
+    name: 'Clone and open alpha-fixture/terminal-lab', exact: true,
+  }).click();
+  await changedAccount.waitForFunction(
+    () => typeof window.__GITSOMETHING_GITHUB_TEST__.resolvePicker === 'function',
+  );
+  await account(changedAccount);
+  await changedAccount.getByRole('button', { name: 'Disconnect', exact: true }).click();
+  await closeAccount(changedAccount);
+  await expect(rows(changedAccount)).toHaveCount(0);
+  await fixture(changedAccount, () => window.__GITSOMETHING_GITHUB_TEST__.resolvePicker());
+  await changedAccount.waitForTimeout(100);
+  assert.equal(await fixture(changedAccount, () =>
+    window.__GITSOMETHING_GITHUB_TEST__.calls.filter(
+      ({ command }) => command === 'clone_github_repository',
+    ).length), 0);
+  await expect(changedAccount.locator('.home-page')).toBeVisible();
+  assert.deepEqual(await fixture(changedAccount, () =>
+    JSON.parse(localStorage.getItem('branchline.recent-repositories.v1') || '[]')), []);
+  check('Changing the GitHub connection while a folder picker is pending prevents cloning with the previous account');
+  await changedAccount.close();
+
   await fixture(native, () => {
     window.__GITSOMETHING_GITHUB_TEST__.mode = 'success';
   });
@@ -721,6 +936,12 @@ try {
       `${width}px repository content does not overflow`,
     );
     assert.ok(geometry.documentWidth <= width + 1, `${width}px page has no horizontal overflow`);
+    for (const control of await repositories(native)
+      .locator('.github-repositories-clone, .github-repositories-open').all()) {
+      const box = await control.boundingBox();
+      assert.ok(box && box.x >= -1 && box.x + box.width <= width + 1,
+        `${width}px Clone & open and GitHub actions fit the viewport`);
+    }
     await capture(native, `${width}-repositories.png`);
   }
   check('Repository browsing remains readable at 320px, 390px, and 1440px with reduced motion');
@@ -753,9 +974,11 @@ try {
   console.error(report.failure);
   process.exitCode = 1;
 } finally {
-  await writeFile(
-    new URL('github-repositories-report.json', artifacts),
-    `${JSON.stringify(report, null, 2)}\n`,
-  );
-  await browser.close();
+  try {
+    const contents = `${JSON.stringify(report, null, 2)}\n`;
+    await writeFile(new URL(`github-repositories-report-${runId}.json`, artifacts), contents);
+    await writeFile(new URL('github-repositories-report.json', artifacts), contents);
+  } finally {
+    await browser.close();
+  }
 }

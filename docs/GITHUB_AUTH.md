@@ -7,7 +7,7 @@ GitSomething uses GitHub's browser approval screen instead of asking users to cr
 1. Open the desktop app. On Home, select **Sign in with GitHub** under **GitHub repositories**, or open the GitHub account control.
 2. Copy the one-time code shown in GitSomething. On GitHub, enter that code and review the account and permissions before authorizing.
 3. Return to GitSomething. The sign-in dialog closes automatically, and Home loads your accessible repositories.
-4. Browse those repositories or drop a local project folder onto the app to publish it. The final **Slide to create & push** creates local history, creates the GitHub repository, and pushes the first commit.
+4. Select **Clone & open** to download a repository into a local workspace, or drop a local project folder onto the app to publish it. The final **Slide to create & push** creates local history, creates the GitHub repository, and pushes the first commit.
 
 You can use an existing local Git repository without connecting GitHub. A **commit** saves a version on your computer. **Push** sends those saved versions to the remote repository. Editing, reviewing changes, and making local commits work offline; sign-in, publication, fetch, pull, and push need a connection.
 
@@ -15,13 +15,28 @@ GitHub access is optional for the first-use guide. Reopen it with **A little hel
 
 ## Your repositories on Home
 
-The **GitHub repositories** section loads private, public, and shared repositories that the connected account can access. When signed in, this section appears beneath Home's open/new actions; local recent folders remain a separate list. Each GitHub row shows its owner, visibility, description, language, and last update when available. Long lists scroll within the section. **Open on GitHub** opens the validated repository URL in the system browser; it does not clone or open a local workspace.
+The **GitHub repositories** section loads private, public, and shared repositories that the connected account can access. When signed in, this section appears beneath Home's open/new actions; local recent folders remain a separate list. Each GitHub row shows its owner, visibility, description, language, and last update when available. Long lists scroll within the section. **Clone & open** downloads a local working copy in the desktop app. The separate **GitHub** link opens the validated repository URL in the system browser.
 
 The first request loads up to 100 repositories. **All**, **Public**, and **Private** narrow the loaded list, with counts for each visibility. **Filter loaded repositories** searches loaded names, descriptions, and languages; clear the search to return to the selected visibility. Sorting orders the loaded rows by last update or name. These controls act on repositories already loaded, so an empty result does not mean the repository is absent from GitHub.
 
 **Load more repositories** requests the next page when available. **Refresh** starts again from the newest page. A failed refresh retains the current account's loaded rows and offers a retry. Organization policies may restrict which repositories are returned. [GitHub documents the authenticated repository-list endpoint.](https://docs.github.com/en/rest/repos/repos#list-repositories-for-the-authenticated-user)
 
 Lists stay in memory and disappear when the account disconnects or changes. Late responses from an earlier sign-in cannot repopulate the current list. The Glass Box records the provider read and its result; filtering and browser navigation do not add interface noise.
+
+## Clone a GitHub repository
+
+**Requires GitSomething 1.0.0-beta.2 or newer.** The published beta.1 release only opens GitHub browser links; its existing release assets are unchanged. Beta.2 is currently a prepared release candidate, not a published update.
+
+1. Sign in on Home and find the repository under **GitHub repositories**.
+2. Select its **Clone & open** button.
+3. In the native folder picker, choose an existing **parent folder**. GitSomething creates a new child folder with the repository's name; selecting `C:\Projects` for `owner/my-app` saves the working copy in `C:\Projects\my-app`.
+4. After cloning, GitSomething opens the real local workspace and adds it to **Recents**. The Glass Box records the equivalent `git clone` command, object transfer, checkout progress, and result. Rust and libgit2 perform the operation using the existing GitHub connection; no terminal command or pasted token is required.
+
+Cancelling the folder picker does not start cloning or write Git data. An existing destination is never overwritten, even if its folder is empty. If the repository is already downloaded, use **Open repository** to select its local folder, or choose it from **Recents** after it has been opened before. To make a separate copy when a folder with the same name already exists, select another parent folder.
+
+If a clone fails after creating its folder, completed files remain there. GitSomething does not automatically delete partial clones or resume into an existing folder. Inspect the preserved folder; use **Open repository** if it contains a usable checkout, or choose another parent folder to retry. A connection change or a working-view error can also leave a saved checkout that must be opened manually.
+
+This flow supports GitHub.com HTTPS repositories through the connected native account. Submodules are not initialized, Git LFS objects are not downloaded, and external Git filters are not run; LFS-tracked files may remain pointer files. Use an appropriate Git tool for those additional steps. Browser previews cannot clone repositories. The original beta.1 rows only opened browser links; native **Clone & open** is added in the beta.2 release candidate.
 
 ## Maintainer configuration before distribution
 

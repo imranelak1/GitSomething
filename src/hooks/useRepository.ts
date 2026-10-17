@@ -12,6 +12,8 @@ export function useRepository() {
   const [demo, setDemo] = useState(true);
   const [logs, setLogs] = useState<GitLog[]>(initialLogs);
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(busy);
+  busyRef.current = busy;
   const [notice, setNotice] = useState('');
   const operation = useRef(false);
   const activePath = useRef<string | null>(null);
@@ -87,6 +89,44 @@ export function useRepository() {
         }
       } finally {
         if (request === openRequest.current) setBusy(false);
+      }
+    },
+    [record],
+  );
+
+  const clone = useCallback(
+    async (parentPath: string, cloneUrl: string) => {
+      if (operation.current || busyRef.current) {
+        throw new Error('Wait for the current Git operation to finish.');
+      }
+      operation.current = true;
+      setBusy(true);
+      try {
+        const result = await invoke<RepositorySnapshot>('clone_github_repository', {
+          parentPath,
+          cloneUrl,
+        });
+        generation.current++;
+        openRequest.current++;
+        activePath.current = result.path;
+        setRepository(result);
+        setDemo(false);
+        setLogs((previous) => previous.filter((log) => log.operationId !== 'demo'));
+        setNotice('Repository cloned. Your working copy is saved on this computer.');
+        return result;
+      } catch (error) {
+        setNotice(displayError(error));
+        record({
+          kind: 'operation',
+          label: 'Clone repository failed',
+          description: 'The repository could not be downloaded and opened.',
+          output: displayError(error),
+          status: 'error',
+        });
+        throw error;
+      } finally {
+        operation.current = false;
+        setBusy(false);
       }
     },
     [record],
@@ -270,6 +310,7 @@ export function useRepository() {
     notice,
     setNotice,
     open,
+    clone,
     refresh,
     stage,
     commit,

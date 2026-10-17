@@ -1,0 +1,97 @@
+{
+  "testedAt": "2026-10-17T21:45:31.923Z",
+  "boundary": "Packaged native app and real GitHub public clone using existing approved native auth; only folder-picker selection/cancellation is supplied by a fixture. Private cloning, the native picker UI, and provider writes are unverified.",
+  "checks": [
+    {
+      "check": "Packaged version matches the manifests and the existing native GitHub connection is approved",
+      "passed": true,
+      "durationMs": 76
+    },
+    {
+      "check": "The known public project has distinct native clone and external GitHub actions",
+      "passed": true,
+      "durationMs": 31
+    },
+    {
+      "check": "Cancelling the picker fixture emits no native clone events and creates no destination",
+      "passed": true,
+      "durationMs": 141
+    },
+    {
+      "check": "The native row clones GitHub into the new folder and opens a clean real workspace",
+      "passed": true,
+      "durationMs": 16859
+    },
+    {
+      "check": "Saved Git metadata records origin, the checked-out default branch, upstream, and origin HEAD",
+      "passed": true,
+      "durationMs": 1
+    },
+    {
+      "check": "Real Rust transfer and checkout progress reaches events and the equivalent clone appears in Glass Box",
+      "passed": true,
+      "durationMs": 6
+    },
+    {
+      "check": "A second real clone request refuses the existing destination and preserves its README",
+      "passed": true,
+      "durationMs": 4
+    },
+    {
+      "check": "The clone watcher shows an owned new file and returns to clean state after only that file is removed",
+      "passed": true,
+      "durationMs": 733
+    },
+    {
+      "check": "Home lists the cloned checkout in Recents and the existing GitHub connection stays connected",
+      "passed": true,
+      "durationMs": 40
+    },
+    {
+      "check": "Native diagnostics are clean; dialog fetch fixture and listener are removed, native invoke stays unchanged, and Home remains connected",
+      "passed": true
+    }
+  ],
+  "proof": {
+    "versionMatches": true,
+    "packagedOrigin": true,
+    "alreadyConnected": true,
+    "cloneActionInitiallyReady": true,
+    "separateBrowserLink": true,
+    "uniqueTemporaryParent": true,
+    "exactDialogFetchFixtureInstalled": true,
+    "nativeInvokeUnchanged": true,
+    "cancelEmitsNoCloneEvents": true,
+    "cancelCreatesNoDestination": true,
+    "gitDirectoryCreated": true,
+    "readmeCheckedOut": true,
+    "realCleanWorkspace": true,
+    "originMatches": true,
+    "branchTracksOrigin": true,
+    "originDefaultHead": true,
+    "nativeSuccessEvent": true,
+    "consoleEquivalent": true,
+    "existingDestinationRejected": true,
+    "existingReadmePreserved": true,
+    "watcherSawFixture": true,
+    "cleanStateRestored": true,
+    "recentsIncludesClone": true,
+    "stillConnected": true,
+    "fetchRestored": true,
+    "listenerRemoved": true,
+    "connectedAfterCleanup": true
+  },
+  "counts": {
+    "runtimeErrors": 0,
+    "consoleErrors": 0,
+    "securityErrors": 0,
+    "cspBlockedRequests": 0,
+    "cleanupErrors": 0,
+    "cloneEvents": 24,
+    "transferEvents": 11,
+    "checkoutEvents": 11
+  },
+  "passedChecks": 10,
+  "status": "passed",
+  "version": "1.0.0-beta.2"
+}
