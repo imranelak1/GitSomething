@@ -51,35 +51,35 @@
       "size": 10258
     },
     {
-      "digest": "sha256:e799935c4b7e13a9422f7a808021064362eef3cbc4a8cec2dd58d25420187366",
+      "digest": "sha256:d55fdc034dfbbb2a2202e840d0a49177a03f8791b9a21840de82b0811444ef95",
       "name": "GitSomething_0.1.0-alpha.1_windows-x64.exe",
-      "size": 20114944
+      "size": 20119040
     },
     {
-      "digest": "sha256:404c116342b5a487e53edfa36fdf93623df0c6c25e24f2a4f712a21d16a33bc9",
+      "digest": "sha256:c0e7f3eb314e6e4dac0ad6e824fab6b71ddcc3c3b696d503951dca9ec8aabbdd",
       "name": "GitSomething_0.1.0-alpha.1_x64-setup.exe",
-      "size": 6766657
+      "size": 6766692
     },
     {
-      "digest": "sha256:3b8e3b5d9a113bef8ff97648cf176bdc4ba66644bcab95de74d6df023a01d7f1",
+      "digest": "sha256:e17b1972b3ce3e95c0992e0198f89a28d5cbba47259e57a261cd89d06579f7ed",
       "name": "manifest.json",
       "size": 2937
     },
     {
-      "digest": "sha256:ca0447633504f56be42247cb56cddbb6ce169800c146cb8ab738ad3e6609dab2",
+      "digest": "sha256:52c9569fc501e8fce61ea75071bd4dc01c62b4dfdab8ac6cbd7c2dda933f5f1e",
       "name": "RELEASE_NOTES.md",
-      "size": 4248
+      "size": 4663
     },
     {
-      "digest": "sha256:276467f00c06a755f486b33dff77472ac7eaee6eea89585388fae24826e61050",
+      "digest": "sha256:347cea4bdc4880b43fff280bf2e540dc4679080cb81d8092305a4c386a10481e",
       "name": "SHA256SUMS.txt",
       "size": 1363
     }
   ],
   "draft": true,
-  "html_url": "https://github.com/imranelak1/GitSomething/releases/tag/untagged-a985f35113cb9f9810ca",
+  "html_url": "https://github.com/imranelak1/GitSomething/releases/tag/untagged-25ace11e6102e1c1e043",
   "id": 415874908,
   "prerelease": true,
   "tag_name": "v0.1.0-alpha.1",
-  "target_commitish": "21a4a7f3afafe5717ede0f338a63627d4f9ab659"
+  "target_commitish": "fdca1810c1d463bca3d3a5e746a9b1151a3d51b1"
 }
