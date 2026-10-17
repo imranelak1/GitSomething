@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { mergeActivity, safeActivityText, type ActivityEvent } from './activity';
+import {
+  isTerminalActivity,
+  mergeActivity,
+  safeActivityText,
+  type ActivityEvent,
+} from './activity';
 
 const entry = (id: string): ActivityEvent => ({
   id,
@@ -11,6 +16,19 @@ const entry = (id: string): ActivityEvent => ({
 });
 
 describe('in-memory learning activity', () => {
+  it('keeps only explicitly classified Git commands and operation events in the terminal', () => {
+    expect(isTerminalActivity(entry('command'))).toBe(true);
+    expect(isTerminalActivity({ ...entry('auth'), kind: 'operation' })).toBe(true);
+    for (const label of [
+      'Resize GitHub repository sidebar',
+      'Commit lesson',
+      'Scroll terminal',
+      'GitHub settings',
+    ]) {
+      expect(isTerminalActivity({ ...entry(label), kind: 'interface', label })).toBe(false);
+      expect(isTerminalActivity({ ...entry(label), kind: 'lesson', label })).toBe(false);
+    }
+  });
   it('redacts provider credentials and remote URL passwords before storing or copying activity', () => {
     const events = mergeActivity([], {
       ...entry('a'),

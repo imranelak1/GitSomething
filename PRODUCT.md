@@ -12,6 +12,8 @@ The workspace prioritizes reviewing code with a macOS-inspired split layout: rep
 
 The Glass Box supports pointer and keyboard height adjustment plus a 12–18px terminal font preference. Its fresh body height is 180px, existing saved heights stay valid, and a window shorter than 720px initially shows its collapsed heading. The terminal's learning inspector starts closed; purple workflow tips open over the working view when requested. Appearance settings persist locally, recover from invalid or blocked storage, and adapt to available window space. These controls do not start Git operations.
 
+The transcript is limited to Git and provider operations: native equivalent-command logs, guided commands and their output, operation failures, and real account or publishing lifecycles. All operations, Commands, and Events filter these entries. Scrolling, resizing, navigation, settings, copying, opening panels, and slider confirmations produce no transcript rows. Lessons remain in the separate learning inspector. Reviewing a file can still show the real Git read that supplies its diff.
+
 The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Motion for React (formerly Framer Motion), and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
 
 The user's latest direction uses GitHub's familiar dark palette with a small GitSomething touch. Dark slate panels, blue links and selection, a green Commit button, and conventional Git status colors prioritize useful work. Shared semantic tokens in `src/theme.css` keep every surface consistent. Short explanations beside staging, committing, and pushing complement the first-use guide and Glass-Box console. Space Grotesk headings, Manrope controls, and the existing Motion interactions remain. Skiper and Vengeance are attributed; AnimMaster-inspired effects remain original code without paid source.
@@ -51,7 +53,7 @@ These are roadmap capabilities, not promises that the starter already implements
 - A beginner can find the changed files, read a diff, stage a file, and create a commit without opening an advanced panel.
 - Pane resizing, sidebar visibility, and contextual teaching preserve a useful code-reading area; narrow windows keep every core action reachable by scrolling.
 - Every mutation has a pending, success, and actionable failure state. Repeated clicks cannot start overlapping mutations.
-- The console teaches the equivalent CLI without exposing credentials or claiming a shell command was executed.
+- The console teaches actual Git and provider operations without exposing credentials or claiming a shell command was executed; interface controls and lesson openings leave its transcript unchanged.
 - Folder publishing subscribes to progress before starting work and cannot confuse updates from another operation.
 - Both visual push actions require a deliberate slider confirmation. Early release, interruption, or a context change resets the handle; keyboard users can move to the end and confirm explicitly. Enter in the publishing form cannot bypass the slider.
 - Keyboard users can open and close dialogs, invoke the command palette, inspect token explanations, and return to their previous focus.

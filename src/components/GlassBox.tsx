@@ -15,13 +15,13 @@ import {
   ArrowRight,
   BookOpen,
   Check,
+  CircleDot,
   ChevronDown,
   Copy,
   CornerDownLeft,
   Expand,
   LoaderCircle,
   Minimize2,
-  MousePointer2,
   Terminal,
   Trash2,
   Type,
@@ -32,6 +32,7 @@ import { AnimatedButton } from './registry/vengeance/AnimatedButton';
 import { TextRoll } from './registry/skiper/TextRoll';
 import type { GitLog } from '@/lib/types';
 import type { ActivityEvent } from '@/lib/activity';
+import { isTerminalActivity } from '@/lib/activity';
 import type { TerminalResult } from '@/lib/guided-commands';
 import { getLesson, LEARNING_LESSONS } from '@/lib/learning';
 import { useActivity } from '@/hooks/useActivity';
@@ -364,7 +365,7 @@ export function GlassBox({
           timestamp: milliseconds(log.timestamp),
           log,
         })),
-        ...activities.map((activity) => ({
+        ...activities.filter(isTerminalActivity).map((activity) => ({
           id: `activity:${activity.id}`,
           timestamp: milliseconds(activity.timestamp),
           activity,
@@ -558,7 +559,7 @@ export function GlassBox({
           <strong>
             <TextRoll>Glass box</TextRoll>
           </strong>
-          <span className="glass-terminal-subtitle">Every move, explained.</span>
+          <span className="glass-terminal-subtitle">Git, explained.</span>
           <ChevronDown size={13} className={open ? '' : 'rotated'} />
         </button>
         <div className="glass-terminal-tools">
@@ -711,15 +712,15 @@ export function GlassBox({
                         value === 'commands'
                           ? 'Read equivalent Git commands and commands you typed.'
                           : value === 'actions'
-                            ? 'Read the interface actions you have taken.'
-                            : 'Read interface actions alongside their equivalent Git commands.'
+                            ? 'Read GitHub account events, publishing progress, and operation errors.'
+                            : 'Read Git commands and GitHub operation results.'
                       }
                     >
                       {value === 'all'
-                        ? 'All activity'
+                        ? 'All operations'
                         : value === 'commands'
                           ? 'Commands'
-                          : 'Actions'}
+                          : 'Events'}
                     </button>
                   ))}
                 </div>
@@ -733,7 +734,7 @@ export function GlassBox({
                     className="glass-tool"
                     aria-label="Copy visible console"
                     onClick={() => void copy()}
-                    data-activity-description="Copy the visible action log and command output to your clipboard."
+                    data-activity-description="Copy the visible Git and GitHub operation log to your clipboard."
                   >
                     <Copy size={13} />
                   </button>
@@ -744,7 +745,7 @@ export function GlassBox({
                       setClearedIds(new Set(entries.map((entry) => entry.id)));
                       setFollowing(true);
                     }}
-                    data-activity-description="Hide existing terminal entries. Future actions still appear; repository files and history stay unchanged."
+                    data-activity-description="Hide existing terminal entries. Future Git and GitHub operations still appear."
                   >
                     <Trash2 size={13} />
                   </button>
@@ -754,7 +755,7 @@ export function GlassBox({
                 ref={viewport}
                 className="glass-terminal-stream"
                 role="log"
-                aria-label="Git commands and interface actions"
+                aria-label="Git and GitHub operations"
                 aria-live="off"
                 onScroll={() => {
                   const element = viewport.current;
@@ -768,9 +769,9 @@ export function GlassBox({
                   <div className="glass-terminal-empty">
                     <Terminal size={19} />
                     <p>
-                      Your next move starts here.
+                      Your next Git operation appears here.
                       <span>
-                        Click an action or try <code>git status</code> below. Commands explain
+                        Stage, commit, sync, or try <code>git status</code> below. Commands explain
                         themselves on hover or focus.
                       </span>
                     </p>
@@ -793,7 +794,7 @@ export function GlassBox({
                   return (
                     <div
                       key={id}
-                      className={`glass-entry ${isCommand ? 'glass-entry-command' : 'glass-entry-action'} ${activity?.kind === 'lesson' ? 'glass-entry-lesson' : ''} ${activity?.status === 'error' || log?.status === 'error' ? 'glass-entry-error' : ''}`}
+                      className={`glass-entry ${isCommand ? 'glass-entry-command' : 'glass-entry-action'} ${activity?.status === 'error' || log?.status === 'error' ? 'glass-entry-error' : ''}`}
                     >
                       <time
                         className="glass-entry-time"
@@ -806,13 +807,7 @@ export function GlassBox({
                         })}
                       </time>
                       <span className="glass-entry-symbol" aria-hidden="true">
-                        {isCommand ? (
-                          '❯'
-                        ) : activity?.kind === 'lesson' ? (
-                          <BookOpen size={11} />
-                        ) : (
-                          <MousePointer2 size={10} />
-                        )}
+                        {isCommand ? '❯' : <CircleDot size={11} />}
                       </span>
                       <div className="glass-entry-content">
                         {isCommand ? (
@@ -845,10 +840,11 @@ export function GlassBox({
                         ) : (
                           <p className="glass-action-label">
                             <AnimatedTooltip
-                              content={activity?.description || 'Interface action recorded.'}
+                              content={activity?.description || 'Git or GitHub operation event.'}
                             >
                               <span>{activity?.label}</span>
                             </AnimatedTooltip>
+                            <Status status={activity?.status} />
                             <span className="glass-action-description">
                               {activity?.description}
                             </span>

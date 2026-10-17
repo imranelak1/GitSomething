@@ -27,11 +27,11 @@ import { ActivityProvider } from './hooks/useActivity';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <MotionConfig reducedMotion="user">
-      <GitHubAuthProvider>
-        <ActivityProvider>
+      <ActivityProvider>
+        <GitHubAuthProvider>
           <App />
-        </ActivityProvider>
-      </GitHubAuthProvider>
+        </GitHubAuthProvider>
+      </ActivityProvider>
     </MotionConfig>
   </React.StrictMode>,
 );

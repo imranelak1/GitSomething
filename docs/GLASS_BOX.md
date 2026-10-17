@@ -1,6 +1,6 @@
 # Learn with the Glass Box
 
-Open the Glass Box with the terminal button or Ctrl/Cmd+J. It connects three views of the same workflow: what you clicked, the equivalent Git operation, and a short explanation. Purple marks lessons and practice; blue remains the workspace action color and green marks successful Git state.
+Open the Glass Box with the terminal button or Ctrl/Cmd+J. It shows Git operations, their results, and short explanations. Purple marks lessons and practice; blue remains the workspace action color and green marks successful Git state.
 
 GitSomething starts on Home. Open a repository, select a recent project, or choose Try demo to enter a workspace. Return Home with the logo or Home button; the active workspace and its commit draft stay available through Continue workspace. Recent shortcuts contain only local path, repository name, branch, and last-opened time. Removing a shortcut leaves files on disk untouched.
 
@@ -10,11 +10,13 @@ Drag the top separator to change the Glass Box height. Keyboard users can focus 
 
 The terminal adapts its allowed height to the current window while reserving room for the workspace. Open Terminal appearance to choose 12–18px text or reset the display settings. Font size and height are remembered locally; the controls still work if persistent storage is unavailable. The repository sidebar and file pane have their own pointer and keyboard dividers, allowing more room for code without shrinking its text.
 
-## Buttons and results
+## Operations and results
 
-Every activated button is recorded as an interface request, including controls inside dialogs. Keyboard shortcuts, command-palette selections, native folder drops, and history drag previews also enter the activity stream. An interface row explains the intent; it does not claim the Git operation succeeded. Git operations retain their separate running, success, or error state and equivalent command tokens. Hover or focus a token to read its Vengeance tooltip.
+The transcript contains native Git logs, guided commands and output, operation failures, and real GitHub sign-in, disconnect, or folder-publishing events. Git operations retain their running, success, or error state and equivalent command tokens. Hover or focus a token to read its Vengeance tooltip. Account and provider API events are labeled as operations rather than invented Git commands.
 
-Use All, Commands, or Actions to filter the stream. Clear hides the entries currently present; new actions still appear. Copy exports the visible filtered entries. These logs stay in memory and are bounded to 200 Git entries and 200 activity entries. No field values or authentication codes are collected by the button recorder. Common provider token and credential-bearing URL patterns are redacted from activity before storage.
+Scrolling, resizing, navigation, settings, copying, opening panels, and slider confirmations add no rows. Opening a lesson changes the learning inspector without entering the transcript. Reviewing a file can still show the actual Git read needed to load its diff.
+
+Use All operations, Commands, or Events to filter the stream. Events contains provider operations and operation failures; Commands contains native equivalent commands and guided input. Clear hides the entries currently present; future operations still appear. Copy exports the visible filtered entries. Logs stay in memory and are bounded to 200 Git entries and 200 explicit activity entries. Interface events are discarded before storage, and there is no global button recorder. Authentication codes and credentials stay out of operation messages; common provider token and credential-bearing URL patterns are also redacted before storage.
 
 ## Guided command input
 
@@ -46,8 +48,8 @@ The terminal's learning panel starts closed. Choose Learn or request a full less
 
 ## Implementation
 
-- `src/hooks/useActivity.tsx` captures control activations across portal dialogs and provides settled command activity.
-- `src/lib/activity.ts` bounds, merges, and redacts the activity stream.
+- `src/hooks/useActivity.tsx` stores explicit operations and guided commands, settles their outcomes, and retains the latest lesson for inspector context. Interface events are discarded.
+- `src/lib/activity.ts` defines eligible terminal event kinds and bounds, merges, and redacts stored activity.
 - `src/lib/guided-commands.ts` parses the allowlisted syntax and dispatches through typed callbacks.
 - `src/lib/learning.ts` owns reusable lesson content.
 - `src/components/GlassBox.tsx` renders the terminal, filters, command input, and learning panel.
@@ -57,6 +59,6 @@ The existing Rust engine remains the only application Git runtime. Advanced hist
 
 ## Confirming a push
 
-The workspace **Slide to push** and publishing's **Slide to create & push** controls record a completed confirmation as an interface request. The existing Git operation rows report execution and its actual outcome separately. Releasing early, cancelling, or changing the repository or publication details resets the slider without starting work. The confirmation tooltip explains what will be uploaded and how to use the keyboard: arrows or End to move, Enter or Space at the end to confirm, and Escape to cancel. Pressing Enter in a publishing text field never starts publication.
+The workspace **Slide to push** and publishing's **Slide to create & push** controls require a completed confirmation before starting work. The terminal records the resulting Git or publishing operation and its outcome, with no separate slider-interaction row. Releasing early, cancelling, or changing the repository or publication details resets the slider without starting work. The confirmation tooltip explains what will be uploaded and how to use the keyboard: arrows or End to move, Enter or Space at the end to confirm, and Escape to cancel. Pressing Enter in a publishing text field never starts publication.
 
 Guided commands retain their explicit Run or Enter behavior. Typing a supported `git push` uses the same Git engine and records its own result.

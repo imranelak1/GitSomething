@@ -1,10 +1,10 @@
 # GitSomething
 
-A desktop Git client built around a clear working directory, readable diffs, and a transparent explanation of every action. Tauri 2 and Rust run Git through `git2`/libgit2; React, TypeScript, Monaco, and Motion for React provide the interface.
+A desktop Git client built around a clear working directory, readable diffs, and transparent Git operations. Tauri 2 and Rust run Git through `git2`/libgit2; React, TypeScript, Monaco, and Motion for React provide the interface.
 
 This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
-Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box records every button action, shows equivalent Git operations and results, and accepts guided Git commands through the same engine. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
+Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box shows Git commands and results, operation failures, and real account or publishing events. Guided Git commands use the same engine. Navigation, scrolling, resizing, appearance controls, and lesson openings stay out of the transcript. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
 
 ## Run locally
 

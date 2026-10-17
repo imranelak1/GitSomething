@@ -342,7 +342,7 @@ try {
   await confirmSlide(desktop, 'Slide to push');
   await expect(push).toHaveAttribute('aria-valuenow', '0');
   await expect(
-    desktop.getByRole('log', { name: 'Git commands and interface actions', exact: true }),
+    desktop.getByRole('log', { name: 'Git and GitHub operations', exact: true }),
   ).toContainText('push');
   await desktop.getByRole('button', { name: 'Show learning panel', exact: true }).click();
   await expect(

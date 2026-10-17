@@ -78,7 +78,7 @@ export function useRepository() {
         if (request === openRequest.current) {
           setNotice(displayError(error));
           record({
-            kind: 'interface',
+            kind: 'operation',
             label: 'Open repository failed',
             description: 'The repository could not be opened.',
             output: displayError(error),
@@ -145,7 +145,7 @@ export function useRepository() {
     } catch (error) {
       setNotice(displayError(error));
       record({
-        kind: 'interface',
+        kind: 'operation',
         label: staged ? 'Unstage failed' : 'Stage failed',
         description: 'The requested staging operation did not complete.',
         output: displayError(error),
@@ -204,7 +204,7 @@ export function useRepository() {
     } catch (error) {
       setNotice(displayError(error));
       record({
-        kind: 'interface',
+        kind: 'operation',
         label: 'Commit failed',
         description: 'The requested local commit did not complete.',
         output: displayError(error),
@@ -248,7 +248,7 @@ export function useRepository() {
     } catch (error) {
       setNotice(displayError(error));
       record({
-        kind: 'interface',
+        kind: 'operation',
         label: `${action[0].toUpperCase()}${action.slice(1)} failed`,
         description:
           'The requested sync operation did not complete. Authentication can stop an operation before Git begins.',

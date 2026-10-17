@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { useActivity } from './useActivity';
 
 export interface GitHubAccount {
   login: string;
@@ -57,6 +58,11 @@ interface GitHubAuthContextValue extends GitHubAuthStatus {
   openBrowser: () => Promise<void>;
 }
 
+interface AuthAttemptActivity {
+  id: string;
+  settled: boolean;
+}
+
 const GitHubAuthContext = createContext<GitHubAuthContextValue | null>(null);
 const emptyStatus: GitHubAuthStatus = {
   configured: false,
@@ -75,6 +81,7 @@ function messageFrom(reason: unknown, fallback: string) {
 
 /** Credentials and the private device code stay in Rust and the OS credential store. */
 export function GitHubAuthProvider({ children }: { children: ReactNode }) {
+  const { record, settle } = useActivity();
   const desktop = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
   const [status, setStatus] = useState<GitHubAuthStatus>(emptyStatus);
   const [stage, setStage] = useState<GitHubAuthContextValue['stage']>('idle');
@@ -85,6 +92,17 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSession = useRef<PendingGitHubAuthorization | null>(null);
   const starting = useRef(false);
+  const authActivity = useRef<AuthAttemptActivity | null>(null);
+
+  const finishAuthActivity = useCallback(
+    (attempt: AuthAttemptActivity | null, status: 'success' | 'error', output: string) => {
+      if (!attempt || attempt.settled) return;
+      attempt.settled = true;
+      if (authActivity.current === attempt) authActivity.current = null;
+      settle(attempt.id, { status, output });
+    },
+    [settle],
+  );
 
   const clearTimer = useCallback(() => {
     if (timer.current !== null) clearTimeout(timer.current);
@@ -109,6 +127,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
   }, [desktop]);
 
   const cancel = useCallback(async () => {
+    const attempt = authActivity.current;
+    authActivity.current = null;
     generation.current += 1;
     starting.current = false;
     clearTimer();
@@ -121,12 +141,22 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       try {
         await invoke('github_auth_cancel', { sessionId: session.sessionId });
       } catch (reason) {
+        finishAuthActivity(
+          attempt,
+          'error',
+          'GitHub sign-in stopped locally. The pending authorization could not be cancelled at GitHub and will expire.',
+        );
         if (mounted.current) {
           setError(messageFrom(reason, 'Could not cancel sign-in. The code will expire shortly.'));
         }
       }
     }
-  }, [clearTimer, desktop, status.connected]);
+    finishAuthActivity(
+      attempt,
+      'success',
+      'GitHub sign-in cancelled. No new account was connected.',
+    );
+  }, [clearTimer, desktop, finishAuthActivity, status.connected]);
 
   const openBrowser = useCallback(async () => {
     const session = pendingSession.current;
@@ -148,6 +178,17 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
   const connect = useCallback(async () => {
     if (!desktop || starting.current || pendingSession.current || status.connected) return;
     starting.current = true;
+    const attempt: AuthAttemptActivity = {
+      id: record({
+        kind: 'operation',
+        label: 'Sign in with GitHub',
+        description:
+          'Request GitHub authorization through the browser. Approval is required to connect this account.',
+        status: 'running',
+      }),
+      settled: false,
+    };
+    authActivity.current = attempt;
     const currentGeneration = ++generation.current;
     clearTimer();
     setError(null);
@@ -198,9 +239,21 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
               }));
               setStage('connected');
               setError(null);
+              finishAuthActivity(
+                attempt,
+                'success',
+                'GitHub account connected. Authorization is saved in the operating system credential store.',
+              );
               await refresh();
             } else {
               setStage('error');
+              finishAuthActivity(
+                attempt,
+                'error',
+                result.status === 'expired'
+                  ? 'GitHub sign-in expired. Request a new authorization to try again.'
+                  : 'GitHub sign-in was declined. No account was connected.',
+              );
               setError(
                 result.status === 'expired'
                   ? 'Your sign-in code expired. Choose Sign in with GitHub to get a new one.'
@@ -212,6 +265,11 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
             pendingSession.current = null;
             setPending(null);
             setStage('error');
+            finishAuthActivity(
+              attempt,
+              'error',
+              'GitHub sign-in was interrupted. Try signing in again.',
+            );
             setError(messageFrom(reason, 'GitHub sign-in was interrupted. Try again.'));
             await invoke('github_auth_cancel', { sessionId: session.sessionId }).catch(() => {});
           }
@@ -224,9 +282,14 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       if (!mounted.current || currentGeneration !== generation.current) return;
       starting.current = false;
       setStage('error');
+      finishAuthActivity(
+        attempt,
+        'error',
+        'GitHub sign-in could not start. Check the sign-in panel for the next step.',
+      );
       setError(messageFrom(reason, 'Could not start GitHub sign-in. Try again.'));
     }
-  }, [clearTimer, desktop, openBrowser, refresh, status.connected]);
+  }, [clearTimer, desktop, finishAuthActivity, openBrowser, record, refresh, status.connected]);
 
   const disconnect = useCallback(async () => {
     if (!desktop || starting.current) return;
@@ -234,20 +297,34 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     starting.current = true;
     const currentGeneration = generation.current;
     setStage('starting');
+    const activityId = record({
+      kind: 'operation',
+      label: 'Disconnect GitHub',
+      description: 'Remove the saved GitHub authorization from this computer.',
+      status: 'running',
+    });
     try {
       await invoke('github_auth_disconnect');
       if (!mounted.current || currentGeneration !== generation.current) return;
       setStatus((current) => ({ ...current, connected: false, account: null, scopes: [] }));
       setStage('idle');
       setError(null);
+      settle(activityId, {
+        status: 'success',
+        output: 'GitHub disconnected. Saved authorization was removed from this computer.',
+      });
     } catch (reason) {
       if (!mounted.current || currentGeneration !== generation.current) return;
       setStage(status.connected ? 'connected' : 'error');
       setError(messageFrom(reason, 'Could not disconnect GitHub. Try again.'));
+      settle(activityId, {
+        status: 'error',
+        output: 'GitHub could not be disconnected. Check the sign-in panel before trying again.',
+      });
     } finally {
       if (currentGeneration === generation.current) starting.current = false;
     }
-  }, [cancel, desktop, status.connected]);
+  }, [cancel, desktop, record, settle, status.connected]);
 
   useEffect(() => {
     mounted.current = true;
@@ -258,11 +335,16 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       clearTimer();
       const session = pendingSession.current;
       pendingSession.current = null;
+      finishAuthActivity(
+        authActivity.current,
+        'success',
+        'GitHub sign-in cancelled before completion.',
+      );
       if (session && desktop) {
         void invoke('github_auth_cancel', { sessionId: session.sessionId }).catch(() => {});
       }
     };
-  }, [clearTimer, desktop, refresh]);
+  }, [clearTimer, desktop, finishAuthActivity, refresh]);
 
   const value = useMemo<GitHubAuthContextValue>(
     () => ({

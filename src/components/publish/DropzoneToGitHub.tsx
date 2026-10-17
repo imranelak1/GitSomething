@@ -26,6 +26,7 @@ import { KineticModal } from '../registry/skiper/KineticModal';
 import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
 import { GitHubConnectCard } from '../auth/GitHubConnectCard';
 import { useGitHubAuth } from '../../hooks/useGitHubAuth';
+import { useActivity } from '../../hooks/useActivity';
 import { Button } from '../ui/button';
 import { SlideToConfirm } from '../SlideToConfirm';
 import './publish.css';
@@ -315,6 +316,7 @@ export function DropzoneToGitHub({
   const reducedMotion = useReducedMotion();
   const desktop = isDesktop();
   const github = useGitHubAuth();
+  const { record, settle } = useActivity();
   const hasProgress = Object.keys(progress).length > 0;
   const screen = result ? 'complete' : hasProgress ? 'progress' : 'setup';
 
@@ -407,6 +409,13 @@ export function DropzoneToGitHub({
     if (!form.current?.reportValidity()) return;
     publishing.current = true;
     const operationId = crypto.randomUUID();
+    const activityId = record({
+      kind: 'operation',
+      label: provider === 'github' ? 'Publish to GitHub' : 'Publish to GitLab',
+      description:
+        'Create the cloud repository and push the first commit. Git commands report their own progress.',
+      status: 'running',
+    });
     activeOperation.current = operationId;
     setBusy(true);
     setPreview(false);
@@ -450,15 +459,23 @@ export function DropzoneToGitHub({
       setProgress(Object.fromEntries(steps.map((step) => [step.key, 'success'])));
       setResult(published);
       setMessage('Your first push is complete.');
+      settle(activityId, {
+        status: 'success',
+        output: 'Cloud repository created and the first push completed.',
+      });
     } catch (reason) {
+      const failure =
+        typeof reason === 'string'
+          ? reason
+          : reason instanceof Error
+            ? reason.message
+            : 'Publishing could not finish. Your local files are still available.';
+      settle(activityId, {
+        status: 'error',
+        output: failure.slice(0, 1000),
+      });
       if (mounted.current && activeOperation.current === operationId) {
-        setError(
-          typeof reason === 'string'
-            ? reason
-            : reason instanceof Error
-              ? reason.message
-              : 'Publishing could not finish. Your local files are still available.',
-        );
+        setError(failure);
         setProgress((current) =>
           Object.fromEntries(
             Object.entries(current).map(([key, status]) => [

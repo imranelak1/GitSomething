@@ -20,7 +20,7 @@ const report = {
   baseURL,
   testedAt: new Date().toISOString(),
   browser: await browser.version(),
-  scope: 'Guided Git, action visibility, contextual learning, and responsive terminal',
+  scope: 'Guided Git, operation visibility, contextual learning, and responsive terminal',
   checks: [],
   screenshots: [],
   geometry: [],
@@ -60,8 +60,7 @@ async function createPage(surface, viewport, reducedMotion = 'no-preference') {
 const terminal = (page) => page.getByRole('region', { name: 'Glass-Box Git console', exact: true });
 const commandInput = (page) =>
   page.getByRole('textbox', { name: 'Guided Git command', exact: true });
-const stream = (page) =>
-  page.getByRole('log', { name: 'Git commands and interface actions', exact: true });
+const stream = (page) => page.getByRole('log', { name: 'Git and GitHub operations', exact: true });
 async function run(page, source, expected) {
   const outputs = page.locator('.glass-command-output');
   const before = await outputs.count();
@@ -146,12 +145,12 @@ try {
   await expect(
     desktop.getByRole('button', { name: `Unstage ${selectedFile}`, exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
-  await expect(stream(desktop)).toContainText(`Stage ${selectedFile}`);
+  await expect(stream(desktop)).not.toContainText(`Stage ${selectedFile}`);
   await expect(stream(desktop)).toContainText(selectedFile);
   await expect(
     stream(desktop).locator('code').filter({ hasText: selectedFile }).last(),
   ).toContainText('add');
-  check('Staging a file shows both the requested button action and its equivalent Git operation');
+  check('Staging a file shows its equivalent Git operation without a duplicate button-click entry');
 
   await run(desktop, 'git status', '3 staged');
   await expect(desktop.locator('.glass-command-output').last()).toContainText(
@@ -221,13 +220,13 @@ try {
   );
 
   const filters = desktop.getByRole('group', { name: 'Filter terminal entries', exact: true });
-  await filters.getByRole('button', { name: 'Actions', exact: true }).click();
-  await expect(filters.getByRole('button', { name: 'Actions', exact: true })).toHaveAttribute(
+  await filters.getByRole('button', { name: 'Events', exact: true }).click();
+  await expect(filters.getByRole('button', { name: 'Events', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
   await expect(desktop.locator('.glass-command-output')).toHaveCount(0);
-  await expect(stream(desktop)).toContainText(`Stage ${selectedFile}`);
+  await expect(desktop.locator('.glass-entry')).toHaveCount(0);
   await filters.getByRole('button', { name: 'Commands', exact: true }).click();
   await expect(filters.getByRole('button', { name: 'Commands', exact: true })).toHaveAttribute(
     'aria-pressed',
@@ -235,9 +234,9 @@ try {
   );
   await expect(desktop.locator('.glass-command-output')).not.toHaveCount(0);
   await expect(stream(desktop)).not.toContainText(`Stage ${selectedFile}`);
-  await filters.getByRole('button', { name: 'All activity', exact: true }).click();
+  await filters.getByRole('button', { name: 'All operations', exact: true }).click();
   check(
-    'Actions and Commands filters separate interface requests from Git commands and their output',
+    'Events and Commands filters separate provider or failure events from Git commands; generic interface actions are absent',
   );
 
   await desktop.getByRole('button', { name: 'Learn about commit', exact: true }).click();
@@ -264,7 +263,8 @@ try {
   await desktop.getByRole('button', { name: 'Learn about commit', exact: true }).click();
   await expect(desktop.locator('.learning-flow-panel')).toBeVisible();
   await desktop.locator('.learning-flow-more').click();
-  await expect(stream(desktop)).toContainText('Learn: Save a local checkpoint');
+  await expect(desktop.locator('.glass-learning')).toContainText('Save a local checkpoint');
+  await expect(stream(desktop)).not.toContainText('Learn: Save a local checkpoint');
   await expect(desktop.locator('.learning-flow-panel')).not.toBeVisible();
   const lessonHandoff = await geometry(desktop, 'desktop-full-lesson-handoff');
   assert.ok(
@@ -317,10 +317,10 @@ try {
     'Help should provide enough content to test scroll following',
   );
   await expect(desktop.getByRole('button', { name: 'Follow latest', exact: true })).toBeVisible();
-  await desktop.locator('.file-select').first().click();
+  await run(desktop, 'git branch', '* feature/dropzone');
   assert.ok(
     await stream(desktop).evaluate((element) => element.scrollTop < 10),
-    'New interface actions must respect a reader who scrolled up',
+    'New Git command output must respect a reader who scrolled up',
   );
   await desktop.getByRole('button', { name: 'Follow latest', exact: true }).click();
   await expect
@@ -342,12 +342,12 @@ try {
   await capture(desktop, 'desktop-terminal.png');
   check('The terminal keyboard toggle collapses and reopens without losing command results');
 
+  const beforeHelp = await stream(desktop).locator('.glass-entry').allTextContents();
   await desktop.getByRole('button', { name: 'A little help', exact: false }).click();
   await desktop.getByRole('dialog', { name: 'A calmer way to Git.' }).waitFor();
   await desktop.getByRole('button', { name: 'Close help', exact: true }).click();
-  await expect(stream(desktop)).toContainText('Close help');
-  await expect(stream(desktop)).toContainText('A little help');
-  check('Buttons inside portal dialogs also appear in the terminal action stream');
+  assert.deepEqual(await stream(desktop).locator('.glass-entry').allTextContents(), beforeHelp);
+  check('Opening and closing portal help dialogs leaves the Git terminal transcript unchanged');
 
   for (const width of [390, 320]) {
     const mobile = await createPage(`${width}px`, { width, height: 960 });

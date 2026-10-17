@@ -6,9 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { enterDemoWorkspace, openGuideFromHome } from './workspace-fixture.mjs';
 import { confirmSlide } from './slide-fixture.mjs';
 
+// Use a fixed production preview so artifact writes cannot trigger a reload.
 // This suite drives browser presentation and mocked native IPC. It never
 // authorizes GitHub, accesses a credential store, or changes a real repository.
-const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
+const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1431';
 const artifacts = new URL('../artifacts/', import.meta.url);
 const screenshots = new URL('studio-onboarding/', artifacts);
 await mkdir(screenshots, { recursive: true });

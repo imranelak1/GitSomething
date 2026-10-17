@@ -213,8 +213,8 @@ try {
     'The guided terminal rejects hard reset while preserving real index status, HEAD, and fixture contents',
   );
 
-  const stream = page.getByRole('log', { name: 'Git commands and interface actions', exact: true });
-  await expect(stream).toContainText('Open repository');
+  const stream = page.getByRole('log', { name: 'Git and GitHub operations', exact: true });
+  await expect(stream).not.toContainText('Open repository');
   await expect(stream.locator('code').filter({ hasText: filename }).last()).toContainText(
     'restore',
   );
@@ -229,7 +229,7 @@ try {
   report.nativeCommands = [...new Set(calls.commands)].sort();
   report.pickerFixtureSelections = calls.pickerSelections;
   check(
-    'Interface requests and Rust-generated equivalent Git commands are visible together in the actual terminal',
+    'Rust-generated equivalent Git commands remain visible without generic folder-picker button entries',
   );
 
   await page.evaluate(() => document.fonts.ready);
