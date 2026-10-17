@@ -1,0 +1,11 @@
+{
+  "testedAt": "2026-10-17T01:12:26.589Z",
+  "boundary": "Actual Tauri WebView UI smoke. Demo workspace only; no Git network command, provider API operation, or credential change.",
+  "checks": [
+    "Actual Tauri WebView renders the workspace slider and supports keyboard arming and cancellation",
+    "Actual Tauri publishing dialog contains the final create-and-push slider",
+    "Native app returns to Home with no WebView errors"
+  ],
+  "errors": [],
+  "status": "passed"
+}

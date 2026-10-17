@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { enterDemoWorkspace, openGuideFromHome } from './workspace-fixture.mjs';
+import { confirmSlide } from './slide-fixture.mjs';
 
 // This suite drives browser presentation and mocked native IPC. It never
 // authorizes GitHub, accesses a credential store, or changes a real repository.
@@ -543,15 +544,19 @@ try {
   await openPublish(native);
   assert.equal(await native.locator('.publish-dialog input[type="password"]').count(), 0);
   assert.equal(
-    await native.getByRole('button', { name: 'Create & push', exact: true }).isDisabled(),
-    true,
+    await native
+      .getByRole('slider', { name: 'Slide to create & push', exact: true })
+      .getAttribute('aria-disabled'),
+    'true',
   );
   await native
     .getByRole('button', { name: 'Drop a folder here, or choose one', exact: false })
     .click();
   assert.equal(
-    await native.getByRole('button', { name: 'Create & push', exact: true }).isDisabled(),
-    true,
+    await native
+      .getByRole('slider', { name: 'Slide to create & push', exact: true })
+      .getAttribute('aria-disabled'),
+    'true',
   );
   await native.evaluate(() => {
     window.__BRANCHLINE_AUTH_TEST__.mode = 'connected';
@@ -564,7 +569,7 @@ try {
   await native.locator('.publish-dialog').evaluate((dialog) => {
     dialog.scrollTop = dialog.scrollHeight;
   });
-  await native.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await confirmSlide(native);
   await native.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
   assert.equal(
     await native.locator('.publish-dialog').evaluate((dialog) => dialog.scrollTop),

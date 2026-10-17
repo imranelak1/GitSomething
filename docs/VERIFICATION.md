@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Push confirmation sliders: October 17, 2026
+
+Both visual push actions now require a deliberate slider confirmation: the workspace's **Slide to push** and publishing's final **Slide to create & push**. The control uses GitHub green, a directly dragged handle, a short return spring, reduced-motion behavior, explicit keyboard confirmation, and an educational Vengeance tooltip. Enter in a publishing text field cannot bypass confirmation. Context changes reset an armed slider without exposing credentials.
+
+The production build and TypeScript passed, along with all **67 unit tests**. The latest browser run passed **77 checks**: 23 dedicated slider checks, 24 general UI checks, 17 learning-terminal checks, and 13 Home/terminal-preference checks. The final slider confirmation pass also verified that notifications do not cover the control and the complete publishing footer fits its scrollable dialog.
+
+[Slider report](../artifacts/push-slider-report.json) and [six desktop/mobile screenshots](../artifacts/push-slider/) cover pointer and touch release, early cancellation, track clicks, keyboard arming versus confirmation, interruption and resizing, duplicate prevention, pending operations, errors and retries, publication validation, account gating, context reset, and credential-free GitHub IPC. Native push/publish operations in this browser suite are explicit fixtures; no live remote was created or pushed. The browser suites reported zero browser errors or provider requests. The existing Monaco chunk-size warning remains.
+
+Run `npm run test:push-slider` against the production preview on port 1431 to repeat the focused checks. The existing native Git engine is unchanged by this UI update.
+
+A separate [three-check native smoke](../artifacts/native-push-slider-report.json) passed in the actual Tauri WebView: workspace keyboard arming/cancellation, presence of the final publishing slider, and returning to Home without WebView errors. This smoke used the demo workspace and performed no Git network or provider operation. The desktop app is left on Home for review.
+
 ## Home and adjustable terminal: October 17, 2026
 
 Home is the initial route, with no automatic guide overlay and no Monaco mount until a workspace is entered. Actual local repository metadata populates recents only after a successful open. The workspace stays mounted but hidden and inert when returning Home, preserving its in-memory commit draft, selection, active view, and terminal session.

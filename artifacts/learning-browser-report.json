@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T01:00:20.520Z",
+  "testedAt": "2026-10-17T01:09:06.757Z",
   "browser": "155.0.4283.62",
   "scope": "Guided Git, action visibility, contextual learning, and responsive terminal",
   "checks": [
@@ -53,17 +53,17 @@
       },
       "learning": {
         "x": 288,
-        "y": 323.90625,
+        "y": 331.90625,
         "width": 1152,
         "height": 50,
         "right": 1440,
-        "bottom": 373.90625
+        "bottom": 381.90625
       },
       "editor": {
         "x": 609,
-        "y": 382.90625,
+        "y": 390.90625,
         "width": 802,
-        "height": 184.09375,
+        "height": 176.09375,
         "right": 1411,
         "bottom": 567
       }
@@ -91,17 +91,17 @@
       },
       "learning": {
         "x": 288,
-        "y": 323.90625,
+        "y": 331.90625,
         "width": 1152,
         "height": 50,
         "right": 1440,
-        "bottom": 373.90625
+        "bottom": 381.90625
       },
       "editor": {
         "x": 609,
-        "y": 382.90625,
+        "y": 390.90625,
         "width": 802,
-        "height": 184.09375,
+        "height": 176.09375,
         "right": 1411,
         "bottom": 567
       }
@@ -129,17 +129,17 @@
       },
       "learning": {
         "x": 288,
-        "y": 323.90625,
+        "y": 331.90625,
         "width": 1152,
         "height": 50,
         "right": 1440,
-        "bottom": 373.90625
+        "bottom": 381.90625
       },
       "editor": {
         "x": 609,
-        "y": 382.90625,
+        "y": 390.90625,
         "width": 802,
-        "height": 184.09375,
+        "height": 176.09375,
         "right": 1411,
         "bottom": 567
       }
@@ -167,19 +167,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 257.5,
+        "y": 309.5,
         "width": 390,
         "height": 48,
         "right": 390,
-        "bottom": 305.5
+        "bottom": 357.5
       },
       "editor": {
         "x": 17,
-        "y": 446.5,
+        "y": 498.5,
         "width": 356,
         "height": 82,
         "right": 373,
-        "bottom": 528.5
+        "bottom": 580.5
       }
     },
     {
@@ -189,9 +189,9 @@
       "scrollWidth": 390,
       "terminal": {
         "x": 0,
-        "y": 653,
+        "y": 676.0625,
         "width": 390,
-        "height": 283,
+        "height": 259.9375,
         "right": 390,
         "bottom": 936
       },
@@ -205,19 +205,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 257.5,
+        "y": 309.5,
         "width": 390,
-        "height": 242.03125,
+        "height": 259.859375,
         "right": 390,
-        "bottom": 499.53125
+        "bottom": 569.359375
       },
       "editor": {
         "x": 17,
-        "y": 640.53125,
+        "y": 710.359375,
         "width": 356,
         "height": 82,
         "right": 373,
-        "bottom": 722.53125
+        "bottom": 792.359375
       }
     },
     {
@@ -243,19 +243,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 292.859375,
+        "y": 344.859375,
         "width": 320,
         "height": 48,
         "right": 320,
-        "bottom": 340.859375
+        "bottom": 392.859375
       },
       "editor": {
         "x": 17,
-        "y": 481.859375,
+        "y": 533.859375,
         "width": 286,
         "height": 82,
         "right": 303,
-        "bottom": 563.859375
+        "bottom": 615.859375
       }
     },
     {
@@ -265,9 +265,9 @@
       "scrollWidth": 320,
       "terminal": {
         "x": 0,
-        "y": 710.96875,
+        "y": 669.46875,
         "width": 320,
-        "height": 225.03125,
+        "height": 266.53125,
         "right": 320,
         "bottom": 936
       },
@@ -281,19 +281,19 @@
       },
       "learning": {
         "x": 0,
-        "y": 292.859375,
+        "y": 344.859375,
         "width": 320,
-        "height": 302,
+        "height": 245.78125,
         "right": 320,
-        "bottom": 594.859375
+        "bottom": 590.640625
       },
       "editor": {
         "x": 17,
-        "y": 735.859375,
+        "y": 731.640625,
         "width": 286,
         "height": 82,
         "right": 303,
-        "bottom": 817.859375
+        "bottom": 813.640625
       }
     }
   ],

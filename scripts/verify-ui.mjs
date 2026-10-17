@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { enterDemoWorkspace } from './workspace-fixture.mjs';
+import { confirmSlide } from './slide-fixture.mjs';
 
 const baseURL = process.env.BRANCHLINE_TEST_URL || 'http://127.0.0.1:1420';
 const artifacts = new URL('../artifacts/', import.meta.url);
@@ -294,7 +295,7 @@ try {
     true,
   );
   assert.equal(
-    await publishing.getByRole('button', { name: 'Create & push', exact: true }).count(),
+    await publishing.getByRole('slider', { name: 'Slide to create & push', exact: true }).count(),
     0,
   );
   assert.equal(await publishing.locator('input[type="password"]').count(), 0);
@@ -534,7 +535,7 @@ try {
   await mockedNative.getByText('Signed in as @test-fixture', { exact: true }).waitFor();
   assert.equal(await mockedNative.locator('input[type="password"]').count(), 0);
   await mockedNative.getByLabel('Repository name', { exact: true }).fill('pending-folder');
-  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await confirmSlide(mockedNative);
   await mockedNative.getByText('Choose the folder you want to publish.', { exact: true }).waitFor();
   assert.equal(
     await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__.publishes.length),
@@ -544,7 +545,7 @@ try {
     .getByRole('button', { name: 'Drop a folder here, or choose one', exact: false })
     .click();
   await mockedNative.getByLabel('Repository name', { exact: true }).fill('');
-  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await confirmSlide(mockedNative);
   assert.equal(
     await mockedNative.evaluate(() => window.__BRANCHLINE_TEST_IPC__.publishes.length),
     0,
@@ -570,7 +571,7 @@ try {
   assert.equal(await mockedNative.locator('input[type="password"]').inputValue(), '');
   await mockedNative.getByRole('combobox', { name: 'Git provider' }).selectOption('github');
   await capture(mockedNative, 'desktop-publish-native-form.png');
-  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await confirmSlide(mockedNative);
   await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
   const unsafeLink = mockedNative.locator('a.publish-secondary-button');
   assert.equal(await unsafeLink.getAttribute('href'), null);
@@ -596,7 +597,7 @@ try {
   });
   await openPublishWithPalette(mockedNative);
   assert.equal(await mockedNative.locator('input[type="password"]').count(), 0);
-  await mockedNative.getByRole('button', { name: 'Create & push', exact: true }).click();
+  await confirmSlide(mockedNative);
   await mockedNative.getByRole('button', { name: 'Open repository', exact: true }).waitFor();
   assert.equal(
     await mockedNative.getByRole('link', { name: 'Open on GitHub' }).getAttribute('href'),

@@ -1,0 +1,209 @@
+{
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T01:11:21.187Z",
+  "browser": "155.0.4283.62",
+  "scope": "Slider interaction, demo Git behavior, and mocked native push/publish IPC contracts",
+  "checks": [
+    "Workspace push is an accessible, clearly labeled confirmation slider inside the desktop toolbar",
+    "Click, tap, unarmed Enter/Space, and incomplete pointer release cannot push",
+    "Keyboard movement only arms the slider; Home and Escape reset confirmation without running Git",
+    "Reaching the end does not push before release, and pointer cancellation discards an armed drag",
+    "Releasing a completed drag outside the confirmation area cancels the push",
+    "Resizing the track during a drag invalidates confirmation before pointer release",
+    "A full deliberate drag and release runs exactly one demo Git push and records its equivalent command",
+    "Ten arrow steps and Space confirm once, then reset so a repeated key cannot trigger another push",
+    "Leaving and returning to the workspace discards any previously armed push",
+    "390px touch layout fits the slider; a tap is harmless and a full touch slide confirms one demo push",
+    "320px touch layout fits the slider; a tap is harmless and a full touch slide confirms one demo push",
+    "Native push dispatches the existing IPC path once and blocks repeated confirmation while it is pending",
+    "A failed push explains the error and requires a fresh confirmation before a successful retry",
+    "Opening another repository invalidates a ready push rather than carrying confirmation into a new context",
+    "Final publishing still validates the folder and required name, and Enter in the form cannot bypass sliding",
+    "Changing repository name, visibility, or provider resets the final publish confirmation",
+    "Closing and reopening publishing discards ready state and presents the full final confirmation clearly",
+    "A final confirmation invokes publishing once, preserves selected metadata, and sends no GitHub credential through IPC",
+    "Publishing errors return to an unarmed setup and retry requires another deliberate confirmation",
+    "390px final publishing fits its dialog and confirms safely with a deliberate touch slide",
+    "320px final publishing fits its dialog and confirms safely with a deliberate touch slide",
+    "The final GitHub slider remains disabled until the user signs in",
+    "All confirmation interactions produce no browser errors and make no real provider requests"
+  ],
+  "screenshots": [
+    "artifacts/push-slider/1440-workspace.png",
+    "artifacts/push-slider/390-workspace.png",
+    "artifacts/push-slider/320-workspace.png",
+    "artifacts/push-slider/1440-publish.png",
+    "artifacts/push-slider/390-publish.png",
+    "artifacts/push-slider/320-publish.png"
+  ],
+  "geometry": [
+    {
+      "surface": "1440px-workspace",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "x": 1194,
+      "y": 65.5,
+      "right": 1386,
+      "bottom": 103.5,
+      "trackWidth": 192,
+      "trackHeight": 38
+    },
+    {
+      "surface": "1440px-push-result",
+      "notification": {
+        "x": 1019.9375,
+        "y": 110,
+        "width": 396.0625,
+        "height": 52
+      },
+      "track": {
+        "x": 1194,
+        "y": 65.5,
+        "width": 192,
+        "height": 38
+      },
+      "overlaps": false
+    },
+    {
+      "surface": "390px-workspace",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "x": 16,
+      "y": 96,
+      "right": 348,
+      "bottom": 134,
+      "trackWidth": 332,
+      "trackHeight": 38
+    },
+    {
+      "surface": "390px-push-result",
+      "notification": {
+        "x": 16,
+        "y": 160,
+        "width": 358,
+        "height": 60
+      },
+      "track": {
+        "x": 16,
+        "y": 96,
+        "width": 332,
+        "height": 38
+      },
+      "overlaps": false
+    },
+    {
+      "surface": "320px-workspace",
+      "width": 320,
+      "height": 844,
+      "scrollWidth": 320,
+      "x": 16,
+      "y": 96,
+      "right": 278,
+      "bottom": 134,
+      "trackWidth": 262,
+      "trackHeight": 38
+    },
+    {
+      "surface": "320px-push-result",
+      "notification": {
+        "x": 16,
+        "y": 160,
+        "width": 288,
+        "height": 60
+      },
+      "track": {
+        "x": 16,
+        "y": 96,
+        "width": 262,
+        "height": 38
+      },
+      "overlaps": false
+    },
+    {
+      "surface": "1440px-publish-footer",
+      "confirmation": {
+        "x": 451,
+        "y": 898.5,
+        "right": 989,
+        "bottom": 974.75
+      },
+      "dialog": {
+        "x": 420,
+        "y": 24,
+        "right": 1020,
+        "bottom": 976
+      }
+    },
+    {
+      "surface": "1440px-publish",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "x": 451,
+      "y": 898.5,
+      "right": 989,
+      "bottom": 948.5,
+      "trackWidth": 538,
+      "trackHeight": 50
+    },
+    {
+      "surface": "390px-publish-footer",
+      "confirmation": {
+        "x": 35,
+        "y": 754.828125,
+        "right": 355,
+        "bottom": 831.078125
+      },
+      "dialog": {
+        "x": 12,
+        "y": 12,
+        "right": 378,
+        "bottom": 832
+      }
+    },
+    {
+      "surface": "390px-publish",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "x": 35,
+      "y": 754.828125,
+      "right": 355,
+      "bottom": 804.828125,
+      "trackWidth": 320,
+      "trackHeight": 50
+    },
+    {
+      "surface": "320px-publish-footer",
+      "confirmation": {
+        "x": 30,
+        "y": 754.78125,
+        "right": 290,
+        "bottom": 831.03125
+      },
+      "dialog": {
+        "x": 12,
+        "y": 12,
+        "right": 308,
+        "bottom": 832
+      }
+    },
+    {
+      "surface": "320px-publish",
+      "width": 320,
+      "height": 844,
+      "scrollWidth": 320,
+      "x": 30,
+      "y": 754.78125,
+      "right": 290,
+      "bottom": 804.78125,
+      "trackWidth": 260,
+      "trackHeight": 50
+    }
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "status": "passed"
+}
