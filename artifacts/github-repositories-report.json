@@ -1,0 +1,34 @@
+{
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T13:55:24.823Z",
+  "browser": "155.0.4283.62",
+  "scope": "One-time owner setup, Device Flow presentation, and repository metadata through mocked native IPC; no live OAuth or provider requests",
+  "checks": [
+    "Browser preview truthfully requires desktop sign-in and displays no invented repositories",
+    "One-time owner setup opens the fixed native registration action and requires a public Client ID, never a token or secret",
+    "Saving setup enables a separate Device Flow approval; connecting loads a bounded metadata page through Rust IPC",
+    "The authenticated Home list shows private and public repositories, owner, language, and dates with text escaped",
+    "Filtering uses loaded name/description/language metadata without new requests and explains pagination limits",
+    "Pagination merges repeated repository IDs, updates metadata, stops at the final page, and rejects unsafe destination URLs",
+    "Opening a repository uses the native trusted-browser IPC and reports launch failures without navigating the webview",
+    "A failed refresh keeps current-account data usable and retry recovers the first page",
+    "A repository response for a different account is rejected before rendering",
+    "Disconnect hides private metadata immediately and discards a late response from the removed session",
+    "Signing into another account starts with a clean list and filter",
+    "An empty provider result is explained without suggesting that organization access is guaranteed",
+    "Repository browsing remains readable at 320px, 390px, and 1440px with reduced motion",
+    "OAuth codes and repository metadata stay out of browser storage; all checks produce zero provider traffic and browser errors"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "screenshots": [
+    "artifacts/github-repositories/desktop-owner-setup.png",
+    "artifacts/github-repositories/320-owner-setup.png",
+    "artifacts/github-repositories/390-owner-setup.png",
+    "artifacts/github-repositories/desktop-repositories.png",
+    "artifacts/github-repositories/320-repositories.png",
+    "artifacts/github-repositories/390-repositories.png",
+    "artifacts/github-repositories/1440-repositories.png"
+  ],
+  "status": "passed"
+}

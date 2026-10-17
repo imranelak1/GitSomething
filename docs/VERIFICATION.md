@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## GitHub owner setup and repository browsing: October 17, 2026
+
+The desktop connection panel now offers one-time OAuth App registration instructions and saves the owner's public Client ID in the native application configuration directory. Device Flow approval remains a separate user action. No GitHub access token or client secret is requested in the interface. Once connected, Home loads the account's public, private, and shared repositories through authenticated Rust HTTP requests. The list appears directly beneath Home's primary actions, scrolls independently, supports pagination and filtering of loaded metadata, and opens trusted GitHub pages in the system browser. Disconnecting or changing accounts clears the visible list and invalidates late responses. Only actual provider reads enter the Glass Box; filtering and browser navigation remain silent.
+
+TypeScript and all **71 frontend unit tests** passed. All **29 Rust tests**, locked Cargo checks, formatting checks, the frontend production build, and the native debug build passed. Rust coverage includes bounded provider responses, pagination, safe URLs, HTTP authorization/rate/SSO failures, public-only configuration, and stale credential rejection. The existing Monaco bundle-size warning remains.
+
+The [14 GitHub setup and repository browser checks](../artifacts/github-repositories-report.json), 16 OAuth/onboarding checks, 24 general UI checks, and 17 terminal-scope checks passed: **71 browser groups**, with zero browser errors and zero provider requests. Provider responses and authorization in these browser checks are explicit native IPC fixtures. The final combined visual review confirmed readable repository rows and reachable owner setup at desktop, 390px, and 320px; the signed-in list is visible immediately beneath the primary actions. [Screenshots](../artifacts/github-repositories/) record the result. Run `npm run test:github-repositories` against the fixed production preview on port 1431.
+
+Four [actual rebuilt Tauri WebView checks](../artifacts/github-repositories-native-report.json) passed for credential-free status, owner guidance, rejection of token-shaped setup input, unauthenticated repository reads, unsafe browser destinations, and native rendering/input validation. Run `node scripts/verify-native-github-setup.mjs` against an unconfigured desktop session with WebView2 CDP on loopback port 9223. This smoke writes no valid Client ID, changes no saved credentials, and performs no provider or Git operation.
+
+**The owner still needs to register GitSomething, enable Device Flow, save its real public Client ID, and approve sign-in.** Automated fixtures do not establish live consent, a real repository list, credential-store persistence, or a remote push. [The owner setup guide](GITHUB_AUTH.md) describes those manual steps. The app is ready for that setup; no fake registration or GitHub CLI credential was substituted.
+
 ## Git and GitHub operations only: October 17, 2026
 
 The Glass Box now contains actual Git logs, guided commands and their output, repository-operation failures, and explicit GitHub authentication or publishing events. The global click/select recorder is removed. Interface requests are discarded before entering the history buffer, and lesson requests only drive the separate teaching panel. Resizing, scrolling, navigation, settings, copying, panel controls, and slider gestures do not create transcript rows. A genuine Git read triggered by reviewing a file remains a Git operation.

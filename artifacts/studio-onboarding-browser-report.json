@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T12:57:09.395Z",
+  "testedAt": "2026-10-17T13:52:34.107Z",
   "browser": "155.0.4283.62",
   "scope": "Browser guide interactions and mocked native GitHub OAuth IPC only",
   "checks": [
@@ -11,7 +11,7 @@
     "The guide can be replayed from both the command palette and A little help",
     "Escape closes the account guide and returns keyboard focus to its launcher",
     "Every guide step and BranchBloom remain usable at 320px and 390px with reduced motion",
-    "A build without an OAuth Client ID still supports the guide and local work",
+    "A build without an OAuth Client ID offers one-time owner setup while retaining local work",
     "Sign-in shows a one-time code, opens the trusted backend browser action, and cancels cleanly",
     "Mocked consent connects the account across the interface and disconnect removes it",
     "Denied, expired, and interrupted consent give retry guidance and preserve local access",
@@ -43,7 +43,7 @@
   "pollingClock": "Real browser time; mode-tagged 5s/10s frontend polling checks",
   "frontendPolling": {
     "firstDelayMs": 5020,
-    "pendingDelayMs": 5003,
+    "pendingDelayMs": 5001,
     "slowDownDelayMs": 10004,
     "polls": [
       {
@@ -51,7 +51,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792241880970,
+        "calledAt": 1792245208524,
         "pollMode": "pending"
       },
       {
@@ -59,7 +59,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792241885973,
+        "calledAt": 1792245213525,
         "pollMode": "slow_down"
       },
       {
@@ -67,7 +67,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792241895977,
+        "calledAt": 1792245223529,
         "pollMode": "connected"
       }
     ]

@@ -1,0 +1,12 @@
+{
+  "testedAt": "2026-10-17T13:55:18.616Z",
+  "boundary": "Actual rebuilt Tauri WebView and Rust IPC, unconfigured owner session. No fake Client ID persisted, OAuth authorization, provider request or Git mutation.",
+  "checks": [
+    "Rebuilt native auth status exposes account state without credentials",
+    "Native setup rejects token-shaped input and missing configuration without saving a fake Client ID",
+    "Native repository IPC rejects unauthenticated reads and unsafe browser destinations",
+    "Actual desktop owner guide renders registration instructions and validates input without nested publishing forms"
+  ],
+  "errors": [],
+  "status": "passed"
+}

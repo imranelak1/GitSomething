@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T12:56:13.882Z",
+  "testedAt": "2026-10-17T13:52:35.756Z",
   "browser": "155.0.4283.62",
   "scope": "Git and provider operations remain visible; interface interactions never enter the terminal or its clipboard export",
   "checks": [
