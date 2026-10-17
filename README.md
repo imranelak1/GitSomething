@@ -4,7 +4,7 @@ A desktop Git client built around a clear working directory, readable diffs, and
 
 This is a beta preview of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
-The Windows x64 **1.0.0-beta.1** candidate is prepared as an unsigned draft prerelease for review. See [release notes](docs/releases/v1.0.0-beta.1.md), [verification](docs/VERIFICATION.md), and the [brand and motion guide](docs/BRAND.md). The original prompt-cat mark has a brief Motion animation with a static reduced-motion alternative; the [standalone preview](public/brand/gitsomething-logo-preview.html) also works offline.
+The Windows x64 **1.0.0-beta.1** prerelease is available on GitHub. [Download the Windows installer](https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.1/GitSomething_1.0.0-beta.1_x64-setup.exe) or see [all release assets](https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.1). The Windows packages are unsigned. See [release notes](docs/releases/v1.0.0-beta.1.md), [verification](docs/VERIFICATION.md), and the [brand and motion guide](docs/BRAND.md). The original prompt-cat mark has a brief Motion animation with a static reduced-motion alternative; the [standalone preview](public/brand/gitsomething-logo-preview.html) also works offline.
 
 [Windows checks](https://github.com/imranelak1/GitSomething/actions/workflows/windows-checks.yml) validates code changes on GitHub. See the [CI guide](docs/CI.md) for reproducible candidate builds and use the [bug report form](https://github.com/imranelak1/GitSomething/issues/new?template=bug_report.yml) when testing the beta.
 

@@ -1,0 +1,129 @@
+{
+  "verifiedAt": "2026-10-17T16:26:34.778Z",
+  "version": "1.0.0-beta.1",
+  "sourceRevision": "521f4e6bdc0a8a917ad613862b88233ca9f03589",
+  "repositoryUrl": "https://github.com/imranelak1/GitSomething",
+  "visibility": "public",
+  "repositoryPrivate": false,
+  "releaseId": 415915084,
+  "releaseUrl": "https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.1",
+  "tag": "v1.0.0-beta.1",
+  "draft": false,
+  "prerelease": true,
+  "publishedAt": "2026-10-17T16:26:10Z",
+  "anonymousAuthenticationUsed": false,
+  "anonymousDownloadCount": 15,
+  "anonymousDownloadsSha256Verified": 15,
+  "changedMetadataAssets": [
+    "RELEASE_NOTES.md",
+    "SHA256SUMS.txt",
+    "manifest.json"
+  ],
+  "binaryHashesUnchanged": true,
+  "historyTextAudit": {
+    "reachableCommits": 36,
+    "uniqueTextBlobs": 541,
+    "historicalArtifactJsonBlobs": 75,
+    "findings": 0,
+    "boundedTextSkips": 0,
+    "boundary": "Bounded text and historical artifact JSON audit; no claim of exhaustive secret detection."
+  },
+  "assets": [
+    {
+      "name": "GitSomething_1.0.0-beta.1_x64-setup.exe",
+      "bytes": 6766891,
+      "sha256": "a935f8e6b5091d31529c15ae7c00fb66f1d6c5ce049d46affcafd7f226bcaf43",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething_1.0.0-beta.1_windows-x64.exe",
+      "bytes": 20118528,
+      "sha256": "d4fac764ba53a696a10eeb63dd78bc8ff8ee103ce2f42366c8a00a0c10329d7b",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "RELEASE_NOTES.md",
+      "bytes": 5554,
+      "sha256": "c2bb2bc32d6525ee31f20d956cf669eb01eae9b6b4be5abc49a4fef651925d65",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-app-icon.svg",
+      "bytes": 1431,
+      "sha256": "0087b030e63e3de7bb3c18e82735217dba11881280643c28add425aec9a007ac",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-app-icon-1024.png",
+      "bytes": 50386,
+      "sha256": "14260e85e4ba8e4ffe49bd0173c017472b15199498cb2d7620421f395520c8b3",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-github-oauth-logo-256.png",
+      "bytes": 9187,
+      "sha256": "ec7add78216e84a35b9c48ae4257865d679f452276abb672e41d6f3e33f2b217",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-github-oauth-logo-512.png",
+      "bytes": 23674,
+      "sha256": "0b80c13a3fff5920bf0a1e211e006a5901c201a96c58b68a52e32e091c84a811",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-wordmark-dark.svg",
+      "bytes": 10264,
+      "sha256": "2e9c7f1a8c01893599790c64b95b4e0a01ed62c86de2377741a3fafaa4116b16",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-wordmark-light.svg",
+      "bytes": 10258,
+      "sha256": "2338ce521fdc4028bfbd1d2a4a07f4cfcbe6dfa95dea7f1e826f93654d5b4ef4",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-release-banner.png",
+      "bytes": 32029,
+      "sha256": "38577a3a8ca0f68d609de388c86ce930ef4c9412e38f16c34eb67b93bc09cda5",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-release-banner.svg",
+      "bytes": 67848,
+      "sha256": "2485c2409b0a79e4bcd7f7e2ac3209dcc1debf2fd13dace99d9e4e94927159a8",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-mark-animated.svg",
+      "bytes": 2473,
+      "sha256": "b10736879cc25be68d7ed9b2ae63cfdc02516d63752b2c8b7870917850bbf055",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "GitSomething-logo-preview.html",
+      "bytes": 15136,
+      "sha256": "68e6f645ceb96f8285bb171dc0839a100aa644ee76ccf721956bb8741555207f",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 2933,
+      "sha256": "49a338d25fefdcc88da2a70c801f1442c31c27eb470e4610b949f4ad572b821f",
+      "anonymousStatus": 200
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 1361,
+      "sha256": "0ac0effd58096287a5caeb23d5b07156d41a20dfba8eed609fa194c373bdef09",
+      "anonymousStatus": 200
+    }
+  ],
+  "boundaries": [
+    "Published Windows x64 beta; application and installer remain unsigned.",
+    "Only release notes, manifest and checksums changed during publication; tested binaries and source tag stayed unchanged.",
+    "Installer installation/uninstallation and live provider publishing remain unverified.",
+    "Previous beta-preparation reports preserve the earlier private draft state."
+  ]
+}

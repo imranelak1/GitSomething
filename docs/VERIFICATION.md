@@ -2,7 +2,13 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
-## Windows beta 1: October 17, 2026
+## Public beta 1 publication: October 17, 2026
+
+The [repository is public](https://github.com/imranelak1/GitSomething) and [**1.0.0-beta.1** is published](https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.1) as a prerelease. Publication completed at **16:26:10 UTC**. Anonymous API reads confirmed public visibility, `draft: false`, `prerelease: true`, and the original tested source target. All **15 assets** were downloaded without credentials and their byte sizes and SHA-256 hashes matched the staged files. The [publication proof](../artifacts/release/beta-publication.json) records those results.
+
+Publication updated only `RELEASE_NOTES.md`, `manifest.json`, and `SHA256SUMS.txt`; the application, installer, and source tag retain their tested bytes and revision. The [publication asset manifest](../artifacts/release/beta-publication-assets.json) records the refreshed metadata. A bounded history audit checked 36 commits, 541 unique text blobs, and all 75 historical artifact JSON blobs with no credential, private-key, or nonfixture private-account/repository findings. The earlier preparation reports preserve their original private draft state. The Windows packages remain unsigned; installer installation/uninstallation and live provider publishing remain unverified.
+
+## Windows beta 1 preparation: October 17, 2026
 
 All six version values are **1.0.0-beta.1**. The locked Tauri release build produced the Windows x64 executable and current-user NSIS installer. The actual executable reports the beta version; both files are **NotSigned**. Native identifiers and the credential-store service are unchanged.
 
@@ -12,11 +18,11 @@ The [five packaged runtime checks](../artifacts/releases-native-report.json) ver
 
 [Actual GitHub repository controls](../artifacts/release/live-github.json) loaded **78 repositories: 51 public and 27 private**, without reauthorization. Visibility counts, Name A–Z sorting, exact search, clearing search, and focus restoration passed. The app is left connected on Home, with All and Recently updated restored. The evidence contains counts and booleans only.
 
-The [GitHub beta draft](https://github.com/imranelak1/GitSomething/releases/tag/untagged-2f47f6bf32e6b0007076) contains **15 assets**: the NSIS installer, application executable, notes, brand exports, manifest, and checksums. The annotated `v1.0.0-beta.1` tag and manifest identify tested source commit [`521f4e6`](https://github.com/imranelak1/GitSomething/commit/521f4e6bdc0a8a917ad613862b88233ca9f03589). [Independent local verification](../artifacts/release/beta-local-assets.json) checked the Windows x64 PE, embedded shared public OAuth configuration, and all 14 checksum entries. [Remote verification](../artifacts/release/beta-remote-assets.json) matched all 15 uploaded names, sizes, and server-reported SHA-256 digests. It also verified the tag target, private repository, and draft/prerelease flags.
+The [GitHub beta release](https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.1) contains **15 assets**: the NSIS installer, application executable, notes, brand exports, manifest, and checksums. The annotated `v1.0.0-beta.1` tag and manifest identify tested source commit [`521f4e6`](https://github.com/imranelak1/GitSomething/commit/521f4e6bdc0a8a917ad613862b88233ca9f03589). [Independent local verification](../artifacts/release/beta-local-assets.json) checked the Windows x64 PE, embedded shared public OAuth configuration, and all 14 checksum entries. [Remote verification](../artifacts/release/beta-remote-assets.json) matched all 15 uploaded names, sizes, and server-reported SHA-256 digests before publication. It also verified the tag target and the earlier private draft/prerelease state.
 
 The new [Windows workflow](CI.md) repeats locked code checks on GitHub, supports optional manual candidate builds, and never publishes releases. Its [first remote run](https://github.com/imranelak1/GitSomething/actions/runs/39048220023) passed locked dependency installation, TypeScript/unit tests, the production frontend build, Rust formatting/tests, and strict Clippy against the exact tagged source on Windows Server 2022, Node.js 22.21.0, and Rust 1.95.0. The optional manual installer/staging/upload steps were skipped as intended for a push run. The [CI proof](../artifacts/release/beta-github-checks.json) and [beta preparation report](../artifacts/beta-release-preparation-report.json) record the exact source and results.
 
-Installer installation/uninstallation and live GitHub repository publication/pushing remain unverified; this candidate is an unsigned Windows x64 preview in a private **draft prerelease**.
+Installer installation/uninstallation and live GitHub repository publication/pushing remain unverified. The preparation milestone was an unsigned Windows x64 private draft; the public publication record appears above.
 
 ## Startup animation: October 17, 2026
 
