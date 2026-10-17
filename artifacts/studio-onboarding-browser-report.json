@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T13:52:34.107Z",
+  "testedAt": "2026-10-17T14:10:45.928Z",
   "browser": "155.0.4283.62",
   "scope": "Browser guide interactions and mocked native GitHub OAuth IPC only",
   "checks": [
@@ -9,9 +9,9 @@
     "Practice teaches file selection, a named local commit, and an explicitly simulated push",
     "Completing the guide keeps local work available and remembers the choice after reload",
     "The guide can be replayed from both the command palette and A little help",
-    "Escape closes the account guide and returns keyboard focus to its launcher",
+    "Escape closes the focused account dialog and returns keyboard focus to its launcher",
     "Every guide step and BranchBloom remain usable at 320px and 390px with reduced motion",
-    "A build without an OAuth Client ID offers one-time owner setup while retaining local work",
+    "An unconfigured development build disables sign-in without exposing app registration and retains local work",
     "Sign-in shows a one-time code, opens the trusted backend browser action, and cancels cleanly",
     "Mocked consent connects the account across the interface and disconnect removes it",
     "Denied, expired, and interrupted consent give retry guidance and preserve local access",
@@ -42,16 +42,16 @@
   ],
   "pollingClock": "Real browser time; mode-tagged 5s/10s frontend polling checks",
   "frontendPolling": {
-    "firstDelayMs": 5020,
-    "pendingDelayMs": 5001,
-    "slowDownDelayMs": 10004,
+    "firstDelayMs": 5036,
+    "pendingDelayMs": 5003,
+    "slowDownDelayMs": 10003,
     "polls": [
       {
         "command": "github_auth_poll",
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792245208524,
+        "calledAt": 1792246297116,
         "pollMode": "pending"
       },
       {
@@ -59,7 +59,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792245213525,
+        "calledAt": 1792246302119,
         "pollMode": "slow_down"
       },
       {
@@ -67,7 +67,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792245223529,
+        "calledAt": 1792246312122,
         "pollMode": "connected"
       }
     ]

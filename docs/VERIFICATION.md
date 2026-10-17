@@ -2,7 +2,21 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
-## GitHub owner setup and repository browsing: October 17, 2026
+## Direct GitHub sign-in: October 17, 2026
+
+The user flow is now **Sign in with GitHub → browser approval → repositories**. Home, the account launcher, and the GitHub command open a focused account dialog and immediately start authorization when the native build is configured. A successful new sign-in closes that dialog automatically and preserves the current Home/workspace screen. Account management remains available for an existing connection. The four-step learning guide is separate and optional; opening sign-in no longer enters it. Escape restores focus and cancels a pending authorization safely.
+
+Registration instructions, Client ID inputs, and their frontend context methods and native setup commands are removed. The publisher supplies GitSomething's public OAuth Client ID once through the build environment or the project's ignored `.env.local`; the build script reads only that named public setting. A release build rejects missing or invalid configuration. Installed applications use the embedded registration rather than a per-user override. Unconfigured debug builds preserve local Git features and show a disabled sign-in action with a development-build explanation. Existing local configuration is retained only as a debug compatibility fallback.
+
+TypeScript and **71 frontend unit tests**, **34 Rust tests**, locked Cargo checking, formatting, the frontend production build, and the native debug build passed. Five build-script scenarios also verified missing release configuration, local-debug availability, public-only dotenv parsing, source precedence, and invalid-value redaction. No live account has been authorized: this checkout still needs the publisher's real Client ID before GitHub sign-in can run. [Maintainer configuration](GITHUB_AUTH.md#maintainer-configuration-before-distribution) is separate from the end-user instructions.
+
+The final [15 GitHub repository/sign-in checks](../artifacts/github-repositories-report.json), [16 onboarding checks](../artifacts/studio-onboarding-browser-report.json), and [17 terminal-scope checks](../artifacts/terminal-scope-report.json) passed: **48 browser groups**, zero browser errors and zero provider requests. They cover a single Home click starting authorization, no learning-guide detour, automatic dismissal, focus restoration, cancellation, delayed initial account status, closing before that status returns, reconnection, denial/expiry, minimum polling intervals, repository pagination, and isolation of private metadata. Account/provider responses are explicit browser fixtures. The focused dialog was reviewed at desktop and mobile widths; [the Home approval capture](../artifacts/github-repositories/home-github-approval.png) records the direct path.
+
+Four [actual rebuilt native checks](../artifacts/github-repositories-native-report.json) also passed. They verify credential-free status, removal of the old registration/configuration IPC commands, rejection of unauthenticated repository reads and unsafe destinations, and a focused development sign-in dialog with no registration or Client ID controls. The native smoke uses no provider requests or Git mutations. The disabled development state is intentional until the publisher supplies the real shared app identifier; none was fabricated for testing.
+
+## Previous owner setup design and repository browsing: October 17, 2026
+
+The in-app owner configuration described in this previous milestone was superseded by publisher-only build configuration above.
 
 The desktop connection panel now offers one-time OAuth App registration instructions and saves the owner's public Client ID in the native application configuration directory. Device Flow approval remains a separate user action. No GitHub access token or client secret is requested in the interface. Once connected, Home loads the account's public, private, and shared repositories through authenticated Rust HTTP requests. The list appears directly beneath Home's primary actions, scrolls independently, supports pagination and filtering of loaded metadata, and opens trusted GitHub pages in the system browser. Disconnecting or changing accounts clears the visible list and invalidates late responses. Only actual provider reads enter the Glass Box; filtering and browser navigation remain silent.
 
