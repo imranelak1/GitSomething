@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T00:32:08.408Z",
+  "testedAt": "2026-10-17T00:40:12.541Z",
   "browser": "155.0.4283.62",
   "scope": "Guided Git, action visibility, contextual learning, and responsive terminal",
   "checks": [
@@ -37,19 +37,19 @@
       "scrollWidth": 1440,
       "terminal": {
         "x": 288,
-        "y": 702,
+        "y": 686,
         "width": 1152,
-        "height": 272,
+        "height": 288,
         "right": 1440,
         "bottom": 974
       },
       "input": {
-        "x": 356.625,
-        "y": 922.5,
-        "width": 696,
-        "height": 27,
-        "right": 1052.625,
-        "bottom": 949.5
+        "x": 363.640625,
+        "y": 917,
+        "width": 685.34375,
+        "height": 32,
+        "right": 1048.984375,
+        "bottom": 949
       },
       "learning": {
         "x": 288,
@@ -63,9 +63,9 @@
         "x": 609,
         "y": 382.90625,
         "width": 802,
-        "height": 200.09375,
+        "height": 184.09375,
         "right": 1411,
-        "bottom": 583
+        "bottom": 567
       }
     },
     {
@@ -75,19 +75,19 @@
       "scrollWidth": 1440,
       "terminal": {
         "x": 288,
-        "y": 702,
+        "y": 686,
         "width": 1152,
-        "height": 272,
+        "height": 288,
         "right": 1440,
         "bottom": 974
       },
       "input": {
-        "x": 356.625,
-        "y": 922.5,
-        "width": 696,
-        "height": 27,
-        "right": 1052.625,
-        "bottom": 949.5
+        "x": 363.640625,
+        "y": 917,
+        "width": 685.34375,
+        "height": 32,
+        "right": 1048.984375,
+        "bottom": 949
       },
       "learning": {
         "x": 288,
@@ -101,9 +101,9 @@
         "x": 609,
         "y": 382.90625,
         "width": 802,
-        "height": 200.09375,
+        "height": 184.09375,
         "right": 1411,
-        "bottom": 583
+        "bottom": 567
       }
     },
     {
@@ -113,19 +113,19 @@
       "scrollWidth": 1440,
       "terminal": {
         "x": 288,
-        "y": 702,
+        "y": 686,
         "width": 1152,
-        "height": 272,
+        "height": 288,
         "right": 1440,
         "bottom": 974
       },
       "input": {
-        "x": 356.625,
-        "y": 922.5,
-        "width": 696,
-        "height": 27,
-        "right": 1052.625,
-        "bottom": 949.5
+        "x": 363.640625,
+        "y": 917,
+        "width": 685.34375,
+        "height": 32,
+        "right": 1048.984375,
+        "bottom": 949
       },
       "learning": {
         "x": 288,
@@ -139,9 +139,9 @@
         "x": 609,
         "y": 382.90625,
         "width": 802,
-        "height": 200.09375,
+        "height": 184.09375,
         "right": 1411,
-        "bottom": 583
+        "bottom": 567
       }
     },
     {
@@ -151,19 +151,19 @@
       "scrollWidth": 390,
       "terminal": {
         "x": 0,
-        "y": 669,
+        "y": 653,
         "width": 390,
-        "height": 267,
+        "height": 283,
         "right": 390,
         "bottom": 936
       },
       "input": {
-        "x": 50.109375,
-        "y": 884.5,
-        "width": 270.515625,
-        "height": 27,
-        "right": 320.625,
-        "bottom": 911.5
+        "x": 60.640625,
+        "y": 879,
+        "width": 256.34375,
+        "height": 32,
+        "right": 316.984375,
+        "bottom": 911
       },
       "learning": {
         "x": 0,
@@ -189,35 +189,35 @@
       "scrollWidth": 390,
       "terminal": {
         "x": 0,
-        "y": 669,
+        "y": 653,
         "width": 390,
-        "height": 267,
+        "height": 283,
         "right": 390,
         "bottom": 936
       },
       "input": {
-        "x": 50.109375,
-        "y": 884.5,
-        "width": 270.515625,
-        "height": 27,
-        "right": 320.625,
-        "bottom": 911.5
+        "x": 60.640625,
+        "y": 865,
+        "width": 256.34375,
+        "height": 32,
+        "right": 316.984375,
+        "bottom": 897
       },
       "learning": {
         "x": 0,
         "y": 257.5,
         "width": 390,
-        "height": 180.484375,
+        "height": 218.90625,
         "right": 390,
-        "bottom": 437.984375
+        "bottom": 476.40625
       },
       "editor": {
         "x": 17,
-        "y": 578.984375,
+        "y": 617.40625,
         "width": 356,
         "height": 82,
         "right": 373,
-        "bottom": 660.984375
+        "bottom": 699.40625
       }
     },
     {
@@ -227,19 +227,19 @@
       "scrollWidth": 320,
       "terminal": {
         "x": 0,
-        "y": 669,
+        "y": 653,
         "width": 320,
-        "height": 267,
+        "height": 283,
         "right": 320,
         "bottom": 936
       },
       "input": {
-        "x": 50.109375,
-        "y": 884.5,
-        "width": 200.515625,
-        "height": 27,
-        "right": 250.625,
-        "bottom": 911.5
+        "x": 60.640625,
+        "y": 879,
+        "width": 186.34375,
+        "height": 32,
+        "right": 246.984375,
+        "bottom": 911
       },
       "learning": {
         "x": 0,
@@ -265,35 +265,35 @@
       "scrollWidth": 320,
       "terminal": {
         "x": 0,
-        "y": 669,
+        "y": 653,
         "width": 320,
-        "height": 267,
+        "height": 283,
         "right": 320,
         "bottom": 936
       },
       "input": {
-        "x": 50.109375,
-        "y": 879.5,
-        "width": 200.515625,
-        "height": 27,
-        "right": 250.625,
-        "bottom": 906.5
+        "x": 60.640625,
+        "y": 865,
+        "width": 186.34375,
+        "height": 32,
+        "right": 246.984375,
+        "bottom": 897
       },
       "learning": {
         "x": 0,
         "y": 292.859375,
         "width": 320,
-        "height": 194.046875,
+        "height": 127.40625,
         "right": 320,
-        "bottom": 486.90625
+        "bottom": 420.265625
       },
       "editor": {
         "x": 17,
-        "y": 627.90625,
+        "y": 561.265625,
         "width": 286,
         "height": 82,
         "right": 303,
-        "bottom": 709.90625
+        "bottom": 643.265625
       }
     }
   ],

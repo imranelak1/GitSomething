@@ -318,7 +318,7 @@ export function GlassBox({
             id="glass-terminal-content"
             className="glass-terminal-content"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: expanded ? 350 : 228, opacity: 1 }}
+            animate={{ height: expanded ? 350 : 244, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: reducedMotion ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
           >

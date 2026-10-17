@@ -35,6 +35,18 @@ The purple Learn by doing strip stays compact until expanded. Its steps distingu
 
 The first-use guide and practice flow remain skippable and replayable. Keep advanced features behind the command palette. Educational copy should be short and specific, and examples prepare commands for review before execution.
 
+## Glass Box readability
+
+The terminal combines command-and-output grouping with GitHub's dark surfaces. Keep the glass effect in the header and framing; put transcript text over a stable, sufficiently opaque reading surface. Blue identifies the prompt and Git interactions, while purple distinguishes teaching content. Give commands more space than interface activity so results remain connected to the operation that produced them.
+
+| Reference                                                                             | Relevant principle                                                                 | Branchline direction                                                                         |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [Warp blocks](https://docs.warp.dev/terminal/blocks/)                                 | Groups commands with their output.                                                 | Use a subtle guide and spacing to connect each command to its results.                       |
+| [Ghostty configuration](https://ghostty.org/docs/config/reference#minimum-contrast)   | Exposes minimum contrast and font preferences.                                     | Prioritize clear foregrounds and a consistent reading scale.                                 |
+| [VS Code terminal appearance](https://code.visualstudio.com/docs/terminal/appearance) | Documents terminal fonts, line height, and a default 4.5:1 minimum contrast ratio. | Use readable mono text, comfortable line spacing, and clear contrast on the actual backdrop. |
+
+Use Geist Mono at 13px for commands, output, and input; use 12px for interface actions and terminal messages, and 10px for metadata. Lesson copy uses 12px with 11px tips. Preserve those reading sizes on narrow viewports, allow wrapping, and give the prompt a 43px row. Command tokens remain discoverable through tooltips, with underlines emphasized on hover or keyboard focus. These are the terminal's design values; font customization and contrast preferences remain reference ideas rather than implemented settings.
+
 ## Character and motion
 
 Space Grotesk headings, Manrope controls, Geist Mono code, and the existing layout remain. Preserve the small Branchline touches: state-driven branch drawing, file selection, animated folder illustration, and saved-commit feedback. The reading surface stays still while the user reviews code.
