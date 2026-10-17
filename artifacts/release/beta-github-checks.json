@@ -1,0 +1,102 @@
+{
+  "verifiedAt": "2026-10-17T16:24:13.501Z",
+  "runId": 39048220023,
+  "url": "https://github.com/imranelak1/GitSomething/actions/runs/39048220023",
+  "workflow": "Windows checks",
+  "event": "push",
+  "branch": "main",
+  "sourceRevision": "521f4e6bdc0a8a917ad613862b88233ca9f03589",
+  "status": "completed",
+  "conclusion": "success",
+  "runner": "windows-2022",
+  "node": "22.21.0",
+  "rust": "1.95.0",
+  "jobs": [
+    {
+      "name": "Windows x64",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-10-17T16:10:06Z",
+      "completedAt": "2026-10-17T16:23:36Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out source",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Node.js",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install pinned Rust toolchain",
+          "conclusion": "success"
+        },
+        {
+          "name": "Cache Rust dependencies and build outputs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install locked frontend dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check TypeScript and unit tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check Rust formatting",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test Rust backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check Rust warnings",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate publisher configuration",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Build unsigned Windows installer",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Stage verified candidate assets",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Upload candidate assets for review",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Cache Rust dependencies and build outputs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Check out source",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "boundary": "Push-triggered Windows code checks only. Optional manual installer/staging/upload steps were intentionally skipped. Desktop/native, live GitHub, and locally built release asset evidence is recorded separately."
+}

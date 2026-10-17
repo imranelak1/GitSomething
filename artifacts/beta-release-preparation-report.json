@@ -1,0 +1,64 @@
+{
+  "testedAt": "2026-10-17T16:11:42.078Z",
+  "version": "1.0.0-beta.1",
+  "sourceRevision": "521f4e6bdc0a8a917ad613862b88233ca9f03589",
+  "releaseId": 415915084,
+  "releaseUrl": "https://github.com/imranelak1/GitSomething/releases/tag/untagged-2f47f6bf32e6b0007076",
+  "tag": "v1.0.0-beta.1",
+  "draft": true,
+  "prerelease": true,
+  "repositoryPrivate": true,
+  "uploadedAssets": 15,
+  "remoteSha256Verified": 15,
+  "checksumEntriesVerified": 14,
+  "installer": {
+    "name": "GitSomething_1.0.0-beta.1_x64-setup.exe",
+    "bytes": 6766891,
+    "sha256": "a935f8e6b5091d31529c15ae7c00fb66f1d6c5ce049d46affcafd7f226bcaf43",
+    "codeSigning": "NotSigned"
+  },
+  "application": {
+    "name": "GitSomething_1.0.0-beta.1_windows-x64.exe",
+    "bytes": 20118528,
+    "sha256": "d4fac764ba53a696a10eeb63dd78bc8ff8ee103ce2f42366c8a00a0c10329d7b",
+    "architecture": "x64",
+    "sharedOAuthClientIdEmbedded": true,
+    "codeSigning": "NotSigned"
+  },
+  "nativeSmoke": "artifacts/releases-native-report.json",
+  "startupBrowser": "artifacts/startup-report.json",
+  "startupNative": "artifacts/startup-native-report.json",
+  "startupPreview": "artifacts/startup/startup-intro.webm",
+  "githubLive": "artifacts/release/live-github.json",
+  "localAssets": "artifacts/release/beta-local-assets.json",
+  "remoteAssets": "artifacts/release/beta-remote-assets.json",
+  "checks": {
+    "frontendUnitTests": 73,
+    "rustUnitTests": 34,
+    "rustFormatting": "passed",
+    "clippyWarningsDenied": "passed",
+    "productionDependencyAuditVulnerabilities": 0,
+    "startupBrowserGroups": 12,
+    "startupNativeGroups": 6,
+    "packagedNativeGroups": 5,
+    "actualConnectedRepositoryControls": true
+  },
+  "githubChecks": {
+    "runId": 39048220023,
+    "url": "https://github.com/imranelak1/GitSomething/actions/runs/39048220023",
+    "sourceRevision": "521f4e6bdc0a8a917ad613862b88233ca9f03589",
+    "status": "completed",
+    "conclusion": "success",
+    "proof": "artifacts/release/beta-github-checks.json"
+  },
+  "boundaries": [
+    "Application executable launched and tested; installer installation/uninstallation not exercised.",
+    "Existing approved GitHub connection restored. The beta loaded 78 rows (51 public, 27 private) and passed local list controls without reauthorization. Counts-only evidence excludes private names, URLs and credentials.",
+    "No live Git repository was created or pushed as a provider test.",
+    "Only Windows x64 was built; executables are unsigned and the prerelease stays an unpublished draft in the private repository.",
+    "The push-triggered GitHub workflow checks code; its optional manual installer/upload path is configured but not exercised by this run."
+  ],
+  "verifiedAt": "2026-10-17T16:24:13.501Z",
+  "releaseNotesBodyMatches": true,
+  "uploadedAssetsReady": true
+}

@@ -1,0 +1,86 @@
+{
+  "verifiedAt": "2026-10-17T16:10:22.909Z",
+  "version": "1.0.0-beta.1",
+  "sourceRevision": "521f4e6bdc0a8a917ad613862b88233ca9f03589",
+  "checksumEntriesVerified": 14,
+  "assetCount": 15,
+  "architecture": "x64",
+  "sharedPublicOAuthClientIdEmbedded": true,
+  "assets": [
+    {
+      "name": "GitSomething_1.0.0-beta.1_x64-setup.exe",
+      "bytes": 6766891,
+      "sha256": "a935f8e6b5091d31529c15ae7c00fb66f1d6c5ce049d46affcafd7f226bcaf43"
+    },
+    {
+      "name": "GitSomething_1.0.0-beta.1_windows-x64.exe",
+      "bytes": 20118528,
+      "sha256": "d4fac764ba53a696a10eeb63dd78bc8ff8ee103ce2f42366c8a00a0c10329d7b"
+    },
+    {
+      "name": "RELEASE_NOTES.md",
+      "bytes": 5574,
+      "sha256": "e7ebdcd89d18c87a5c2170c1c78b749f007da2aa8b023f8b5f2b5f9686e4fcb3"
+    },
+    {
+      "name": "GitSomething-app-icon.svg",
+      "bytes": 1431,
+      "sha256": "0087b030e63e3de7bb3c18e82735217dba11881280643c28add425aec9a007ac"
+    },
+    {
+      "name": "GitSomething-app-icon-1024.png",
+      "bytes": 50386,
+      "sha256": "14260e85e4ba8e4ffe49bd0173c017472b15199498cb2d7620421f395520c8b3"
+    },
+    {
+      "name": "GitSomething-github-oauth-logo-256.png",
+      "bytes": 9187,
+      "sha256": "ec7add78216e84a35b9c48ae4257865d679f452276abb672e41d6f3e33f2b217"
+    },
+    {
+      "name": "GitSomething-github-oauth-logo-512.png",
+      "bytes": 23674,
+      "sha256": "0b80c13a3fff5920bf0a1e211e006a5901c201a96c58b68a52e32e091c84a811"
+    },
+    {
+      "name": "GitSomething-wordmark-dark.svg",
+      "bytes": 10264,
+      "sha256": "2e9c7f1a8c01893599790c64b95b4e0a01ed62c86de2377741a3fafaa4116b16"
+    },
+    {
+      "name": "GitSomething-wordmark-light.svg",
+      "bytes": 10258,
+      "sha256": "2338ce521fdc4028bfbd1d2a4a07f4cfcbe6dfa95dea7f1e826f93654d5b4ef4"
+    },
+    {
+      "name": "GitSomething-release-banner.png",
+      "bytes": 32029,
+      "sha256": "38577a3a8ca0f68d609de388c86ce930ef4c9412e38f16c34eb67b93bc09cda5"
+    },
+    {
+      "name": "GitSomething-release-banner.svg",
+      "bytes": 67848,
+      "sha256": "2485c2409b0a79e4bcd7f7e2ac3209dcc1debf2fd13dace99d9e4e94927159a8"
+    },
+    {
+      "name": "GitSomething-mark-animated.svg",
+      "bytes": 2473,
+      "sha256": "b10736879cc25be68d7ed9b2ae63cfdc02516d63752b2c8b7870917850bbf055"
+    },
+    {
+      "name": "GitSomething-logo-preview.html",
+      "bytes": 15136,
+      "sha256": "68e6f645ceb96f8285bb171dc0839a100aa644ee76ccf721956bb8741555207f"
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 2933,
+      "sha256": "f64acf10d8419990876a125d6f73923ed04d856a306f795a2e59e370b7acc442"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 1361,
+      "sha256": "06c4392e2a29e738dd3cd55c85c26abc631d6dcfb07f139d7ea33bdb53f885b1"
+    }
+  ]
+}
