@@ -532,10 +532,18 @@ export default function App() {
                 <ArrowDown size={14} />
                 Pull
               </Button>
-              <Button size="sm" variant="outline" onClick={() => void sync('push')} disabled={busy}>
-                <ArrowUp size={14} />
-                Push
-              </Button>
+              <AnimatedTooltip content="Push uploads saved commits to the remote repository. Your uncommitted edits stay on this computer.">
+                <Button
+                  className="toolbar-push"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void sync('push')}
+                  disabled={busy}
+                >
+                  <ArrowUp size={14} />
+                  Push
+                </Button>
+              </AnimatedTooltip>
             </div>
           </div>
           <div className="workspace-masthead">
@@ -553,9 +561,9 @@ export default function App() {
                 <p>
                   {tab === 'changes'
                     ? changedFileCount
-                      ? `${changedFileCount} changed files. Make your next move.`
-                      : 'A clean slate. What will you build next?'
-                    : 'Follow the ideas. Find your next direction.'}
+                      ? `${changedFileCount} changed files. Pick files, then save a commit.`
+                      : 'Your working folder matches your last saved commit.'
+                    : 'Each commit is a saved checkpoint. Select one to inspect it.'}
                 </p>
               </div>
               <button
@@ -794,7 +802,7 @@ export default function App() {
                     Commit changes
                     <ArrowRight size={15} />
                   </Button>
-                  <p>Saved locally. Push when you’re ready.</p>
+                  <p>Commit saves locally. Push shares.</p>
                 </div>
               </div>
             ) : (

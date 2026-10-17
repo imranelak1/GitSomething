@@ -16,6 +16,7 @@ import '@fontsource/geist-mono/400.css';
 import './styles.css';
 import './workspace.css';
 import './onboarding-integration.css';
+import './theme.css';
 import App from './App';
 import { GitHubAuthProvider } from './hooks/useGitHubAuth';
 

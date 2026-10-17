@@ -1,42 +1,43 @@
-﻿# Branchline Studio design system
+﻿# Branchline design system
 
-The Studio redesign follows the user's request for a mix of fun and serious design, stronger personality, a better palette, and motion informed by AnimMaster and Motion.dev. It replaces the previous lime/violet identity. Git remains a dependable editing task; personality comes from physical interactions, authored branch illustrations, and distinct materials for different jobs.
+Use GitHub's familiar dark palette with a small Branchline touch. The user's latest direction replaces the rejected multicolor and violet palettes: make the client educational and functional, with restrained character in the existing typography, branch illustration, and direct interactions.
 
-## Palette and type
+## Shared colors
 
-| Token  | Value     | Use                                                       |
-| ------ | --------- | --------------------------------------------------------- |
-| Ink    | `#171c26` | Main canvas, strong text on paper                         |
-| Editor | `#18202e` | Quiet Monaco background                                   |
-| Cobalt | `#4263eb` | Navigation rail, selected controls, primary action        |
-| Paper  | `#f4f1e8` | Files, repository context, history ledger, form fields    |
-| Coral  | `#ff8768` | Project creation, folder illustration, expressive heading |
-| Butter | `#f2d75c` | Commit composer, current branch, onboarding illustration  |
-| Mint   | `#9fe6c3` | Added lines, successful operations, healthy state         |
+`src/theme.css` owns the semantic color tokens. The foundation follows [Primer's dark palette](https://github.com/primer/primitives/blob/main/src/tokens/base/color/dark/dark.json5) and [GitHub's color roles](https://primer.style/product/primitives/color/).
 
-Self-hosted **Space Grotesk** gives display text its character. **Manrope** handles controls and interface copy; **Geist Mono** handles code, paths, command tokens, and hashes. Large text has compact leading; file names and labels remain readable at their actual working scale.
+| Role           | Value     | Purpose                                |
+| -------------- | --------- | -------------------------------------- |
+| Canvas/editor  | `#0d1117` | Application ground and Monaco          |
+| Panel/composer | `#151b23` | Files, forms, dialogs, commit composer |
+| Raised         | `#212830` | Elevated controls and cards            |
+| Hover          | `#262c36` | Neutral interactive state              |
+| Border         | `#3d444d` | Structural separators                  |
+| Strong border  | `#656c76` | Visible control boundaries             |
+| Text           | `#f0f6fc` | Primary reading text                   |
+| Muted          | `#9198a1` | Secondary labels and metadata          |
+| Accent/link    | `#58a6ff` | Links, focus, selection, graph context |
+| Accent fill    | `#1f6feb` | Blue primary controls                  |
+| On accent      | `#ffffff` | Text/icons on blue and green fills     |
+| Positive fill  | `#238636` | Familiar green Commit action           |
+| Success        | `#3fb950` | Git additions and completed operations |
+| Danger         | `#ff7b72` | Git removals and error copy            |
+| Warning        | `#d29922` | Warnings and modified-file metadata    |
 
-The cobalt rail anchors the interface. A warm paper sidebar and file list contrast with the ink code canvas. The butter composer makes the next commit tangible, while a dark console keeps equivalent commands visually attached to the editing task. On narrow screens, files, diff, and composer keep their task order. Panels do not overlap and dialogs scroll within the viewport.
+Keep large surfaces dark and neutral. Blue identifies interaction; green identifies saving and positive Git state. Branch colors may distinguish real graph lanes but must not turn the workspace into competing decorative color blocks. All native controls use a dark color scheme.
 
-## Signature interactions
+## Educational function
 
-- The real commit graph draws paths derived from parent IDs. Branch pills and commit nodes spring into position; HEAD follows the actual checked-out branch target.
-- The four-step guide combines a paper reading surface with a butter illustration panel. An original **BranchBloom** SVG grows from editing to saving and sharing; it is a conceptual illustration, not invented repository data.
-- The publishing folder lifts its document on hover and responds to press. Native progress and its explicitly labeled preview drive the upload pipeline.
-- File selections and tabs use shared Motion layout. A successful commit briefly turns the composer mark into a spring-driven check; a failed operation cannot trigger it.
-- Existing **Skiper TextRoll** and **Vengeance AnimatedButton/tooltips** remain attributed and active.
-- New magnetic interactions keep their hit targets stable and stop following the pointer during keyboard focus, touch, or reduced motion.
+Teach Git beside the action: staging selects files for the next commit, committing saves a checkpoint locally, and pushing uploads saved commits. The diff footer describes whether its file is selected; the composer distinguishes commit from push; Push has a keyboard-accessible explanation of what is uploaded. The Glass-Box console explains the equivalent command tokens.
 
-Animation uses `motion/react`, the current Motion for React entry point. Drawing and transitions run on state changes or direct interaction. The diff itself stays still while being read. There are no perpetual ornamental effects.
+The first-use guide and practice flow remain skippable and replayable. Keep advanced features behind the command palette. Educational copy should be short and specific; avoid permanent tutorial banners across the working area.
 
-## Source ownership
+## Character and motion
 
-AnimMaster's public mouse, SVG, and physics examples informed the direction. Its component source is paid and no licensed files were supplied. The components in `registry/animmaster` are original Branchline code, not an installation or copy of the paid catalog. [Motion sources and licensing](docs/MOTION_SOURCES.md) records this boundary.
+Space Grotesk headings, Manrope controls, Geist Mono code, and the existing layout remain. Preserve the small Branchline touches: state-driven branch drawing, file selection, animated folder illustration, and saved-commit feedback. The reading surface stays still while the user reviews code.
 
-Skiper's free TextRoll attribution and Vengeance's MIT notices remain in their source directories and in-app credits. Do not label original components as upstream library source.
+Respect reduced motion and visible keyboard focus. Filled-control hover states use darker emphasis colors so white labels retain contrast. Body text and placeholders meet AA contrast on their actual composed surfaces; control boundaries and focus cues meet non-text contrast requirements.
 
-## Accessibility and product truth
+## Product truth and source ownership
 
-Keyboard focus uses cobalt on paper and a bright contrasting outline on ink. Reduced-motion users receive the same state, progress, and controls without spatial springs or path-drawing entrances. Dialog focus returns to its launcher; opening another protected flow does not steal that flow's focus.
-
-The browser remains an explicit demo. OAuth credentials stay in Rust and the OS credential store. History gestures preview unsupported mutations and cannot rewrite history. The visual system must not turn planned features into apparent working controls or imply that a practice push uploaded files.
+Motion does not mutate Git state or imply an unsupported operation succeeded. The browser remains an explicit demo; history gestures remain previews; credentials stay in Rust and the OS credential store. [Motion sources](docs/MOTION_SOURCES.md) records the original AnimMaster-inspired effects and their paid-source boundary. Skiper attribution and Vengeance MIT notices remain in source and in-app credits.

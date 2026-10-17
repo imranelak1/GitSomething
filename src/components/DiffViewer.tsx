@@ -151,27 +151,27 @@ export default function DiffViewer({
                 base: 'vs-dark',
                 inherit: true,
                 rules: [
-                  { token: 'comment', foreground: '92959F' },
-                  { token: 'keyword', foreground: 'A9BCFF' },
-                  { token: 'string', foreground: '9FE6C3' },
-                  { token: 'number', foreground: 'FFB39D' },
-                  { token: 'tag', foreground: 'F2D75C' },
+                  { token: 'comment', foreground: '9198A1' },
+                  { token: 'keyword', foreground: 'FF7B72' },
+                  { token: 'string', foreground: 'A5D6FF' },
+                  { token: 'number', foreground: '79C0FF' },
+                  { token: 'tag', foreground: '7EE787' },
                   { token: 'delimiter', foreground: 'A6A7B0' },
                   { token: 'identifier', foreground: 'D8D9E0' },
                 ],
                 colors: {
-                  'editor.background': '#18202e',
-                  'editor.foreground': '#d8d9e0',
+                  'editor.background': '#0d1117',
+                  'editor.foreground': '#f0f6fc',
                   'editorLineNumber.foreground': '#777b86',
                   'editorLineNumber.activeForeground': '#c0c2cb',
-                  'editor.selectionBackground': '#4263eb55',
+                  'editor.selectionBackground': '#388bfd33',
                   'editor.lineHighlightBackground': '#ffffff03',
-                  'editorGutter.background': '#18202e',
-                  'diffEditor.insertedTextBackground': '#9fe6c326',
-                  'diffEditor.insertedLineBackground': '#9fe6c30e',
-                  'diffEditor.removedTextBackground': '#ff876826',
-                  'diffEditor.removedLineBackground': '#ff87680e',
-                  'diffEditor.border': '#344158',
+                  'editorGutter.background': '#0d1117',
+                  'diffEditor.insertedTextBackground': '#3fb95026',
+                  'diffEditor.insertedLineBackground': '#3fb9500e',
+                  'diffEditor.removedTextBackground': '#f8514926',
+                  'diffEditor.removedLineBackground': '#f851490e',
+                  'diffEditor.border': '#3d444d',
                   'editorOverviewRuler.border': '#131417',
                   'scrollbarSlider.background': '#7e839426',
                   'scrollbarSlider.hoverBackground': '#7e83944a',
@@ -212,7 +212,9 @@ export default function DiffViewer({
       </div>
       <div className="diff-footer">
         <span>
-          <span className="keycap">⌥</span> Review a little. Ship something good.
+          {file.staged
+            ? 'This file is selected for your next commit.'
+            : 'Stage selects this file for your next commit.'}
         </span>
         <Button size="sm" variant="outline" onClick={onStage} disabled={busy}>
           {file.staged ? 'Unstage file' : 'Stage file'}

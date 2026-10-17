@@ -1,20 +1,20 @@
 ﻿.github-connect {
-  --github-accent: #4263eb;
-  border: 1px solid #c7cfdf;
+  --github-accent: var(--ui-accent);
+  border: 1px solid var(--ui-border);
   border-radius: 9px;
-  background: #e9edf8;
+  background: var(--ui-raised);
   padding: 21px;
-  color: #171c26;
+  color: var(--ui-text);
   font-family: 'Manrope', sans-serif;
   min-width: 0;
-  color-scheme: light;
+  color-scheme: dark;
 }
 .github-connect.is-compact {
   padding: 18px;
 }
 .github-connect.is-connected {
-  border-color: #96baa7;
-  background: #e5f0e7;
+  border-color: color-mix(in srgb, var(--ui-success) 40%, var(--ui-border));
+  background: color-mix(in srgb, var(--ui-success) 6%, var(--ui-panel));
 }
 .github-connect button {
   font: inherit;
@@ -26,7 +26,7 @@
 }
 .github-connect button:focus-visible,
 .github-permissions summary:focus-visible {
-  outline: 2px solid #4263eb;
+  outline: 2px solid var(--ui-accent);
   outline-offset: 4px;
 }
 .github-connect-heading {
@@ -35,7 +35,7 @@
   gap: 12px;
 }
 .github-connect-heading > svg {
-  color: #4263eb;
+  color: var(--ui-accent);
   flex: none;
   margin-top: 3px;
 }
@@ -57,10 +57,10 @@
   margin: 8px 0 0;
   font-size: 12px;
   line-height: 1.7;
-  color: #5d687c;
+  color: var(--ui-muted);
 }
 .github-connect-heading > .github-connected-check {
-  color: #35684e;
+  color: var(--ui-success);
 }
 .github-signin-actions {
   display: flex;
@@ -71,24 +71,24 @@
 }
 .github-signin-button.button {
   min-height: 40px;
-  background: #4263eb;
-  color: #fff;
-  border: 1px solid #4263eb;
+  background: var(--ui-accent-fill);
+  color: var(--ui-accent-ink);
+  border: 1px solid var(--ui-accent);
   font-size: 12px;
   font-weight: 750;
   border-radius: 7px;
   padding: 10px 14px;
 }
 .github-signin-button.button:hover {
-  background: #3151d7;
-  border-color: #3151d7;
+  background: var(--ui-accent-hover);
+  border-color: var(--ui-accent-hover);
 }
 .github-signin-actions > span {
   display: flex;
   gap: 6px;
   align-items: center;
   font-size: 10px;
-  color: #637087;
+  color: var(--ui-muted);
 }
 .github-auth-local-note {
   display: flex;
@@ -96,13 +96,13 @@
   gap: 10px;
   margin-top: 17px;
   padding-top: 15px;
-  border-top: 1px solid #c9d1e3;
-  color: #5d687c;
+  border-top: 1px solid var(--ui-border);
+  color: var(--ui-muted);
 }
 .github-auth-local-note svg {
   flex: none;
   margin-top: 3px;
-  color: #4263eb;
+  color: var(--ui-accent);
 }
 .github-auth-local-note p {
   margin: 0;
@@ -121,9 +121,9 @@
   width: 36px;
   height: 36px;
   flex: none;
-  background: #9fe6c3;
-  color: #244936;
-  border: 1px solid #8cbe9f;
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+  border: 1px solid color-mix(in srgb, var(--ui-success) 40%, var(--ui-border));
   border-radius: 8px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: 18px;
@@ -140,7 +140,7 @@
   overflow-wrap: anywhere;
 }
 .github-account-row > div > span {
-  color: #5e7466;
+  color: var(--ui-muted);
   font-size: 10px;
   line-height: 1.6;
 }
@@ -151,15 +151,15 @@
   gap: 6px;
   border: 0;
   background: transparent;
-  color: #4e5f76;
+  color: var(--ui-muted);
   font-size: 11px !important;
   padding: 7px 3px;
   text-decoration: underline;
-  text-decoration-color: #97a2b3;
+  text-decoration-color: var(--ui-border-strong);
   text-underline-offset: 4px;
 }
 .github-auth-text-button:hover {
-  color: #2647cb;
+  color: var(--ui-accent);
   text-decoration-color: currentColor;
 }
 .github-device-flow {
@@ -171,8 +171,8 @@
   justify-content: space-between;
   gap: 10px;
   padding: 15px;
-  background: #fffdf8;
-  border: 1px solid #a7b5db;
+  background: var(--ui-editor);
+  border: 1px solid var(--ui-border-strong);
   border-radius: 8px;
 }
 .github-device-code-row code {
@@ -180,13 +180,13 @@
   font-size: 25px;
   font-weight: 500;
   letter-spacing: 0.03em;
-  color: #2a49b8;
+  color: var(--ui-accent);
   user-select: text;
   font-variant-numeric: tabular-nums;
 }
 .github-device-code-row code::selection {
-  background: #f2d75c;
-  color: #171c26;
+  background: var(--ui-accent-fill);
+  color: var(--ui-accent-ink);
 }
 .github-code-copy {
   display: flex;
@@ -194,14 +194,14 @@
   align-items: center;
   flex: none;
   padding: 8px 9px;
-  background: #e8edf9;
-  border: 1px solid #b7c4e0;
+  background: var(--ui-raised);
+  border: 1px solid var(--ui-border);
   border-radius: 6px;
-  color: #3150b5;
+  color: var(--ui-accent);
   font-size: 11px !important;
 }
 .github-code-copy:hover {
-  background: #dce4f7;
+  background: var(--ui-hover);
 }
 .github-device-actions {
   display: flex;
@@ -213,35 +213,35 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  color: #5c6a80;
+  color: var(--ui-muted);
   margin-top: 17px;
   font-size: 11px;
   line-height: 1.6;
 }
 .github-device-wait svg {
-  color: #4263eb;
+  color: var(--ui-accent);
   flex: none;
 }
 .github-device-wait time {
   margin-left: auto;
   font-family: 'Geist Mono', monospace;
   font-variant-numeric: tabular-nums;
-  color: #3150b5;
+  color: var(--ui-accent);
 }
 .github-auth-copy-help {
   margin: 8px 0 0;
-  color: #9b5635;
+  color: var(--ui-warning);
   font-size: 11px;
   line-height: 1.5;
 }
 .github-auth-error {
   display: flex;
   gap: 8px;
-  color: #97412c;
+  color: var(--ui-danger);
   margin-top: 16px;
   padding: 12px;
-  background: #f9ded4;
-  border: 1px solid #d6a392;
+  background: color-mix(in srgb, var(--ui-danger) 10%, var(--ui-panel));
+  border: 1px solid color-mix(in srgb, var(--ui-danger) 40%, var(--ui-border));
   border-radius: 7px;
 }
 .github-auth-error svg {
@@ -256,7 +256,7 @@
 }
 .github-permissions {
   margin-top: 18px;
-  border-top: 1px solid #c7d0e3;
+  border-top: 1px solid var(--ui-border);
   padding-top: 12px;
 }
 .github-permissions summary {
@@ -264,7 +264,7 @@
   align-items: center;
   gap: 7px;
   font-size: 11px;
-  color: #4f6080;
+  color: var(--ui-muted);
   cursor: pointer;
   list-style: none;
 }
@@ -284,13 +284,13 @@
 .github-permissions p {
   font-size: 11px;
   line-height: 1.8;
-  color: #5e6b83;
+  color: var(--ui-muted);
   margin: 10px 0 0;
 }
 .github-permissions code {
   font-family: 'Geist Mono', monospace;
   font-size: 10px;
-  color: #3150b5;
+  color: var(--ui-accent);
 }
 .github-auth-spinner {
   animation: github-auth-spin 0.9s linear infinite;

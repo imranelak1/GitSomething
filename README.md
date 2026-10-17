@@ -4,6 +4,8 @@ A desktop Git client built around a clear working directory, readable diffs, and
 
 This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
+The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Short explanations beside staging, committing, and pushing complement the first-use guide and the Glass-Box command console.
+
 ## Run locally
 
 Install Node.js **22.12.0 or newer**, npm, and Rust **1.88 or newer**. Native development also needs the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/); on Windows these include Microsoft C++ build tools and WebView2.

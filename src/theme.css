@@ -1,0 +1,31 @@
+/* GitHub Primer dark colors, with Branchline's teaching and motion details. */
+:root {
+  color-scheme: dark;
+  --ui-canvas: #0d1117;
+  --ui-editor: #0d1117;
+  --ui-panel: #151b23;
+  --ui-raised: #212830;
+  --ui-hover: #262c36;
+  --ui-composer: #151b23;
+  --ui-border: #3d444d;
+  --ui-border-strong: #656c76;
+  --ui-text: #f0f6fc;
+  --ui-muted: #9198a1;
+  --ui-subtle: #9198a1;
+  --ui-accent: #58a6ff;
+  --ui-accent-fill: #1f6feb;
+  --ui-accent-hover: #1158c7;
+  --ui-accent-ink: #ffffff;
+  --ui-accent-soft: #388bfd1a;
+  --ui-success: #3fb950;
+  --ui-success-fill: #238636;
+  --ui-success-hover: #196c2e;
+  --ui-danger: #ff7b72;
+  --ui-warning: #d29922;
+  --background: var(--ui-canvas);
+  --panel: var(--ui-panel);
+  --border: var(--ui-border);
+  --muted: var(--ui-muted);
+  --mint: var(--ui-accent);
+  --lilac: var(--ui-accent);
+}

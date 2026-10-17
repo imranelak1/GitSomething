@@ -18,9 +18,9 @@ export interface HistoryPlan {
   target: string;
 }
 
-// The same branch colors have an ink variant for the light history ledger.
-export const graphColors = ['#8ca2ff', '#ff8768', '#9fe6c3', '#f2d75c', '#c8a6e3'];
-const historyGraphColors = ['#4263eb', '#b74b30', '#207858', '#8a6d12', '#7d4a9b'];
+// Blue, slate and restrained branch colors stay legible on both dark graph surfaces.
+export const graphColors = ['var(--ui-accent)', '#8b949e', '#7a9c86', '#a99abd', '#8ab6d9'];
+const historyGraphColors = graphColors;
 
 /** Keep each actual first-parent chain in its lane until it meets a known ancestor. */
 export function buildCommitLanes(repository: RepositorySnapshot) {

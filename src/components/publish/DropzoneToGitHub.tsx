@@ -191,8 +191,8 @@ function PublishPipeline({
             >
               <path
                 d="M9 24a7 7 0 0 1 7-7h22l8 9h38a7 7 0 0 1 7 7v31a7 7 0 0 1-7 7H16a7 7 0 0 1-7-7Z"
-                fill="#e97054"
-                stroke="#a14833"
+                fill="var(--ui-accent-fill)"
+                stroke="var(--ui-accent-ink)"
                 strokeWidth="1.6"
               />
               <motion.g
@@ -206,20 +206,20 @@ function PublishPipeline({
                   width="47"
                   height="51"
                   rx="4"
-                  fill="#fffaf0"
-                  stroke="#c8c1b1"
+                  fill="var(--ui-raised)"
+                  stroke="var(--ui-border-strong)"
                   strokeWidth="1.5"
                 />
                 <path
                   d="M33 21h26M33 28h18M33 35h23"
-                  stroke="#4263eb"
+                  stroke="var(--ui-accent)"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                 />
                 <path
                   d="m39 45 5 5 10-10"
                   fill="none"
-                  stroke="#3b7556"
+                  stroke="var(--ui-accent)"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -227,11 +227,11 @@ function PublishPipeline({
               </motion.g>
               <path
                 d="M9 38a4 4 0 0 1 4-4h74a4 4 0 0 1 4 5l-7 27a7 7 0 0 1-7 5H20a7 7 0 0 1-7-6Z"
-                fill="#ff8768"
-                stroke="#a14833"
+                fill="var(--ui-accent)"
+                stroke="var(--ui-accent-ink)"
                 strokeWidth="1.6"
               />
-              <path d="M24 45h18" stroke="#ffd3bf" strokeWidth="3" strokeLinecap="round" />
+              <path d="M24 45h18" stroke="var(--ui-accent-ink)" strokeWidth="3" strokeLinecap="round" />
             </motion.svg>
           )}
         </motion.div>

@@ -8,7 +8,7 @@ The project name is **Branchline**. The first project remote is assumed to be pr
 
 The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Motion for React (formerly Framer Motion), and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
 
-The Studio interface combines an ink-blue editor with warm paper panels, a cobalt navigation rail, coral project-creation details, a butter-yellow commit composer, and mint success states. Space Grotesk headings and Manrope controls balance playfulness with a serious editing surface. Motion for React drives stateful SVG drawing and physical feedback alongside the existing attributed Skiper TextRoll and Vengeance controls. Original animation components take direction from AnimMaster's public examples; no paid AnimMaster source is included.
+The user's latest direction uses GitHub's familiar dark palette with a small Branchline touch. Dark slate panels, blue links and selection, a green Commit button, and conventional Git status colors prioritize useful work. Shared semantic tokens in `src/theme.css` keep every surface consistent. Short explanations beside staging, committing, and pushing complement the first-use guide and Glass-Box console. Space Grotesk headings, Manrope controls, and the existing Motion interactions remain. Skiper and Vengeance are attributed; AnimMaster-inspired effects remain original code without paid source.
 
 ## First milestone
 
