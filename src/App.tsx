@@ -547,7 +547,7 @@ export default function App() {
           }}
           aria-label="Go to home"
         >
-          <img src="/gitsomething.svg" alt="" />
+          <img src="/brand/gitsomething-app-icon.svg" alt="" />
           <span>
             GitSomething<span className="brand-period">.</span>
           </span>

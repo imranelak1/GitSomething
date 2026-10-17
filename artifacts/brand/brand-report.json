@@ -1,0 +1,54 @@
+{
+  "scope": "Original branch-cat vector exports and existing frontend integration",
+  "images": [
+    {
+      "name": "gitsomething-app-icon-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "bytes": 75560
+    },
+    {
+      "name": "github-oauth-logo-512.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 30780
+    },
+    {
+      "name": "github-oauth-logo-256.png",
+      "width": 256,
+      "height": 256,
+      "bytes": 11147
+    },
+    {
+      "name": "gitsomething-release-banner.png",
+      "width": 1280,
+      "height": 640,
+      "bytes": 54375
+    }
+  ],
+  "ui": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "brand": {
+        "src": "/brand/gitsomething-app-icon.svg",
+        "complete": true,
+        "naturalWidth": 150,
+        "width": 30
+      }
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "brand": {
+        "src": "/brand/gitsomething-app-icon.svg",
+        "complete": true,
+        "naturalWidth": 150,
+        "width": 27
+      }
+    }
+  ],
+  "errors": []
+}

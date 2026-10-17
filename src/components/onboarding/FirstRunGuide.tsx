@@ -130,7 +130,7 @@ export function FirstRunGuide({
                 <div className="onboarding-main">
                   <header className="onboarding-header">
                     <div className="onboarding-brand">
-                      <img src="/gitsomething.svg" alt="" />
+                      <img src="/brand/gitsomething-app-icon.svg" alt="" />
                       <span>Welcome to GitSomething.</span>
                     </div>
                     <Dialog.Close className="icon-button" aria-label="Close getting started guide">

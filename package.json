@@ -1,7 +1,7 @@
 {
   "name": "gitsomething",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -19,6 +19,7 @@
     "test:terminal-scope": "node scripts/verify-terminal-scope.mjs",
     "test:github-repositories": "node scripts/verify-github-repositories.mjs",
     "test:native-learning": "node scripts/verify-native-learning.mjs",
+    "release:package": "node scripts/package-release.mjs",
     "format": "prettier --write src scripts *.json *.ts docs README.md PRODUCT.md DESIGN.md"
   },
   "dependencies": {
