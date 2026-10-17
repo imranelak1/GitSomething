@@ -2,9 +2,11 @@
 
 A desktop Git client built around a clear working directory, readable diffs, and transparent Git operations. Tauri 2 and Rust run Git through `git2`/libgit2; React, TypeScript, Monaco, and Motion for React provide the interface.
 
-This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
+This is a beta preview of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
-The Windows x64 **0.1.0-alpha.1** candidate is prepared as an unsigned draft release. See [release notes](docs/releases/v0.1.0-alpha.1.md), [verification](docs/VERIFICATION.md), and the [brand and motion guide](docs/BRAND.md). The original prompt-cat mark has a brief Motion animation with a static reduced-motion alternative; the [standalone preview](public/brand/gitsomething-logo-preview.html) also works offline.
+The Windows x64 **1.0.0-beta.1** candidate is prepared as an unsigned draft prerelease for review. See [release notes](docs/releases/v1.0.0-beta.1.md), [verification](docs/VERIFICATION.md), and the [brand and motion guide](docs/BRAND.md). The original prompt-cat mark has a brief Motion animation with a static reduced-motion alternative; the [standalone preview](public/brand/gitsomething-logo-preview.html) also works offline.
+
+[Windows checks](https://github.com/imranelak1/GitSomething/actions/workflows/windows-checks.yml) validates code changes on GitHub. See the [CI guide](docs/CI.md) for reproducible candidate builds and use the [bug report form](https://github.com/imranelak1/GitSomething/issues/new?template=bug_report.yml) when testing the beta.
 
 Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box shows Git commands and results, operation failures, and real account or publishing events. Guided Git commands use the same engine. Navigation, scrolling, resizing, appearance controls, and lesson openings stay out of the transcript. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
 

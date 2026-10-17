@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-17T15:58:47.352Z",
+  "testedAt": "2026-10-17T16:08:55.922Z",
   "boundary": "Actual packaged Tauri startup and page reloads through direct page-only CDP. Reports contain booleans, timings, and error counts only. No screenshots, private repository/account metadata, OAuth initiation, sign-out, provider writes, or real Git mutations. Demo navigation is explicitly selected and returns to Home.",
   "checks": [
     "Packaged Home is ready with safe native auth status and no active consent",
@@ -22,10 +22,10 @@
     "backgroundInert": true,
     "backgroundHidden": true,
     "skipFocused": true,
-    "elapsedMs": 113.79999999701977
+    "elapsedMs": 104.70000000298023
   },
-  "naturalCompletionMs": 1779,
-  "escapeDismissalMs": 25,
+  "naturalCompletionMs": 1770,
+  "escapeDismissalMs": 38,
   "githubConnectedAfter": true,
   "status": "passed"
 }

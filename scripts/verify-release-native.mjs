@@ -139,7 +139,7 @@ try {
   report.version = await ipc('plugin:app|version');
   assert.equal(report.version, manifest.version);
   assert.equal(await ipc('plugin:app|name'), 'GitSomething');
-  check('Actual packaged Tauri version and product name match the alpha release manifests');
+  check('Actual packaged Tauri version and product name match the release manifests');
 
   const status = await ipc('github_auth_status');
   assert.deepEqual(

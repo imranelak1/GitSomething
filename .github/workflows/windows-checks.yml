@@ -1,0 +1,132 @@
+name: Windows checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'public/**'
+      - 'scripts/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - '.github/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'src-tauri/**'
+      - 'public/**'
+      - 'scripts/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - '.github/**'
+  workflow_dispatch:
+    inputs:
+      build_installer:
+        description: Build and upload an unsigned Windows candidate after checks
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      RUSTUP_TOOLCHAIN: 1.95.0
+      CARGO_TERM_COLOR: always
+      # Public OAuth application identifier, never a token or client secret.
+      GITSOMETHING_GITHUB_CLIENT_ID: ${{ vars.GITSOMETHING_GITHUB_CLIENT_ID }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22.21.0
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.95.0 --profile minimal --component rustfmt --component clippy
+
+      - name: Cache Rust dependencies and build outputs
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/registry/src/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-rust-1.95.0-${{ hashFiles('src-tauri/Cargo.lock', 'src-tauri/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-1.95.0-
+
+      - name: Install locked frontend dependencies
+        run: npm ci
+
+      - name: Check TypeScript and unit tests
+        run: npm run check
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Check Rust formatting
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
+
+      - name: Test Rust backend
+        run: cargo test --locked --manifest-path src-tauri/Cargo.toml
+
+      - name: Check Rust warnings
+        run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+
+      - name: Validate publisher configuration
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:GITSOMETHING_GITHUB_CLIENT_ID)) {
+            throw 'Set the GITSOMETHING_GITHUB_CLIENT_ID repository variable to the registered app public Client ID before building an installer. Do not supply an access token or client secret.'
+          }
+
+      - name: Build unsigned Windows installer
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+        run: npm run tauri build -- --bundles nsis -- --locked
+
+      - name: Stage verified candidate assets
+        id: candidate
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+        run: |
+          node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA"
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Release packaging validation failed.'
+          }
+          $releaseVersion = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          "directory=artifacts/releases/v$releaseVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "name=GitSomething_${releaseVersion}_windows-x64" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Upload candidate assets for review
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ${{ steps.candidate.outputs.name }}
+          path: ${{ steps.candidate.outputs.directory }}/
+          if-no-files-found: error
+          retention-days: 7

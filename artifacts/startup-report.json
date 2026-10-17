@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-10-17T15:58:13.328Z",
+  "testedAt": "2026-10-17T16:07:40.207Z",
   "baseURL": "http://127.0.0.1:1431",
   "boundary": "Signed-out browser and mocked native lifecycle only. Auth restoration is deferred in an explicit fixture; no real account, native window, credentials, provider requests, or Git mutations.",
   "checks": [
@@ -116,15 +116,15 @@
       }
     }
   ],
-  "introVisibleMilliseconds": 1788,
+  "introVisibleMilliseconds": 1745,
   "logoGeometry": [
     {
       "width": 170,
-      "maximumPromptEscape": -29.899993896484375,
-      "maximumNodeDrift": 0.00003411968959808029,
-      "maximumHeadPivotDrift": 2.6482785301919966e-7,
-      "minimumEyeScale": 0.120161,
-      "maximumNodeScale": 1.25999
+      "maximumPromptEscape": -29.796234130859375,
+      "maximumNodeDrift": 0.00004315837287515549,
+      "maximumHeadPivotDrift": 2.6479437374684807e-7,
+      "minimumEyeScale": 0.120005,
+      "maximumNodeScale": 1.26
     },
     {
       "width": 100,

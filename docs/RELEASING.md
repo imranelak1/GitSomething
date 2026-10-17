@@ -1,6 +1,6 @@
 # Preparing a release
 
-The first release candidate is **0.1.0-alpha.1**, a Windows x64 preview. Prepare a draft GitHub release so the installer and notes can be reviewed before publication. Keep the existing native identifier `dev.branchline.desktop` and credential-store service unchanged so updates retain preferences and sign-in.
+The current candidate is **1.0.0-beta.1**, a Windows x64 beta preview. Prepare a draft GitHub prerelease so the installer and notes can be reviewed before publication. The repository stays private; preparing a release does not authorize changing its visibility or publishing the draft. Keep the existing native identifier `dev.branchline.desktop` and credential-store service unchanged so updates retain preferences and sign-in. The [alpha notes](releases/v0.1.0-alpha.1.md) remain historical evidence; use the [beta notes](releases/v1.0.0-beta.1.md) for this candidate.
 
 ## Configure and build
 
@@ -21,6 +21,8 @@ npm run tauri build -- --bundles nsis -- --locked
 
 The Tauri command also builds the frontend. The final separator passes `--locked` to Cargo. Close a running executable from the same output directory before relinking it on Windows.
 
+The [Windows CI workflow](CI.md) repeats the code checks on GitHub and can build an unsigned candidate on manual request. The shared public OAuth Client ID is configured as a repository variable; CI does not publish releases.
+
 For the default host build, the outputs are `src-tauri/target/release/gitsomething.exe` and `src-tauri/target/release/bundle/nsis/`. A build with `--target x86_64-pc-windows-msvc` places them under `src-tauri/target/x86_64-pc-windows-msvc/release/`. Only claim the architecture actually built and tested. [Tauri documents its Windows installer and WebView2 behavior.](https://v2.tauri.app/distribute/windows-installer/)
 
 ## Verify the candidate
@@ -33,21 +35,22 @@ Use the installed production app, not only the development WebView or browser fi
 - Review Home, sign-in, the diff, publishing slider, and Glass Box at the supported desktop window sizes; include keyboard and reduced-motion behavior.
 - On a full launch, verify the finite startup introduction reveals the already-mounted Home after about 1.64 seconds. Check Skip, Escape, Enter, native folder drop, focus handoff, reduced-motion bypass and changes during playback, and no replay during in-app navigation. Intro timing must not depend on a network request or repository read; it must add no Git/provider terminal activity.
 
-For **0.1.0-alpha.1**, the actual packaged executable passed launch, version/icon, and production Monaco worker checks. Real GitHub browser approval, accessible public/private repository listing with pagination, and credential restoration after application restart were also verified. The repository list requests up to 100 rows per page and offers search, All/Public/Private filters with loaded counts, and sorting of loaded rows. A rebuilt candidate also verified those controls against the connected account; see the counts-only proof. The final packaged startup passed six native checks, including finite completion, immediate Escape dismissal, focus, no navigation replay, preserved account connection, and zero runtime/CSP errors; 12 production browser groups also passed. Installer installation/uninstallation and live GitHub publication/pushing remain unverified; the existence of an NSIS file does not establish either result. See [VERIFICATION.md](VERIFICATION.md) for the final evidence and remaining checks.
+The newly built **1.0.0-beta.1** executable passed five packaged runtime checks and six native startup checks, including version, branding, production Monaco workers, the CSP, and credential restoration. The actual connected account loaded 78 repositories and passed visibility, sorting, search, and clear/focus controls without reauthorization. Earlier alpha checks separately verified browser approval and explicit pagination. See [VERIFICATION.md](VERIFICATION.md) for the current results. Installer installation/uninstallation and live GitHub publication/pushing remain unverified; the existence of an NSIS file does not establish either result.
 
-The alpha has no configured Windows code-signing identity. Record it as unsigned in the notes and manifest. For a later signed release, configure a real [Windows code-signing certificate or signing service](https://v2.tauri.app/distribute/sign/windows/), verify the executable and installer signatures, and update the packaging metadata only after that succeeds. A checksum verifies file integrity; it does not establish the publisher's identity.
+The beta has no configured Windows code-signing identity. Record it as unsigned in the notes and manifest. For a later signed release, configure a real [Windows code-signing certificate or signing service](https://v2.tauri.app/distribute/sign/windows/), verify the executable and installer signatures, and update the packaging metadata only after that succeeds. A checksum verifies file integrity; it does not establish the publisher's identity.
 
 ## Stage the assets
 
-After a successful build:
+After a successful beta build, confirm that the NSIS output is `src-tauri/target/release/bundle/nsis/GitSomething_1.0.0-beta.1_x64-setup.exe` and the production executable is `src-tauri/target/release/gitsomething.exe`. Then stage the versioned assets:
 
 ```powershell
-node scripts/package-release.mjs --dry-run
-node scripts/package-release.mjs
+npm run release:package -- --dry-run
+$betaSourceRevision = git rev-parse HEAD
+npm run release:package -- --source-revision $betaSourceRevision
 ```
 
 Pass `--target x86_64-pc-windows-msvc` for an explicitly targeted build. If the bundler chose a different filename, use `--installer <actual-setup.exe>`; `--exe <actual-gitsomething.exe>` selects an explicit application executable. `--source-revision <40-character-commit>` records a verified source commit without invoking Git. All paths are resolved from the current working directory.
 
-The script validates matching versions, copies only the expected executable, installer, notes, and explicit public brand files, then writes `manifest.json` and `SHA256SUMS.txt` into `artifacts/releases/v<version>/`. The brand files include a standalone animated SVG and a self-contained HTML logo preview alongside the static application/provider icons, wordmarks, and banner exports. The resulting set contains 15 staged files, including the manifest and checksums. It never copies environment files, auth state, credentials, debug profiles, or the source tree. It refuses unexpected files already in that output directory rather than silently including them. The manifest labels the package unsigned and lists the exact staged bytes. Keep those large executable assets out of ordinary source commits; upload them as release assets.
+The script validates matching versions, copies only the expected executable, installer, notes, and explicit public brand files, then writes `manifest.json` and `SHA256SUMS.txt` into `artifacts/releases/v1.0.0-beta.1/`. The brand files include a standalone animated SVG and a self-contained HTML logo preview alongside the static application/provider icons, wordmarks, and banner exports. The resulting set contains 15 staged files, including the manifest and checksums. It never copies environment files, auth state, credentials, debug profiles, or the source tree. It refuses unexpected files already in that output directory rather than silently including them. The manifest labels the package unsigned and lists the exact staged bytes. Keep those large executable assets out of ordinary source commits; upload them as release assets.
 
-Review the notes and manifest, compare hashes, and create a **draft**, **prerelease** on `imranelak1/GitSomething` using tag `v<version>` at the verified source commit. Upload only the staged named assets. A draft does not publish the build; keep it in draft until the remaining live checks and user review are complete. This repository is private, so its release assets remain restricted by repository access until the owner changes that visibility.
+Review the notes and manifest, compare hashes, and create a **draft**, **prerelease** on `imranelak1/GitSomething` using tag `v1.0.0-beta.1` at the verified source commit. Use `docs/releases/v1.0.0-beta.1.md` as the body and upload only the 15 staged named assets. When updating an existing draft through the API, explicitly retain `tag_name`, `draft: true`, and `prerelease: true` alongside the new `target_commitish` and notes. A draft does not publish the build; keep it in draft until the remaining live checks and user review are complete. This repository is private, so its release assets remain restricted by repository access until the owner changes that visibility.

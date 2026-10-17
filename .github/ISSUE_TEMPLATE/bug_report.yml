@@ -1,0 +1,71 @@
+name: Bug report
+description: Report a problem in GitSomething
+title: '[Bug]: '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell us what happened and how to reproduce it. Remove access tokens, sign-in codes, and private repository names or local paths from anything you attach.
+  - type: input
+    id: version
+    attributes:
+      label: GitSomething version
+      placeholder: 1.0.0-beta.1
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2, x64
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation source
+      options:
+        - Windows installer
+        - Application EXE
+        - Development build
+    validations:
+      required: true
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Affected feature
+      options:
+        - Sign-in and repositories
+        - Changes and commits
+        - Push, pull, or fetch
+        - Publishing
+        - Startup or navigation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the actions that led to the problem. Use a disposable example when possible.
+      placeholder: |
+        1. Open ...
+        2. Choose ...
+        3. The problem appears when ...
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      placeholder: |
+        Expected:
+
+        Actual:
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional details
+      description: Optional error text, relevant Glass Box output, or a redacted screenshot. Include whether the issue happens every time.

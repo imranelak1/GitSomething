@@ -1,9 +1,9 @@
 {
-  "testedAt": "2026-10-17T15:59:17.753Z",
-  "expectedVersion": "0.1.0-alpha.1",
+  "testedAt": "2026-10-17T16:09:16.750Z",
+  "expectedVersion": "1.0.0-beta.1",
   "boundary": "Actual packaged native application, shared OAuth configuration, and bundled Monaco worker under production CSP. Read-only Rust status IPC and explicitly selected demo only; no OAuth initiation/consent, browser launch, provider writes, Git mutations, or credential-store writes.",
   "checks": [
-    "Actual packaged Tauri version and product name match the alpha release manifests",
+    "Actual packaged Tauri version and product name match the release manifests",
     "Packaged Rust auth reports shared GitHub configuration and only safe account metadata",
     "Packaged Home displays the loaded application mark without end-user OAuth setup fields",
     "Bundled Monaco renders code and starts its worker under the packaged production CSP",
@@ -13,7 +13,7 @@
   "securityErrors": [],
   "cspBlockedRequests": [],
   "origin": "http://tauri.localhost",
-  "version": "0.1.0-alpha.1",
+  "version": "1.0.0-beta.1",
   "githubConfigured": true,
   "githubConnected": true,
   "brand": {

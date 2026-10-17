@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Windows beta 1: October 17, 2026
+
+All six version values are **1.0.0-beta.1**. The locked Tauri release build produced the Windows x64 executable and current-user NSIS installer. The actual executable reports the beta version; both files are **NotSigned**. Native identifiers and the credential-store service are unchanged.
+
+The fresh beta checks passed: **73 frontend unit tests**, **34 Rust tests**, Rust formatting, strict Clippy, the production frontend build, and **12 production startup browser groups**. `npm audit --omit=dev` reported zero vulnerabilities. The browser captures and WebM use explicit fixtures. A tracked-text scan found no credential or private-repository metadata patterns; this is a bounded scan, not a guarantee of exhaustive secret detection.
+
+The [five packaged runtime checks](../artifacts/releases-native-report.json) verified the actual **1.0.0-beta.1** version, shared OAuth configuration, restored account, SVG branding, Monaco worker, and production CSP. The [six native startup checks](../artifacts/startup-native-report.json) passed with natural completion in **1770ms** and Escape dismissal in **38ms**. Runtime, console, security, and blocked-CSP error counts were zero. Native screenshots were skipped for the connected account.
+
+[Actual GitHub repository controls](../artifacts/release/live-github.json) loaded **78 repositories: 51 public and 27 private**, without reauthorization. Visibility counts, Name A–Z sorting, exact search, clearing search, and focus restoration passed. The app is left connected on Home, with All and Recently updated restored. The evidence contains counts and booleans only.
+
+The new [Windows workflow](CI.md) repeats locked code checks on GitHub, supports optional manual candidate builds, and never publishes releases. Its remote execution and the uploaded beta asset checks are recorded separately once completed. The release is prepared as a private **draft prerelease**. Installer installation/uninstallation and live GitHub repository publication/pushing remain unverified; this candidate is an unsigned Windows x64 preview.
+
 ## Startup animation: October 17, 2026
 
 Added a finite startup composition inspired by the supplied AnimMaster catalog and Motion documentation, using the project's actual Skiper TextRoll and Vengeance button. A blue commit path draws around the original prompt cat, its face blinks, the wordmark arrives, and the near-black veil reveals Home. App and account restoration mount immediately beneath an inert wrapper. The intro does not represent loading or a Git operation.
