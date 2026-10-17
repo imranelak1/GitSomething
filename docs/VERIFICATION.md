@@ -2,17 +2,32 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
-## Current GitHub palette results: October 17, 2026
+## Current teaching terminal results: October 17, 2026
 
-The latest user direction uses GitHub's dark palette with restrained Branchline character and short explanations at staging, commit, and push. Shared semantic colors live in `src/theme.css`; [the design system](../DESIGN.md) records the palette and educational intent.
+The Glass Box now records interface requests and settled Git operations, accepts a supported subset of Git commands, and explains the workflow in separate purple teaching surfaces. See [the terminal guide](GLASS_BOX.md) for syntax and behavior.
 
-| Check                                  | Result                                                                                                              |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `npm run check`                        | TypeScript and 2 frontend unit tests passed.                                                                        |
-| `npm run build`                        | Production build passed.                                                                                            |
-| Native debug build                     | Passed with the updated blue/slate application icon.                                                                |
-| Production workflow suite              | 24 checks passed, zero browser errors or provider requests. [Report](../artifacts/github-dark-browser-report.json). |
-| Focused palette and presentation suite | 7 checks passed, zero browser errors or provider requests. [Report](../artifacts/github-dark-palette-report.json).  |
+| Check                          | Result                                                                                                                                                                                                                                                       |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run check`                | TypeScript and 59 unit checks passed, including command parsing, rejected shell/destructive syntax, exact file-version selection, operation errors, output limits, and activity credential redaction.                                                        |
+| `npm run build`                | Passed. Monaco remains a separate large chunk with the existing size warning.                                                                                                                                                                                |
+| Guided terminal browser checks | [17 checks passed](../artifacts/learning-browser-report.json): typed reads, stage/unstage/diff/commit, rejection without mutation, action filters, command history, clear, scroll following, lessons, portal buttons, mobile layouts, and reduced motion.    |
+| Actual native guided terminal  | [Eight checks passed](../artifacts/learning-native-report.json), with zero WebView errors: real status/history/branch reads, filesystem watching, actual index stage/unstage, Rust diff content, and hard-reset rejection preserving HEAD and file contents. |
+
+Native verification substitutes only the folder-picker IPC response with this workspace path. Tauri's native invoke and every other request remain real. It creates one unique temporary file, verifies its exact content after stage/unstage, cleans up only that file, and leaves Branchline open. It does not test native picker interaction, commits, remote Git operations, OAuth consent, or provider publication. The Rust implementation is unchanged in this milestone; the existing Rust engine tests remain prior evidence.
+
+The final layout makes the mobile workspace independently scrollable so files, Monaco, and the commit composer stay reachable beside an open terminal. Lesson handoffs collapse the top tip, returning space to the editor. Notifications sit above the workspace instead of covering command input. Screenshots are in [the learning proof directory](../artifacts/learning/).
+
+## GitHub palette regression results: October 17, 2026
+
+The interface retains GitHub's dark palette with purple teaching content. The following workflow and palette checks were rerun against the final teaching-terminal production build. Shared semantic colors live in `src/theme.css`; [the design system](../DESIGN.md) records the palette and educational intent.
+
+| Check                                  | Result                                                                                                                                |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                        | TypeScript and 59 frontend unit checks passed.                                                                                        |
+| `npm run build`                        | Production build passed.                                                                                                              |
+| Native debug build                     | Previous build retained; Rust and native dependencies are unchanged. The current frontend was exercised in the actual native WebView. |
+| Production workflow suite              | 24 checks passed, zero browser errors or provider requests. [Report](../artifacts/github-dark-browser-report.json).                   |
+| Focused palette and presentation suite | 7 checks passed, zero browser errors or provider requests. [Report](../artifacts/github-dark-palette-report.json).                    |
 
 The production suites ran against `http://127.0.0.1:1431`. The focused runner sampled **81 text/background combinations**, all meeting WCAG AA. Primary button text measured at least **4.63:1**, the empty checkbox boundary **3.26:1**, the sampled control icon **4.82:1**, and keyboard focus **6.85:1**. It checks the workspace, first-use guide, practice, browser publishing/progress, and mocked device-code presentation at desktop, 320px, and 390px widths.
 

@@ -1,0 +1,307 @@
+{
+  "baseURL": "http://127.0.0.1:1431",
+  "testedAt": "2026-10-17T00:32:08.408Z",
+  "browser": "155.0.4283.62",
+  "scope": "Guided Git, action visibility, contextual learning, and responsive terminal",
+  "checks": [
+    "The learning strip is compact and the open terminal leaves a usable diff workspace",
+    "Staging a file shows both the requested button action and its equivalent Git operation",
+    "Typed status, log, and branch commands return the current practice repository state",
+    "Up and Down recall command history and preserve an unfinished draft",
+    "Quoted exact paths stage and unstage files through the same state as the workspace; staged diffs render",
+    "Destructive commands and command chains show an explanation while leaving practice files and staging unchanged",
+    "A typed commit saves staged practice changes, removes them from Changes, and appears in history",
+    "Actions and Commands filters separate interface requests from Git commands and their output",
+    "Purple learning content explains local commits; examples prefill and focus the terminal without executing",
+    "Terminal lessons switch topics and their command examples also require an explicit Enter to run",
+    "Clear hides prior output and the next command remains visible with current repository state",
+    "Scrolling back pauses automatic following; Follow latest returns to the newest output",
+    "The terminal keyboard toggle collapses and reopens without losing command results",
+    "Buttons inside portal dialogs also appear in the terminal action stream",
+    "At 390px and 320px, terminal input and learning controls fit and safe commands remain usable",
+    "Reduced motion removes the learning transition while keeping terminal interactions available",
+    "The browser demo makes zero provider requests and reports no browser or Monaco errors"
+  ],
+  "screenshots": [
+    "artifacts/learning/desktop-lesson.png",
+    "artifacts/learning/desktop-terminal.png",
+    "artifacts/learning/390-terminal-learning.png",
+    "artifacts/learning/320-terminal-learning.png",
+    "artifacts/learning/reduced-motion-terminal.png"
+  ],
+  "geometry": [
+    {
+      "surface": "desktop-collapsed-lesson",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "terminal": {
+        "x": 288,
+        "y": 702,
+        "width": 1152,
+        "height": 272,
+        "right": 1440,
+        "bottom": 974
+      },
+      "input": {
+        "x": 356.625,
+        "y": 922.5,
+        "width": 696,
+        "height": 27,
+        "right": 1052.625,
+        "bottom": 949.5
+      },
+      "learning": {
+        "x": 288,
+        "y": 323.90625,
+        "width": 1152,
+        "height": 50,
+        "right": 1440,
+        "bottom": 373.90625
+      },
+      "editor": {
+        "x": 609,
+        "y": 382.90625,
+        "width": 802,
+        "height": 200.09375,
+        "right": 1411,
+        "bottom": 583
+      }
+    },
+    {
+      "surface": "desktop-command-handoff",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "terminal": {
+        "x": 288,
+        "y": 702,
+        "width": 1152,
+        "height": 272,
+        "right": 1440,
+        "bottom": 974
+      },
+      "input": {
+        "x": 356.625,
+        "y": 922.5,
+        "width": 696,
+        "height": 27,
+        "right": 1052.625,
+        "bottom": 949.5
+      },
+      "learning": {
+        "x": 288,
+        "y": 323.90625,
+        "width": 1152,
+        "height": 50,
+        "right": 1440,
+        "bottom": 373.90625
+      },
+      "editor": {
+        "x": 609,
+        "y": 382.90625,
+        "width": 802,
+        "height": 200.09375,
+        "right": 1411,
+        "bottom": 583
+      }
+    },
+    {
+      "surface": "desktop-full-lesson-handoff",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "terminal": {
+        "x": 288,
+        "y": 702,
+        "width": 1152,
+        "height": 272,
+        "right": 1440,
+        "bottom": 974
+      },
+      "input": {
+        "x": 356.625,
+        "y": 922.5,
+        "width": 696,
+        "height": 27,
+        "right": 1052.625,
+        "bottom": 949.5
+      },
+      "learning": {
+        "x": 288,
+        "y": 323.90625,
+        "width": 1152,
+        "height": 50,
+        "right": 1440,
+        "bottom": 373.90625
+      },
+      "editor": {
+        "x": 609,
+        "y": 382.90625,
+        "width": 802,
+        "height": 200.09375,
+        "right": 1411,
+        "bottom": 583
+      }
+    },
+    {
+      "surface": "390px-default",
+      "width": 390,
+      "height": 960,
+      "scrollWidth": 390,
+      "terminal": {
+        "x": 0,
+        "y": 669,
+        "width": 390,
+        "height": 267,
+        "right": 390,
+        "bottom": 936
+      },
+      "input": {
+        "x": 50.109375,
+        "y": 884.5,
+        "width": 270.515625,
+        "height": 27,
+        "right": 320.625,
+        "bottom": 911.5
+      },
+      "learning": {
+        "x": 0,
+        "y": 257.5,
+        "width": 390,
+        "height": 48,
+        "right": 390,
+        "bottom": 305.5
+      },
+      "editor": {
+        "x": 17,
+        "y": 446.5,
+        "width": 356,
+        "height": 82,
+        "right": 373,
+        "bottom": 528.5
+      }
+    },
+    {
+      "surface": "390px-expanded-lesson",
+      "width": 390,
+      "height": 960,
+      "scrollWidth": 390,
+      "terminal": {
+        "x": 0,
+        "y": 669,
+        "width": 390,
+        "height": 267,
+        "right": 390,
+        "bottom": 936
+      },
+      "input": {
+        "x": 50.109375,
+        "y": 884.5,
+        "width": 270.515625,
+        "height": 27,
+        "right": 320.625,
+        "bottom": 911.5
+      },
+      "learning": {
+        "x": 0,
+        "y": 257.5,
+        "width": 390,
+        "height": 180.484375,
+        "right": 390,
+        "bottom": 437.984375
+      },
+      "editor": {
+        "x": 17,
+        "y": 578.984375,
+        "width": 356,
+        "height": 82,
+        "right": 373,
+        "bottom": 660.984375
+      }
+    },
+    {
+      "surface": "320px-default",
+      "width": 320,
+      "height": 960,
+      "scrollWidth": 320,
+      "terminal": {
+        "x": 0,
+        "y": 669,
+        "width": 320,
+        "height": 267,
+        "right": 320,
+        "bottom": 936
+      },
+      "input": {
+        "x": 50.109375,
+        "y": 884.5,
+        "width": 200.515625,
+        "height": 27,
+        "right": 250.625,
+        "bottom": 911.5
+      },
+      "learning": {
+        "x": 0,
+        "y": 292.859375,
+        "width": 320,
+        "height": 48,
+        "right": 320,
+        "bottom": 340.859375
+      },
+      "editor": {
+        "x": 17,
+        "y": 481.859375,
+        "width": 286,
+        "height": 82,
+        "right": 303,
+        "bottom": 563.859375
+      }
+    },
+    {
+      "surface": "320px-expanded-lesson",
+      "width": 320,
+      "height": 960,
+      "scrollWidth": 320,
+      "terminal": {
+        "x": 0,
+        "y": 669,
+        "width": 320,
+        "height": 267,
+        "right": 320,
+        "bottom": 936
+      },
+      "input": {
+        "x": 50.109375,
+        "y": 879.5,
+        "width": 200.515625,
+        "height": 27,
+        "right": 250.625,
+        "bottom": 906.5
+      },
+      "learning": {
+        "x": 0,
+        "y": 292.859375,
+        "width": 320,
+        "height": 194.046875,
+        "right": 320,
+        "bottom": 486.90625
+      },
+      "editor": {
+        "x": 17,
+        "y": 627.90625,
+        "width": 286,
+        "height": 82,
+        "right": 303,
+        "bottom": 709.90625
+      }
+    }
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "teachingColors": {
+    "learning": "rgb(188, 140, 255)",
+    "action": "#58a6ff"
+  },
+  "status": "passed"
+}

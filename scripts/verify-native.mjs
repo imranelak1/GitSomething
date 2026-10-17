@@ -70,7 +70,7 @@ try {
     'Actual native stage/unstage IPC changes the Git index and preserves the working file exactly',
   );
   assert.ok(
-    (await page.locator('.console-line').allTextContents()).some((text) =>
+    (await page.locator('.glass-entry-command').allTextContents()).some((text) =>
       text.includes('restore'),
     ),
   );

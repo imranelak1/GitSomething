@@ -1,0 +1,45 @@
+{
+  "testedAt": "2026-10-17T00:31:23.283Z",
+  "boundary": "Actual Tauri WebView, typed guided Git commands, and Rust/libgit2 IPC. Tauri freezes invoke, so only the plugin:dialog|open IPC fetch response is replaced with this workspace path; native folder selection itself is not verified. Every other fetch delegates unchanged. No commits, network Git commands, or provider writes are performed.",
+  "checks": [
+    "The existing-repository button opens the actual project through a picker-IPC-only path fixture and leaves practice mode",
+    "Typed status, log, and branch commands read the real repository and its current branch",
+    "The actual filesystem watcher discovers the unique temporary file in Changes",
+    "Typed git add changes the real Git index and the workspace staging control",
+    "The guided staged diff displays the actual fixture contents returned by Rust",
+    "Typed restore --staged removes only the fixture from the index and preserves its exact contents",
+    "The guided terminal rejects hard reset while preserving real index status, HEAD, and fixture contents",
+    "Interface requests and Rust-generated equivalent Git commands are visible together in the actual terminal"
+  ],
+  "errors": [],
+  "providerRequests": [],
+  "cleanup": [
+    "Unstaged only the unique temporary fixture through actual Rust IPC",
+    "Deleted only the unique temporary fixture file",
+    "Restored the original fetch function; native invoke was never replaced"
+  ],
+  "browser": "155.0.4283.60",
+  "pickerDiagnostics": [
+    {
+      "selections": 1,
+      "nativeCommands": [
+        "open_repository"
+      ],
+      "repository": "orbit",
+      "alerts": [
+        "",
+        ""
+      ]
+    }
+  ],
+  "watcherObserved": true,
+  "nativeCommands": [
+    "get_diff",
+    "open_repository",
+    "stage_file",
+    "unstage_file"
+  ],
+  "pickerFixtureSelections": 1,
+  "screenshot": "artifacts/learning/native-terminal.png",
+  "status": "passed"
+}

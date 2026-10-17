@@ -331,9 +331,9 @@ try {
   await desktop.keyboard.press('Control+k');
   await desktop.getByPlaceholder('What would you like to do?').fill('console');
   await desktop.keyboard.press('Enter');
-  assert.equal(await desktop.locator('.console-toggle').getAttribute('aria-expanded'), 'false');
+  assert.equal(await desktop.locator('.glass-terminal-toggle').getAttribute('aria-expanded'), 'false');
   await desktop.keyboard.press('Control+j');
-  await desktop.locator('.console-line code .vengeance-tooltip-trigger').first().focus();
+  await desktop.locator('.glass-entry-command code .vengeance-tooltip-trigger').first().focus();
   await desktop.getByRole('tooltip').first().waitFor();
   check('Console toggles from palette and keyboard; explanations are keyboard accessible');
 
