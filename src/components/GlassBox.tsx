@@ -1,4 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type KeyboardEvent,
+  type PointerEvent,
+} from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   ArrowDown,
@@ -14,6 +24,7 @@ import {
   MousePointer2,
   Terminal,
   Trash2,
+  Type,
   X,
 } from 'lucide-react';
 import { AnimatedTooltip } from './registry/vengeance/AnimatedTooltip';
@@ -23,10 +34,27 @@ import type { GitLog } from '@/lib/types';
 import type { ActivityEvent } from '@/lib/activity';
 import type { TerminalResult } from '@/lib/guided-commands';
 import { getLesson, LEARNING_LESSONS } from '@/lib/learning';
+import { useActivity } from '@/hooks/useActivity';
+import {
+  clampTerminalHeight,
+  DEFAULT_TERMINAL_PREFERENCES,
+  readTerminalPreferences,
+  terminalHeightBounds,
+  writeTerminalPreferences,
+} from '@/lib/terminal-preferences';
 import './glass-box.css';
 
 type Filter = 'all' | 'commands' | 'actions';
 type Entry = { id: string; timestamp: number; log?: GitLog; activity?: ActivityEvent };
+type ResizeGesture = {
+  pointerId: number;
+  startY: number;
+  startHeight: number;
+  lastHeight: number;
+  handle: HTMLDivElement;
+  cursor: string;
+  userSelect: string;
+};
 
 const milliseconds = (timestamp: number) => (timestamp < 1e12 ? timestamp * 1000 : timestamp);
 const commandWords = (source: string) => source.match(/"[^"\n]*"|'[^'\n]*'|\S+/g) || [];
@@ -100,13 +128,33 @@ export function GlassBox({
   stageExamplePath?: string;
 }) {
   const reducedMotion = useReducedMotion();
+  const { record } = useActivity();
+  const terminal = useRef<HTMLElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const historyDraft = useRef('');
+  const resizeGesture = useRef<ResizeGesture | null>(null);
+  const keyboardResizeStart = useRef<number | null>(null);
+  const restoreHeight = useRef(DEFAULT_TERMINAL_PREFERENCES.height);
+  const appearance = useRef<HTMLDivElement>(null);
+  const appearanceButton = useRef<HTMLButtonElement>(null);
+  const fontSelect = useRef<HTMLSelectElement>(null);
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      return readTerminalPreferences(window.localStorage);
+    } catch {
+      return { ...DEFAULT_TERMINAL_PREFERENCES };
+    }
+  });
+  const preferencesRef = useRef(preferences);
+  preferencesRef.current = preferences;
+  const [viewportHeight, setViewportHeight] = useState(() => window.innerHeight);
+  const [contentCapacity, setContentCapacity] = useState(Infinity);
+  const [resizing, setResizing] = useState(false);
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
   const [clearedIds, setClearedIds] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<Filter>('all');
   const [following, setFollowing] = useState(true);
-  const [expanded, setExpanded] = useState(false);
   const [learningOpen, setLearningOpen] = useState(() => window.innerWidth > 1050);
   const [selectedLesson, setSelectedLesson] = useState<string | undefined>();
   const [source, setSource] = useState('');
@@ -114,6 +162,196 @@ export function GlassBox({
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [running, setRunning] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const heightBounds = terminalHeightBounds(viewportHeight, contentCapacity);
+  const clampHeight = (height: number) =>
+    Math.min(heightBounds.max, clampTerminalHeight(height, viewportHeight));
+  const terminalHeight = clampHeight(preferences.height);
+  const expanded = terminalHeight >= heightBounds.max;
+
+  const recordResize = (previousHeight: number, nextHeight: number) => {
+    if (previousHeight === nextHeight) return;
+    record({
+      kind: 'interface',
+      label: `Resize Glass Box to ${nextHeight}px`,
+      description: 'Adjusted the terminal height. Repository files and history stay unchanged.',
+    });
+  };
+
+  const finishResize = (cancelled = false) => {
+    const gesture = resizeGesture.current;
+    if (!gesture) return;
+    resizeGesture.current = null;
+    document.body.style.cursor = gesture.cursor;
+    document.body.style.userSelect = gesture.userSelect;
+    if (gesture.handle.hasPointerCapture(gesture.pointerId))
+      gesture.handle.releasePointerCapture(gesture.pointerId);
+    const nextHeight = cancelled ? gesture.startHeight : gesture.lastHeight;
+    setPreferences((previous) => ({ ...previous, height: nextHeight }));
+    setResizing(false);
+    if (!cancelled) recordResize(gesture.startHeight, nextHeight);
+  };
+
+  const beginResize = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    event.currentTarget.focus();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    resizeGesture.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startHeight: terminalHeight,
+      lastHeight: terminalHeight,
+      handle: event.currentTarget,
+      cursor: document.body.style.cursor,
+      userSelect: document.body.style.userSelect,
+    };
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    setResizing(true);
+  };
+
+  const moveResize = (event: PointerEvent<HTMLDivElement>) => {
+    const gesture = resizeGesture.current;
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+    const height = clampHeight(gesture.startHeight + gesture.startY - event.clientY);
+    gesture.lastHeight = height;
+    setPreferences((previous) => ({ ...previous, height }));
+  };
+
+  const finishKeyboardResize = () => {
+    if (keyboardResizeStart.current === null) return;
+    recordResize(keyboardResizeStart.current, terminalHeight);
+    keyboardResizeStart.current = null;
+  };
+
+  const resizeWithKeyboard = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape' && resizeGesture.current) {
+      event.preventDefault();
+      finishResize(true);
+      return;
+    }
+    if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    if (keyboardResizeStart.current === null) keyboardResizeStart.current = terminalHeight;
+    const step = event.shiftKey ? 8 : 24;
+    const height =
+      event.key === 'Home'
+        ? heightBounds.min
+        : event.key === 'End'
+          ? heightBounds.max
+          : terminalHeight + (event.key === 'ArrowUp' ? step : -step);
+    setPreferences((previous) => ({
+      ...previous,
+      height: clampHeight(height),
+    }));
+  };
+
+  useEffect(() => {
+    if (resizing) return;
+    try {
+      writeTerminalPreferences(window.localStorage, preferences);
+    } catch {
+      // In-memory preferences still work when accessing storage itself is denied.
+    }
+  }, [preferences, resizing]);
+
+  useLayoutEffect(() => {
+    const element = terminal.current;
+    const parent = element?.parentElement;
+    const heading = element?.querySelector<HTMLElement>('.glass-terminal-heading');
+    if (!element || !parent || !heading) return;
+    const measure = () => {
+      setViewportHeight(window.innerHeight);
+      const workspace = parent.querySelector<HTMLElement>(':scope > .workspace-content');
+      const occupiedHeight = [...parent.children].reduce((total, child) => {
+        if (!(child instanceof HTMLElement) || child === element || child === workspace)
+          return total;
+        const style = getComputedStyle(child);
+        return (
+          total +
+          child.getBoundingClientRect().height +
+          (parseFloat(style.marginTop) || 0) +
+          (parseFloat(style.marginBottom) || 0)
+        );
+      }, 0);
+      const workspaceStyle = workspace ? getComputedStyle(workspace) : null;
+      const workspaceMargins = workspaceStyle
+        ? (parseFloat(workspaceStyle.marginTop) || 0) +
+          (parseFloat(workspaceStyle.marginBottom) || 0)
+        : 0;
+      const available = Math.min(
+        parent.clientHeight,
+        window.innerHeight - parent.getBoundingClientRect().top,
+      );
+      setContentCapacity(
+        Math.floor(
+          available -
+            occupiedHeight -
+            heading.getBoundingClientRect().height -
+            workspaceMargins -
+            180,
+        ),
+      );
+    };
+    const observer = new ResizeObserver(measure);
+    const observeSiblings = () => {
+      for (const child of parent.children)
+        if (child !== element && !child.classList.contains('workspace-content'))
+          observer.observe(child);
+      measure();
+    };
+    observer.observe(parent);
+    observer.observe(heading);
+    observeSiblings();
+    const mutations = new MutationObserver(observeSiblings);
+    mutations.observe(parent, { childList: true });
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  useEffect(
+    () => () => {
+      const gesture = resizeGesture.current;
+      if (!gesture) return;
+      resizeGesture.current = null;
+      document.body.style.cursor = gesture.cursor;
+      document.body.style.userSelect = gesture.userSelect;
+      if (gesture.handle.hasPointerCapture(gesture.pointerId))
+        gesture.handle.releasePointerCapture(gesture.pointerId);
+      try {
+        writeTerminalPreferences(window.localStorage, {
+          ...preferencesRef.current,
+          height: gesture.lastHeight,
+        });
+      } catch {
+        // The terminal can unmount while storage is unavailable.
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!appearanceOpen) return;
+    fontSelect.current?.focus();
+    const outside = (event: globalThis.PointerEvent) => {
+      if (event.target instanceof Node && !appearance.current?.contains(event.target))
+        setAppearanceOpen(false);
+    };
+    document.addEventListener('pointerdown', outside);
+    return () => document.removeEventListener('pointerdown', outside);
+  }, [appearanceOpen]);
+
+  useEffect(() => {
+    if (!open) {
+      setAppearanceOpen(false);
+      finishResize(true);
+    }
+    // Closing through a workspace shortcut must also release an active gesture.
+  }, [open]);
 
   const entries = useMemo<Entry[]>(
     () =>
@@ -260,9 +498,50 @@ export function GlassBox({
 
   return (
     <section
-      className={`console glass-terminal ${open ? 'console-open' : ''} ${expanded ? 'glass-terminal-expanded' : ''} ${learningOpen ? 'glass-learning-open' : ''}`}
+      ref={terminal}
+      className={`console glass-terminal ${open ? 'console-open' : ''} ${expanded ? 'glass-terminal-expanded' : ''} ${learningOpen ? 'glass-learning-open' : ''} ${resizing ? 'glass-terminal-resizing' : ''}`}
       aria-label="Glass-Box Git console"
+      style={{ '--glass-code-size': `${preferences.fontSize}px` } as CSSProperties}
     >
+      {open && (
+        <div
+          className="glass-terminal-resize-handle"
+          role="separator"
+          tabIndex={0}
+          aria-label="Resize Glass Box terminal"
+          aria-orientation="horizontal"
+          aria-controls="glass-terminal-content"
+          aria-valuemin={heightBounds.min}
+          aria-valuemax={heightBounds.max}
+          aria-valuenow={terminalHeight}
+          aria-valuetext={`${terminalHeight} pixels tall`}
+          aria-describedby="glass-resize-hint"
+          onPointerDown={beginResize}
+          onPointerMove={moveResize}
+          onPointerUp={(event) => {
+            if (resizeGesture.current?.pointerId === event.pointerId) finishResize();
+          }}
+          onPointerCancel={() => finishResize(true)}
+          onLostPointerCapture={() => finishResize(true)}
+          onKeyDown={resizeWithKeyboard}
+          onKeyUp={(event) => {
+            if (['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) finishKeyboardResize();
+          }}
+          onBlur={finishKeyboardResize}
+          onDoubleClick={() => {
+            const height = clampHeight(DEFAULT_TERMINAL_PREFERENCES.height);
+            setPreferences((previous) => ({ ...previous, height }));
+            recordResize(terminalHeight, height);
+          }}
+          title="Drag to resize. Use arrow keys when focused; double-click to reset."
+        >
+          <span />
+        </div>
+      )}
+      <span id="glass-resize-hint" className="sr-only">
+        Drag upward to grow the terminal. Up and Down arrows adjust its height; hold Shift for
+        smaller steps. Home uses the smallest height, End the largest. Double-click to reset.
+      </span>
       <div className="glass-terminal-heading">
         <button
           className="glass-terminal-toggle"
@@ -301,13 +580,103 @@ export function GlassBox({
               </button>
               <button
                 className="glass-tool glass-size-toggle"
-                onClick={() => setExpanded(!expanded)}
+                onClick={() => {
+                  if (expanded) {
+                    setPreferences((previous) => ({
+                      ...previous,
+                      height: clampHeight(restoreHeight.current),
+                    }));
+                  } else {
+                    restoreHeight.current = terminalHeight;
+                    setPreferences((previous) => ({ ...previous, height: heightBounds.max }));
+                  }
+                }}
                 aria-label={expanded ? 'Reduce terminal height' : 'Expand terminal'}
                 aria-pressed={expanded}
+                disabled={heightBounds.min === heightBounds.max}
                 data-activity-description="Change the terminal height to make more room for its output."
               >
                 {expanded ? <Minimize2 size={14} /> : <Expand size={14} />}
               </button>
+              <div className="glass-appearance" ref={appearance}>
+                <button
+                  ref={appearanceButton}
+                  className="glass-tool glass-appearance-toggle"
+                  aria-label="Terminal appearance"
+                  aria-expanded={appearanceOpen}
+                  aria-controls="glass-terminal-appearance"
+                  aria-haspopup="dialog"
+                  onClick={() => setAppearanceOpen(!appearanceOpen)}
+                  data-activity-label="Adjust terminal appearance"
+                  data-activity-description="Set a readable text size and reset the terminal layout. Your preferences are saved on this device."
+                >
+                  <Type size={15} />
+                </button>
+                {appearanceOpen && (
+                  <div
+                    id="glass-terminal-appearance"
+                    className="glass-appearance-panel"
+                    role="dialog"
+                    aria-label="Terminal appearance"
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Escape') return;
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setAppearanceOpen(false);
+                      appearanceButton.current?.focus();
+                    }}
+                  >
+                    <div className="glass-appearance-heading">
+                      <strong>Make it yours</strong>
+                      <button
+                        className="glass-tool"
+                        aria-label="Close terminal appearance"
+                        onClick={() => {
+                          setAppearanceOpen(false);
+                          appearanceButton.current?.focus();
+                        }}
+                        data-activity-description="Return to the terminal with your appearance settings applied."
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                    <label className="glass-appearance-field">
+                      <span>Text size</span>
+                      <select
+                        ref={fontSelect}
+                        aria-label="Terminal text size"
+                        value={preferences.fontSize}
+                        onChange={(event) =>
+                          setPreferences((previous) => ({
+                            ...previous,
+                            fontSize: Number(event.target.value),
+                          }))
+                        }
+                      >
+                        {[12, 13, 14, 15, 16, 17, 18].map((size) => (
+                          <option key={size} value={size}>
+                            {size} px
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <p>Commands, results, and input use this size.</p>
+                    <div className="glass-appearance-height">
+                      <span>Terminal height</span>
+                      <code>{terminalHeight}px</code>
+                    </div>
+                    <p>Drag the top edge to find your fit.</p>
+                    <button
+                      className="glass-appearance-reset"
+                      onClick={() => setPreferences({ ...DEFAULT_TERMINAL_PREFERENCES })}
+                      data-activity-label="Reset terminal appearance"
+                      data-activity-description="Restore 13px terminal text and the default height. Your repository and terminal entries stay unchanged."
+                    >
+                      Reset terminal appearance
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
@@ -318,9 +687,9 @@ export function GlassBox({
             id="glass-terminal-content"
             className="glass-terminal-content"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: expanded ? 350 : 244, opacity: 1 }}
+            animate={{ height: terminalHeight, opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: reducedMotion || resizing ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="glass-terminal-main">
               <div className="glass-terminal-toolbar">

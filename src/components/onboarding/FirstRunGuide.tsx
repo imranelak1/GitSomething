@@ -43,12 +43,14 @@ export function FirstRunGuide({
   initialStep = 0,
   onOpenRepository,
   onPublish,
+  onExploreWorkspace,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialStep?: number;
   onOpenRepository: () => void;
   onPublish: () => void;
+  onExploreWorkspace?: () => void;
 }) {
   const [step, setStep] = useState(initialStep);
   const launcher = useRef<HTMLElement | null>(null);
@@ -276,7 +278,14 @@ export function FirstRunGuide({
                     <span className="onboarding-page-count">
                       {step + 1} / {stages.length}
                     </span>
-                    <Button onClick={() => (step === 3 ? onOpenChange(false) : setStep(step + 1))}>
+                    <Button
+                      onClick={() => {
+                        if (step === 3) {
+                          if (onExploreWorkspace) choose(onExploreWorkspace);
+                          else onOpenChange(false);
+                        } else setStep(step + 1);
+                      }}
+                    >
                       {step === 0
                         ? 'Get started'
                         : step === 1 && !connected

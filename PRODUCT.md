@@ -6,6 +6,10 @@ Branchline makes the next Git action clear for a beginner and keeps expert tools
 
 The project name is **Branchline**. The first project remote is assumed to be private, under the authenticated owner's account; the implementation handoff should report the actual URL and visibility. That project repository is separate from repositories users later publish with the app.
 
+The app starts on Home. Users choose a recent local repository, open an existing repository, publish a folder, follow the guide, or explicitly enter the demo. Only successful native repository openings populate recents; the browser preview has no invented recent projects. Returning Home keeps the current workspace and unsaved commit message in memory. The welcome guide is available by choice instead of obscuring Home on launch.
+
+The Glass Box supports pointer and keyboard height adjustment plus a 12–18px terminal font preference. Appearance settings persist locally, recover from invalid or blocked storage, and adapt to available window space. These controls do not start Git operations.
+
 The product is a native desktop application built with Tauri 2, Rust, React, Vite, TypeScript, Tailwind, Motion for React (formerly Framer Motion), and Monaco. Git operations use libgit2 through `git2-rs`; a Git executable is not an application runtime dependency. A browser preview demonstrates the interface with labeled fixtures and does not claim access to native folders.
 
 The user's latest direction uses GitHub's familiar dark palette with a small Branchline touch. Dark slate panels, blue links and selection, a green Commit button, and conventional Git status colors prioritize useful work. Shared semantic tokens in `src/theme.css` keep every surface consistent. Short explanations beside staging, committing, and pushing complement the first-use guide and Glass-Box console. Space Grotesk headings, Manrope controls, and the existing Motion interactions remain. Skiper and Vengeance are attributed; AnimMaster-inspired effects remain original code without paid source.

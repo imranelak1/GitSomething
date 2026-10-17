@@ -1,0 +1,50 @@
+/* Keep visited workspaces in memory without exposing hidden controls to focus. */
+.app-body[hidden] {
+  display: none !important;
+}
+
+.app {
+  min-height: 0;
+}
+
+.app .main {
+  min-height: 0;
+}
+
+.breadcrumb .workspace-home-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  margin-right: 3px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--ui-muted);
+}
+
+.breadcrumb .workspace-home-button:hover {
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+  background: var(--ui-hover);
+}
+
+/* Give task controls the available height on compact desktop windows. */
+@media (max-height: 800px) {
+  .app:not(.app-home) .workspace-masthead {
+    display: none;
+  }
+
+  .app .workspace-content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+}
+
+@media (max-height: 800px) and (min-width: 761px) {
+  .app .changes-view {
+    min-height: 280px;
+    flex-shrink: 0;
+  }
+}

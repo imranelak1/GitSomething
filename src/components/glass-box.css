@@ -24,6 +24,42 @@
   padding: 0 20px;
   min-width: 0;
 }
+.glass-terminal .glass-terminal-resize-handle {
+  position: absolute;
+  top: -5px;
+  left: 0;
+  right: 0;
+  height: 11px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
+}
+.glass-terminal .glass-terminal-resize-handle > span {
+  width: 34px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--ui-border-strong);
+  transition:
+    width 0.16s,
+    background 0.16s;
+}
+.glass-terminal .glass-terminal-resize-handle:hover > span,
+.glass-terminal .glass-terminal-resize-handle:focus-visible > span,
+.glass-terminal-resizing .glass-terminal-resize-handle > span {
+  width: 52px;
+  background: var(--ui-accent);
+}
+.glass-terminal .glass-terminal-resize-handle:focus-visible {
+  outline: 1px solid var(--ui-accent);
+  outline-offset: -3px;
+}
+.glass-terminal-resizing {
+  user-select: none;
+}
 .glass-terminal .glass-terminal-toggle {
   display: flex;
   align-items: center;
@@ -103,13 +139,89 @@
   border-color: color-mix(in srgb, var(--glass-learn) 40%, transparent);
   background: var(--glass-learn-soft);
 }
+.glass-terminal .glass-appearance {
+  position: relative;
+}
+.glass-terminal .glass-appearance-toggle[aria-expanded='true'] {
+  background: var(--ui-hover);
+  color: var(--ui-text);
+  border-color: var(--ui-border-strong);
+}
+.glass-terminal .glass-appearance-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 11px);
+  width: 238px;
+  z-index: 6;
+  padding: 11px 13px 13px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 7px;
+  background: var(--ui-panel);
+  color: var(--ui-text);
+  box-shadow: 0 8px 24px #0006;
+}
+.glass-terminal .glass-appearance-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+.glass-terminal .glass-appearance-heading strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.glass-terminal .glass-appearance-field,
+.glass-terminal .glass-appearance-height {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+.glass-terminal .glass-appearance-field select {
+  width: 76px;
+  height: 30px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 4px;
+  padding: 0 6px;
+  background: var(--ui-raised);
+  color: var(--ui-text);
+  cursor: pointer;
+}
+.glass-terminal .glass-appearance-panel p {
+  margin: 5px 0 14px;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.glass-terminal .glass-appearance-height code {
+  color: var(--ui-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.glass-terminal .glass-appearance-reset {
+  display: block;
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 4px;
+  background: var(--ui-raised);
+  color: var(--ui-text);
+  font-size: 11px;
+  text-align: center;
+}
+.glass-terminal .glass-appearance-reset:hover {
+  background: var(--ui-hover);
+}
 .glass-terminal .glass-terminal-content {
   display: flex;
   min-width: 0;
   overflow: hidden;
   border-top: 1px solid #ffffff08;
   position: relative;
-  max-height: min(350px, 46vh);
+  max-height: none;
 }
 .glass-terminal .glass-terminal-main {
   display: flex;
@@ -273,7 +385,7 @@
   margin: 0;
   color: var(--glass-output);
   font:
-    12px/1.6 'Manrope',
+    var(--glass-code-size)/1.6 'Manrope',
     sans-serif;
 }
 .glass-terminal .glass-action-description {
@@ -299,7 +411,7 @@
   margin: 2px 0;
   color: var(--ui-muted);
   font:
-    12px/1.6 'Manrope',
+    var(--glass-code-size)/1.6 'Manrope',
     sans-serif;
   overflow-wrap: anywhere;
 }
@@ -580,9 +692,6 @@
   .glass-terminal .glass-learn-toggle {
     padding: 0 5px;
   }
-  .glass-terminal .glass-terminal-content {
-    max-height: min(350px, 43vh);
-  }
   .glass-terminal .glass-terminal-toolbar {
     padding: 0 10px 0 13px;
     height: 34px;
@@ -646,9 +755,6 @@
   }
 }
 @media (max-width: 370px) {
-  .glass-terminal .glass-size-toggle {
-    display: none;
-  }
   .glass-terminal .glass-terminal-tools {
     gap: 3px;
   }
@@ -656,8 +762,14 @@
     max-width: 53px;
   }
 }
+@media (max-width: 430px) {
+  .glass-terminal .glass-environment {
+    display: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .glass-terminal .glass-terminal-toggle > svg:last-child {
+  .glass-terminal .glass-terminal-toggle > svg:last-child,
+  .glass-terminal .glass-terminal-resize-handle > span {
     transition: none;
   }
 }

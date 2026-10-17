@@ -18,6 +18,7 @@ import './workspace.css';
 import './onboarding-integration.css';
 import './theme.css';
 import './teaching.css';
+import './navigation.css';
 import App from './App';
 import { GitHubAuthProvider } from './hooks/useGitHubAuth';
 import { ActivityProvider } from './hooks/useActivity';

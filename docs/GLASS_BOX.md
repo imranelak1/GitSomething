@@ -2,6 +2,12 @@
 
 Open the Glass Box with the terminal button or Ctrl/Cmd+J. It connects three views of the same workflow: what you clicked, the equivalent Git operation, and a short explanation. Purple marks lessons and practice; blue remains the workspace action color and green marks successful Git state.
 
+Branchline starts on Home. Open a repository, select a recent project, or choose Try demo to enter a workspace. Return Home with the logo or Home button; the active workspace and its commit draft stay available through Continue workspace. Recent shortcuts contain only local path, repository name, branch, and last-opened time. Removing a shortcut leaves files on disk untouched.
+
+## Adjust the terminal
+
+Drag the top separator to change the Glass Box height. Keyboard users can focus the separator and use Up/Down, with Shift for smaller steps; Home/End selects the smallest/largest allowed height. The terminal adapts its allowed height to the current window. Open Terminal appearance to choose 12–18px text or reset the display settings. Font size and height are remembered locally; the controls still work if persistent storage is unavailable.
+
 ## Buttons and results
 
 Every activated button is recorded as an interface request, including controls inside dialogs. Keyboard shortcuts, command-palette selections, native folder drops, and history drag previews also enter the activity stream. An interface row explains the intent; it does not claim the Git operation succeeded. Git operations retain their separate running, success, or error state and equivalent command tokens. Hover or focus a token to read its Vengeance tooltip.

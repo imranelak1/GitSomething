@@ -14,16 +14,19 @@ import {
   X,
   Sparkles,
   Github,
+  House,
 } from 'lucide-react';
 
 export function CommandPalette({
   open,
   onOpenChange,
   onAction,
+  hasWorkspace = true,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAction: (action: string) => void;
+  hasWorkspace?: boolean;
 }) {
   const run = (value: string) => {
     onOpenChange(false);
@@ -66,6 +69,22 @@ export function CommandPalette({
                     <Command.Empty>No actions found. Try “repository” or “history”.</Command.Empty>
                     <Command.Group heading="Your workspace">
                       <Command.Item
+                        value="Go home recent repositories"
+                        onSelect={() => run('home')}
+                      >
+                        <House size={17} />
+                        <span>Go to home</span>
+                      </Command.Item>
+                      {hasWorkspace && (
+                        <Command.Item
+                          value="Continue resume workspace"
+                          onSelect={() => run('resume')}
+                        >
+                          <FolderOpen size={17} />
+                          <span>Continue workspace</span>
+                        </Command.Item>
+                      )}
+                      <Command.Item
                         value="Learn Git staging commit push lessons"
                         onSelect={() => run('learn')}
                       >
@@ -74,6 +93,7 @@ export function CommandPalette({
                       </Command.Item>
                       <Command.Item
                         value="Guided Git terminal type command help"
+                        disabled={!hasWorkspace}
                         onSelect={() => run('terminal')}
                       >
                         <Terminal size={17} />
@@ -106,11 +126,11 @@ export function CommandPalette({
                         <span>Create & publish repository</span>
                         <ArrowUpRight size={14} />
                       </Command.Item>
-                      <Command.Item onSelect={() => run('history')}>
+                      <Command.Item disabled={!hasWorkspace} onSelect={() => run('history')}>
                         <Clock3 size={17} />
                         <span>View commit history</span>
                       </Command.Item>
-                      <Command.Item onSelect={() => run('console')}>
+                      <Command.Item disabled={!hasWorkspace} onSelect={() => run('console')}>
                         <Terminal size={17} />
                         <span>Toggle Glass box console</span>
                         <kbd>⌘ J</kbd>

@@ -4,7 +4,7 @@ A desktop Git client built around a clear working directory, readable diffs, and
 
 This is the first implementation milestone of a larger product. Advanced history operations are documented and previewed before they are enabled. See [PRODUCT.md](PRODUCT.md) for the delivery boundary and [DESIGN.md](DESIGN.md) for the visual system.
 
-The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box records every button action, shows equivalent Git operations and results, and accepts guided Git commands through the same engine. See [Learn with the Glass Box](docs/GLASS_BOX.md) for supported commands and the learning workflow.
+Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box records every button action, shows equivalent Git operations and results, and accepts guided Git commands through the same engine. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
 
 ## Run locally
 
@@ -29,7 +29,7 @@ npm run tauri build
 
 ## First-use flow
 
-The first launch opens a short interactive guide. It explains each step in plain language and can be reopened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account.
+The first launch opens **Home**. Choose **Show me around** for the interactive guide, open a project, or select **Try demo** to practice safely. The guide explains each step in plain language and can also be opened from **A little help** or **Getting started** in the command palette. You can explore locally before connecting an account. Use **Home** to leave the workspace and **Continue workspace** to return to its current draft.
 
 1. **Open a folder.** Open an existing Git repository, or drop a new project folder onto the desktop app to publish it.
 2. **Connect GitHub.** Approve access in your browser using the one-time code shown in Branchline. There is no GitHub token field. The app owner configures the public OAuth Client ID once; see [GitHub sign-in setup](docs/GITHUB_AUTH.md).

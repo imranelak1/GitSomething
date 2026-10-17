@@ -73,6 +73,7 @@ export function useRepository() {
         setDemo(false);
         setLogs((prev) => prev.filter((log) => log.operationId !== 'demo'));
         setNotice('');
+        return result;
       } catch (error) {
         if (request === openRequest.current) {
           setNotice(displayError(error));
@@ -90,6 +91,18 @@ export function useRepository() {
     },
     [record],
   );
+
+  const activateDemo = () => {
+    if (busy || operation.current) return false;
+    generation.current++;
+    openRequest.current++;
+    activePath.current = null;
+    setRepository(structuredClone(demoRepository));
+    setDemo(true);
+    setLogs(initialLogs);
+    setNotice('');
+    return true;
+  };
 
   const stage = async (filePath: string, staged: boolean) => {
     if (busy || operation.current) return false;
@@ -249,5 +262,18 @@ export function useRepository() {
       setBusy(false);
     }
   };
-  return { repository, demo, logs, busy, notice, setNotice, open, refresh, stage, commit, sync };
+  return {
+    repository,
+    demo,
+    logs,
+    busy,
+    notice,
+    setNotice,
+    open,
+    refresh,
+    stage,
+    commit,
+    sync,
+    activateDemo,
+  };
 }

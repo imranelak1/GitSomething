@@ -37,6 +37,8 @@ The first-use guide and practice flow remain skippable and replayable. Keep adva
 
 ## Glass Box readability
 
+Home is the initial application screen. Keep project actions and real recents prominent, with a separate purple guide column. The first launch starts with a useful empty recent list; demo data enters only when requested. Native desktop conventions and short, actionable copy take precedence over marketing sections. The workspace remains available through Continue without losing its in-memory draft.
+
 The terminal combines command-and-output grouping with GitHub's dark surfaces. Keep the glass effect in the header and framing; put transcript text over a stable, sufficiently opaque reading surface. Blue identifies the prompt and Git interactions, while purple distinguishes teaching content. Give commands more space than interface activity so results remain connected to the operation that produced them.
 
 | Reference                                                                             | Relevant principle                                                                 | Branchline direction                                                                         |
@@ -45,7 +47,7 @@ The terminal combines command-and-output grouping with GitHub's dark surfaces. K
 | [Ghostty configuration](https://ghostty.org/docs/config/reference#minimum-contrast)   | Exposes minimum contrast and font preferences.                                     | Prioritize clear foregrounds and a consistent reading scale.                                 |
 | [VS Code terminal appearance](https://code.visualstudio.com/docs/terminal/appearance) | Documents terminal fonts, line height, and a default 4.5:1 minimum contrast ratio. | Use readable mono text, comfortable line spacing, and clear contrast on the actual backdrop. |
 
-Use Geist Mono at 13px for commands, output, and input; use 12px for interface actions and terminal messages, and 10px for metadata. Lesson copy uses 12px with 11px tips. Preserve those reading sizes on narrow viewports, allow wrapping, and give the prompt a 43px row. Command tokens remain discoverable through tooltips, with underlines emphasized on hover or keyboard focus. These are the terminal's design values; font customization and contrast preferences remain reference ideas rather than implemented settings.
+Use Geist Mono at 13px by default for commands, output, and input; use 12px for interface actions and terminal messages, and 10px for metadata. Terminal appearance lets the user choose 12–18px reading text. A visible top separator supports pointer and keyboard resizing, with saved preferences and limits based on the actual workspace. Lesson copy uses 12px with 11px tips. Preserve reading sizes on narrow viewports, allow wrapping, and give the prompt a 43px row. Command tokens remain discoverable through tooltips, with underlines emphasized on hover or keyboard focus. Contrast preferences remain a reference idea rather than an implemented setting.
 
 ## Character and motion
 

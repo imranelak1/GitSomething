@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
@@ -23,6 +23,7 @@ import {
   GitCommitHorizontal,
   Github,
   History,
+  House,
   Keyboard,
   Layers2,
   LoaderCircle,
@@ -62,7 +63,14 @@ import { getLesson, type LessonId } from './lib/learning';
 import { demoDiff } from './lib/demo';
 import type { FileDiff } from './lib/types';
 import { LearningFlow } from './components/LearningFlow';
-import { rememberGuide, shouldShowGuide } from './lib/onboarding';
+import { HomePage } from './components/HomePage';
+import {
+  forgetRepository,
+  readRecentRepositories,
+  rememberRepository,
+  writeRecentRepositories,
+} from './lib/recent-repositories';
+import { rememberGuide } from './lib/onboarding';
 import { Magnetic } from './components/registry/animmaster/Magnetic';
 
 const DiffViewer = lazy(() => import('./components/DiffViewer'));
@@ -70,8 +78,24 @@ const DiffViewer = lazy(() => import('./components/DiffViewer'));
 export default function App() {
   const auth = useGitHubAuth();
   const { activities, record, settle } = useActivity();
-  const { repository, demo, logs, busy, notice, setNotice, open, stage, commit, sync, refresh } =
-    useRepository();
+  const {
+    repository,
+    demo,
+    logs,
+    busy,
+    notice,
+    setNotice,
+    open,
+    stage,
+    commit,
+    sync,
+    refresh,
+    activateDemo,
+  } = useRepository();
+  const [screen, setScreen] = useState<'home' | 'workspace'>('home');
+  const [workspaceVisited, setWorkspaceVisited] = useState(false);
+  const [recentRepositories, setRecentRepositories] = useState(readRecentRepositories);
+  const drafts = useRef<Record<string, string>>({});
   const [tab, setTab] = useState<'changes' | 'history'>('changes');
   const [selected, setSelected] = useState('src/components/Dropzone.tsx');
   const [selectedStaged, setSelectedStaged] = useState(false);
@@ -87,10 +111,61 @@ export default function App() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [branchesOpen, setBranchesOpen] = useState(true);
   const [focusMode, setFocusMode] = useState(false);
-  const [onboardingOpen, setOnboardingOpen] = useState(shouldShowGuide);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [commitSaved, setCommitSaved] = useState(false);
   const reducedMotion = useReducedMotion();
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const selector = screen === 'home' ? '.home-open-repository' : '.workspace-home-button';
+      document.querySelector<HTMLButtonElement>(selector)?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [screen]);
+  useEffect(() => {
+    writeRecentRepositories(recentRepositories);
+  }, [recentRepositories]);
+  const enterWorkspace = () => {
+    setWorkspaceVisited(true);
+    setScreen('workspace');
+  };
+  const goHome = () => {
+    setScreen('home');
+    setPaletteOpen(false);
+    setFocusMode(false);
+  };
+  const openPath = async (path: string) => {
+    if (!isDesktop()) {
+      setNotice(
+        'Open the desktop app to access this local repository. Try the demo workspace in this browser.',
+      );
+      return;
+    }
+    const result = await open(path);
+    if (!result) return;
+    drafts.current[repository.path] = message;
+    if (result.path !== repository.path) {
+      setMessage(drafts.current[result.path] || '');
+      setSelected(result.files[0]?.path || '');
+      setSelectedStaged(result.files[0]?.staged || false);
+      setFilter('');
+      setTab('changes');
+    }
+    setRecentRepositories((previous) => rememberRepository(previous, result));
+    enterWorkspace();
+  };
+  const tryDemo = () => {
+    if (!demo) {
+      drafts.current[repository.path] = message;
+      if (!activateDemo()) return;
+      setMessage(drafts.current['~/Projects/orbit'] || '');
+      setSelected('src/components/Dropzone.tsx');
+      setSelectedStaged(false);
+      setTab('changes');
+      setFilter('');
+    }
+    enterWorkspace();
+  };
   useEffect(() => {
     if (!commitSaved) return;
     const timer = window.setTimeout(() => setCommitSaved(false), 2600);
@@ -131,7 +206,12 @@ export default function App() {
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') {
         event.preventDefault();
-        setConsoleOpen((value) => !value);
+        if (screen === 'home') {
+          if (workspaceVisited) {
+            enterWorkspace();
+            setConsoleOpen(true);
+          } else setNotice('Open a repository or try the demo workspace to use the Glass Box.');
+        } else setConsoleOpen((value) => !value);
         record({
           kind: 'interface',
           label: 'Glass box shortcut',
@@ -139,7 +219,7 @@ export default function App() {
         });
       }
       if ((event.metaKey || event.ctrlKey) && !document.querySelector('[role="dialog"]')) {
-        if (event.shiftKey && event.key.toLowerCase() === 'f') {
+        if (screen === 'workspace' && event.shiftKey && event.key.toLowerCase() === 'f') {
           event.preventDefault();
           setFocusMode((value) => !value);
           record({
@@ -153,7 +233,7 @@ export default function App() {
           event.preventDefault();
           document.querySelector<HTMLButtonElement>('.add-repository')?.click();
         }
-        if (event.key.toLowerCase() === 'f') {
+        if (screen === 'workspace' && event.key.toLowerCase() === 'f') {
           const filterInput = document.querySelector<HTMLInputElement>('.file-search input');
           if (filterInput) {
             event.preventDefault();
@@ -164,7 +244,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [record]);
+  }, [record, screen, workspaceVisited, setNotice]);
   useEffect(() => {
     if (!notice) return;
     const timeout = window.setTimeout(() => setNotice(''), 9000);
@@ -205,10 +285,20 @@ export default function App() {
   }, [setNotice, record]);
 
   const tryCommand = (text: string) => {
+    if (!workspaceVisited) {
+      setNotice('Open a repository or try the demo workspace to use the Glass Box.');
+      return;
+    }
+    enterWorkspace();
     setConsoleOpen(true);
     setSuggestedCommand({ id: Date.now(), text });
   };
   const learn = (id: LessonId) => {
+    if (!workspaceVisited) {
+      openGettingStarted(2);
+      return;
+    }
+    enterWorkspace();
     const lesson = getLesson(id);
     setConsoleOpen(true);
     record({
@@ -276,7 +366,7 @@ export default function App() {
         multiple: false,
         title: 'Open a Git repository',
       });
-      if (typeof path === 'string') await open(path);
+      if (typeof path === 'string') await openPath(path);
     } catch (error) {
       setNotice(displayError(error));
     }
@@ -293,10 +383,20 @@ export default function App() {
         'Run the selected workspace action. Advanced history tools are previews until their engine milestone.',
     });
     if (action === 'open') void openLocal();
+    else if (action === 'home') goHome();
+    else if (action === 'resume') enterWorkspace();
     else if (action === 'publish') startPublish();
-    else if (action === 'history') setTab('history');
-    else if (action === 'console') setConsoleOpen((value) => !value);
-    else if (action === 'guide') openGettingStarted();
+    else if (action === 'history') {
+      if (workspaceVisited) {
+        enterWorkspace();
+        setTab('history');
+      } else setNotice('Open a repository or try the demo workspace to explore history.');
+    } else if (action === 'console') {
+      if (workspaceVisited) {
+        enterWorkspace();
+        setConsoleOpen((value) => (screen === 'home' ? true : !value));
+      } else setNotice('Open a repository or try the demo workspace to use the Glass Box.');
+    } else if (action === 'guide') openGettingStarted();
     else if (action === 'github') openGettingStarted(1);
     else if (action === 'learn') learn('stage');
     else if (action === 'terminal') tryCommand('help');
@@ -336,7 +436,7 @@ export default function App() {
   };
   return (
     <div
-      className={`app ${focusMode ? 'focus-mode' : ''}`}
+      className={`app ${screen === 'home' ? 'app-home' : ''} ${screen === 'workspace' && focusMode ? 'focus-mode' : ''}`}
       onDragOver={(e) => {
         e.preventDefault();
         if (!isDesktop()) setDragging(true);
@@ -361,9 +461,9 @@ export default function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            setTab('changes');
+            goHome();
           }}
-          aria-label="Branchline home"
+          aria-label="Go to home"
         >
           <img src="/branchline.svg" alt="" />
           <span>
@@ -372,9 +472,9 @@ export default function App() {
         </a>
         <div className="titlebar-center">
           <FolderGit2 size={13} />
-          <span>{repository.name}</span>
+          <span>{screen === 'home' ? 'Home' : repository.name}</span>
           <span className="titlebar-slash">/</span>
-          <span>Your workspace</span>
+          <span>{screen === 'home' ? 'Your repositories, one place' : 'Your workspace'}</span>
         </div>
         <div className="titlebar-controls">
           <button
@@ -393,588 +493,623 @@ export default function App() {
           </button>
         </div>
       </header>
-      <div className="app-body">
-        <nav className="activity-rail" aria-label="Quick navigation" inert={focusMode}>
-          <div className="rail-primary">
-            <AnimatedTooltip side="right" content="Working directory">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className={tab === 'changes' ? 'rail-button selected' : 'rail-button'}
-                aria-label="Show working directory"
-                onClick={() => setTab('changes')}
-              >
-                <Layers2 size={20} />
-                {tab === 'changes' && (
-                  <motion.span layoutId="rail-selection" className="rail-selection" />
-                )}
-              </motion.button>
-            </AnimatedTooltip>
-            <AnimatedTooltip side="right" content="Explore your commit graph">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className={tab === 'history' ? 'rail-button selected' : 'rail-button'}
-                aria-label="Show commit graph"
-                onClick={() => setTab('history')}
-              >
-                <GitBranch size={20} />
-                {tab === 'history' && (
-                  <motion.span layoutId="rail-selection" className="rail-selection" />
-                )}
-              </motion.button>
-            </AnimatedTooltip>
-            <AnimatedTooltip side="right" content="Create & publish a repository">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="rail-button"
-                aria-label="Create a new repository"
-                onClick={startPublish}
-              >
-                <Plus size={21} />
-              </motion.button>
-            </AnimatedTooltip>
-          </div>
-          <div className="rail-bottom">
-            <AnimatedTooltip side="right" content="Every action, explained">
+      {screen === 'home' && (
+        <HomePage
+          recentRepositories={recentRepositories}
+          activeRepository={workspaceVisited ? { name: repository.name, demo } : undefined}
+          accountName={auth.account?.login}
+          busy={busy}
+          onOpenRepository={() => void openLocal()}
+          onCreateRepository={startPublish}
+          onOpenRecent={(path) => void openPath(path)}
+          onRemoveRecent={(path) =>
+            setRecentRepositories((previous) => forgetRepository(previous, path))
+          }
+          onContinue={enterWorkspace}
+          onTryDemo={tryDemo}
+          onGuide={() => openGettingStarted()}
+          onConnectGitHub={() => openGettingStarted(1)}
+        />
+      )}
+      {workspaceVisited && (
+        <div className="app-body" hidden={screen !== 'workspace'} inert={screen !== 'workspace'}>
+          <nav className="activity-rail" aria-label="Quick navigation" inert={focusMode}>
+            <div className="rail-primary">
+              <AnimatedTooltip side="right" content="Home and recent repositories">
+                <button className="rail-button" aria-label="Home" onClick={goHome}>
+                  <House size={19} />
+                </button>
+              </AnimatedTooltip>
+              <AnimatedTooltip side="right" content="Working directory">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  className={tab === 'changes' ? 'rail-button selected' : 'rail-button'}
+                  aria-label="Show working directory"
+                  onClick={() => setTab('changes')}
+                >
+                  <Layers2 size={20} />
+                  {tab === 'changes' && (
+                    <motion.span layoutId="rail-selection" className="rail-selection" />
+                  )}
+                </motion.button>
+              </AnimatedTooltip>
+              <AnimatedTooltip side="right" content="Explore your commit graph">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  className={tab === 'history' ? 'rail-button selected' : 'rail-button'}
+                  aria-label="Show commit graph"
+                  onClick={() => setTab('history')}
+                >
+                  <GitBranch size={20} />
+                  {tab === 'history' && (
+                    <motion.span layoutId="rail-selection" className="rail-selection" />
+                  )}
+                </motion.button>
+              </AnimatedTooltip>
+              <AnimatedTooltip side="right" content="Create & publish a repository">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  className="rail-button"
+                  aria-label="Create a new repository"
+                  onClick={startPublish}
+                >
+                  <Plus size={21} />
+                </motion.button>
+              </AnimatedTooltip>
+            </div>
+            <div className="rail-bottom">
+              <AnimatedTooltip side="right" content="Every action, explained">
+                <button
+                  className="rail-button"
+                  aria-label="Toggle command console"
+                  onClick={() => setConsoleOpen((value) => !value)}
+                >
+                  <Terminal size={19} />
+                </button>
+              </AnimatedTooltip>
               <button
                 className="rail-button"
-                aria-label="Toggle command console"
-                onClick={() => setConsoleOpen((value) => !value)}
+                aria-label="Open keyboard commands"
+                onClick={() => setPaletteOpen(true)}
               >
-                <Terminal size={19} />
+                <Command size={18} />
               </button>
-            </AnimatedTooltip>
-            <button
-              className="rail-button"
-              aria-label="Open keyboard commands"
-              onClick={() => setPaletteOpen(true)}
-            >
-              <Command size={18} />
-            </button>
-            <button
-              className="rail-button"
-              aria-label="App help and credits"
-              onClick={() => setGuideOpen(true)}
-            >
-              <Settings2 size={18} />
-            </button>
-          </div>
-        </nav>
-        <aside className="sidebar" inert={focusMode}>
-          <div className="workspace-switch">
-            <div className="workspace-avatar">
-              {auth.account?.login.slice(0, 1).toUpperCase() || (demo ? 'A' : 'Y')}
+              <button
+                className="rail-button"
+                aria-label="App help and credits"
+                onClick={() => setGuideOpen(true)}
+              >
+                <Settings2 size={18} />
+              </button>
             </div>
-            <div>
-              <strong>
-                {auth.account
-                  ? `${auth.account.login}’s workspace`
-                  : demo
-                    ? 'Alex’s workspace'
-                    : 'Your workspace'}
-              </strong>
-              <span>Personal workspace</span>
-            </div>
-            <button
-              className="icon-button"
-              aria-label="Workspace information"
-              onClick={() => setGuideOpen(true)}
-            >
-              <ChevronDown size={14} />
-            </button>
-          </div>
-          <button className="sidebar-search" onClick={() => setPaletteOpen(true)}>
-            <Search size={15} />
-            <span>Jump to anything…</span>
-            <kbd>⌘ K</kbd>
-          </button>
-          <div className="sidebar-section-title">
-            <span>Repositories</span>
-            <button className="icon-button" aria-label="Add repository" onClick={startPublish}>
-              <Plus size={14} />
-            </button>
-          </div>
-          <button className="repository-item" onClick={() => setTab('changes')}>
-            <FolderGit2 size={17} />
-            <span>{repository.name}</span>
-            <ChevronDown size={13} />
-          </button>
-          <nav className="repository-nav" aria-label="Repository views">
-            <button
-              className={tab === 'changes' ? 'selected' : ''}
-              onClick={() => setTab('changes')}
-            >
-              <Layers2 size={15} />
-              <span>Working directory</span>
-              <span className="nav-count">{changedFileCount}</span>
-            </button>
-            <button
-              className={tab === 'history' ? 'selected' : ''}
-              onClick={() => setTab('history')}
-            >
-              <History size={15} />
-              <span>History</span>
-            </button>
           </nav>
-          <button className="add-repository" onClick={() => void openLocal()}>
-            <Plus size={15} />
-            Open repository<span>⌘ O</span>
-          </button>
-          <div className="sidebar-divider" />
-          <button
-            className="sidebar-section-title branch-toggle"
-            aria-expanded={branchesOpen}
-            onClick={() => setBranchesOpen(!branchesOpen)}
-          >
-            <span>Local branches</span>
-            <ChevronDown size={13} className={!branchesOpen ? 'rotated' : ''} />
-          </button>
-          {branchesOpen && (
-            <div className="branch-list">
-              {repository.branches.map((branch) => (
+          <aside className="sidebar" inert={focusMode}>
+            <div className="workspace-switch">
+              <div className="workspace-avatar">
+                {auth.account?.login.slice(0, 1).toUpperCase() || (demo ? 'A' : 'Y')}
+              </div>
+              <div>
+                <strong>
+                  {auth.account
+                    ? `${auth.account.login}’s workspace`
+                    : demo
+                      ? 'Alex’s workspace'
+                      : 'Your workspace'}
+                </strong>
+                <span>Personal workspace</span>
+              </div>
+              <button
+                className="icon-button"
+                aria-label="Workspace information"
+                onClick={() => setGuideOpen(true)}
+              >
+                <ChevronDown size={14} />
+              </button>
+            </div>
+            <button className="sidebar-search" onClick={() => setPaletteOpen(true)}>
+              <Search size={15} />
+              <span>Jump to anything…</span>
+              <kbd>⌘ K</kbd>
+            </button>
+            <div className="sidebar-section-title">
+              <span>Repositories</span>
+              <button className="icon-button" aria-label="Add repository" onClick={startPublish}>
+                <Plus size={14} />
+              </button>
+            </div>
+            <button className="repository-item" onClick={() => setTab('changes')}>
+              <FolderGit2 size={17} />
+              <span>{repository.name}</span>
+              <ChevronDown size={13} />
+            </button>
+            <nav className="repository-nav" aria-label="Repository views">
+              <button
+                className={tab === 'changes' ? 'selected' : ''}
+                onClick={() => setTab('changes')}
+              >
+                <Layers2 size={15} />
+                <span>Working directory</span>
+                <span className="nav-count">{changedFileCount}</span>
+              </button>
+              <button
+                className={tab === 'history' ? 'selected' : ''}
+                onClick={() => setTab('history')}
+              >
+                <History size={15} />
+                <span>History</span>
+              </button>
+            </nav>
+            <button className="add-repository" onClick={() => void openLocal()}>
+              <Plus size={15} />
+              Open repository<span>⌘ O</span>
+            </button>
+            <div className="sidebar-divider" />
+            <button
+              className="sidebar-section-title branch-toggle"
+              aria-expanded={branchesOpen}
+              onClick={() => setBranchesOpen(!branchesOpen)}
+            >
+              <span>Local branches</span>
+              <ChevronDown size={13} className={!branchesOpen ? 'rotated' : ''} />
+            </button>
+            {branchesOpen && (
+              <div className="branch-list">
+                {repository.branches.map((branch) => (
+                  <button
+                    key={branch.name}
+                    className={branch.current ? 'current' : ''}
+                    onClick={() => {
+                      setTab('history');
+                      setNotice(
+                        `Viewing history. ${branch.current ? 'You are currently on this branch.' : 'Branch checkout is planned for the next milestone.'}`,
+                      );
+                    }}
+                  >
+                    <GitBranch size={14} />
+                    <span>{branch.name}</span>
+                    {branch.current && <CircleDot size={12} />}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button
+              className="sidebar-section-title remote-label"
+              onClick={() => void sync('fetch')}
+              disabled={busy}
+            >
+              <span>Remotes</span>
+              <RefreshCw size={12} />
+            </button>
+            <div className="remote-item">
+              <Github size={14} />
+              <span>origin</span>
+              <span className="remote-subtitle">{demo ? 'github.com' : 'remote'}</span>
+            </div>
+            <div className="sidebar-spacer" />
+            <motion.button
+              className="publish-prompt"
+              onClick={startPublish}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Magnetic strength={5} style={{ width: '100%' }}>
+                <span className="publish-prompt-icon">
+                  <FolderOpen size={20} strokeWidth={1.5} />
+                  <ArrowUpRight size={12} />
+                </span>
+              </Magnetic>
+              <strong>Start something.</strong>
+              <span>Local ideas. Global possibilities.</span>
+              <span className="publish-prompt-action">
+                Create & publish <ArrowRight size={13} />
+              </span>
+            </motion.button>
+            <div className="sidebar-bottom">
+              <button onClick={() => openGettingStarted(1)}>
+                <span className="profile-avatar">
+                  {auth.account?.login.slice(0, 2).toUpperCase() || <Github size={14} />}
+                </span>
+                <span>{auth.account?.login || 'Connect GitHub'}</span>
+                {auth.connected ? <Check size={14} /> : <ArrowUpRight size={14} />}
+              </button>
+              <button className="sidebar-help" onClick={() => setGuideOpen(true)}>
+                <Keyboard size={14} />
+                <span>A little help</span>
+                <span>?</span>
+              </button>
+            </div>
+          </aside>
+          <main className="main">
+            <div className="repository-toolbar">
+              <div className="breadcrumb">
                 <button
-                  key={branch.name}
-                  className={branch.current ? 'current' : ''}
+                  className="workspace-home-button"
+                  aria-label="Back to home"
+                  title="Home"
+                  onClick={goHome}
+                >
+                  <House size={14} />
+                </button>
+                <span>{repository.name}</span>
+                <ChevronRight size={13} />
+                <strong>{tab === 'changes' ? 'Working directory' : 'History'}</strong>
+              </div>
+              <div className="toolbar-actions">
+                <AnimatedTooltip content="Focus mode · Ctrl / Cmd + Shift + F">
+                  <button
+                    className="icon-button focus-toggle"
+                    aria-label="Focus mode"
+                    aria-pressed={focusMode}
+                    onClick={() => setFocusMode((value) => !value)}
+                  >
+                    {focusMode ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+                  </button>
+                </AnimatedTooltip>
+                <AnimatedTooltip content="Download the newest remote references without changing your files.">
+                  <button
+                    className="toolbar-fetch"
+                    onClick={() => void sync('fetch')}
+                    disabled={busy}
+                  >
+                    <RefreshCw size={13} className={busy ? 'spin' : ''} />
+                    <span>Fetch</span>
+                  </button>
+                </AnimatedTooltip>
+                <div className="toolbar-divider" />
+                <Button size="sm" variant="ghost" onClick={() => void sync('pull')} disabled={busy}>
+                  <ArrowDown size={14} />
+                  Pull
+                </Button>
+                <AnimatedTooltip content="Push uploads saved commits to the remote repository. Your uncommitted edits stay on this computer.">
+                  <Button
+                    className="toolbar-push"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void sync('push')}
+                    disabled={busy}
+                  >
+                    <ArrowUp size={14} />
+                    Push
+                  </Button>
+                </AnimatedTooltip>
+              </div>
+            </div>
+            <div className="workspace-masthead">
+              <div className="page-heading">
+                <div>
+                  <motion.h1
+                    key={tab}
+                    initial={{ opacity: 0.3, y: 8, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <span>{tab === 'changes' ? 'Make a little' : 'See how it'}</span>
+                    <TextRoll>{tab === 'changes' ? 'history.' : 'came together.'}</TextRoll>
+                  </motion.h1>
+                  <p>
+                    {tab === 'changes'
+                      ? changedFileCount
+                        ? `${changedFileCount} changed files. Pick files, then save a commit.`
+                        : 'Your working folder matches your last saved commit.'
+                      : 'Each commit is a saved checkpoint. Select one to inspect it.'}
+                  </p>
+                </div>
+                <button
+                  className="branch-selector"
                   onClick={() => {
                     setTab('history');
-                    setNotice(
-                      `Viewing history. ${branch.current ? 'You are currently on this branch.' : 'Branch checkout is planned for the next milestone.'}`,
-                    );
+                    setNotice(`Current branch: ${repository.branch}`);
                   }}
                 >
                   <GitBranch size={14} />
-                  <span>{branch.name}</span>
-                  {branch.current && <CircleDot size={12} />}
+                  <span>{repository.branch}</span>
+                  <ChevronDown size={12} />
                 </button>
-              ))}
-            </div>
-          )}
-          <button
-            className="sidebar-section-title remote-label"
-            onClick={() => void sync('fetch')}
-            disabled={busy}
-          >
-            <span>Remotes</span>
-            <RefreshCw size={12} />
-          </button>
-          <div className="remote-item">
-            <Github size={14} />
-            <span>origin</span>
-            <span className="remote-subtitle">{demo ? 'github.com' : 'remote'}</span>
-          </div>
-          <div className="sidebar-spacer" />
-          <motion.button
-            className="publish-prompt"
-            onClick={startPublish}
-            whileHover={{ y: -3 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Magnetic strength={5} style={{ width: '100%' }}>
-              <span className="publish-prompt-icon">
-                <FolderOpen size={20} strokeWidth={1.5} />
-                <ArrowUpRight size={12} />
-              </span>
-            </Magnetic>
-            <strong>Start something.</strong>
-            <span>Local ideas. Global possibilities.</span>
-            <span className="publish-prompt-action">
-              Create & publish <ArrowRight size={13} />
-            </span>
-          </motion.button>
-          <div className="sidebar-bottom">
-            <button onClick={() => openGettingStarted(1)}>
-              <span className="profile-avatar">
-                {auth.account?.login.slice(0, 2).toUpperCase() || <Github size={14} />}
-              </span>
-              <span>{auth.account?.login || 'Connect GitHub'}</span>
-              {auth.connected ? <Check size={14} /> : <ArrowUpRight size={14} />}
-            </button>
-            <button className="sidebar-help" onClick={() => setGuideOpen(true)}>
-              <Keyboard size={14} />
-              <span>A little help</span>
-              <span>?</span>
-            </button>
-          </div>
-        </aside>
-        <main className="main">
-          <div className="repository-toolbar">
-            <div className="breadcrumb">
-              <span>{repository.name}</span>
-              <ChevronRight size={13} />
-              <strong>{tab === 'changes' ? 'Working directory' : 'History'}</strong>
-            </div>
-            <div className="toolbar-actions">
-              <AnimatedTooltip content="Focus mode · Ctrl / Cmd + Shift + F">
-                <button
-                  className="icon-button focus-toggle"
-                  aria-label="Focus mode"
-                  aria-pressed={focusMode}
-                  onClick={() => setFocusMode((value) => !value)}
-                >
-                  {focusMode ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-                </button>
-              </AnimatedTooltip>
-              <AnimatedTooltip content="Download the newest remote references without changing your files.">
-                <button
-                  className="toolbar-fetch"
-                  onClick={() => void sync('fetch')}
-                  disabled={busy}
-                >
-                  <RefreshCw size={13} className={busy ? 'spin' : ''} />
-                  <span>Fetch</span>
-                </button>
-              </AnimatedTooltip>
-              <div className="toolbar-divider" />
-              <Button size="sm" variant="ghost" onClick={() => void sync('pull')} disabled={busy}>
-                <ArrowDown size={14} />
-                Pull
-              </Button>
-              <AnimatedTooltip content="Push uploads saved commits to the remote repository. Your uncommitted edits stay on this computer.">
-                <Button
-                  className="toolbar-push"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => void sync('push')}
-                  disabled={busy}
-                >
-                  <ArrowUp size={14} />
-                  Push
-                </Button>
-              </AnimatedTooltip>
-            </div>
-          </div>
-          <div className="workspace-masthead">
-            <div className="page-heading">
-              <div>
-                <motion.h1
-                  key={tab}
-                  initial={{ opacity: 0.3, y: 8, filter: 'blur(4px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <span>{tab === 'changes' ? 'Make a little' : 'See how it'}</span>
-                  <TextRoll>{tab === 'changes' ? 'history.' : 'came together.'}</TextRoll>
-                </motion.h1>
-                <p>
-                  {tab === 'changes'
-                    ? changedFileCount
-                      ? `${changedFileCount} changed files. Pick files, then save a commit.`
-                      : 'Your working folder matches your last saved commit.'
-                    : 'Each commit is a saved checkpoint. Select one to inspect it.'}
-                </p>
               </div>
-              <button
-                className="branch-selector"
-                onClick={() => {
-                  setTab('history');
-                  setNotice(`Current branch: ${repository.branch}`);
-                }}
-              >
-                <GitBranch size={14} />
-                <span>{repository.branch}</span>
-                <ChevronDown size={12} />
-              </button>
+              <BranchJourney repository={repository} onViewHistory={() => setTab('history')} />
             </div>
-            <BranchJourney repository={repository} onViewHistory={() => setTab('history')} />
-          </div>
-          {demo && (
-            <div className="demo-ribbon">
-              <span>
-                <Circle size={6} fill="currentColor" />
-                Interactive demo
-                <span className="demo-ribbon-detail">
-                  Explore freely. Your local files are untouched.
+            {demo && (
+              <div className="demo-ribbon">
+                <span>
+                  <Circle size={6} fill="currentColor" />
+                  Interactive demo
+                  <span className="demo-ribbon-detail">
+                    Explore freely. Your local files are untouched.
+                  </span>
                 </span>
-              </span>
-              <button onClick={() => void openLocal()}>
-                Connect a repository
-                <ArrowUpRight size={12} />
+                <button onClick={() => void openLocal()}>
+                  Connect a repository
+                  <ArrowUpRight size={12} />
+                </button>
+              </div>
+            )}
+            {repository.guardian && (
+              <div className="guardian-banner" role="status">
+                <ShieldCheck size={17} />
+                <div>
+                  <strong>Git Guardian is here.</strong>
+                  <span>{repository.guardian.message}</span>
+                </div>
+                {repository.guardian.kind.toLowerCase().includes('detached') ? (
+                  <Button size="sm" variant="outline" onClick={() => void rescue()}>
+                    Save on a new branch
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setNotice(
+                        'Resolve conflicted paths and finish the merge or rebase in your existing Git tool. Branchline will refresh automatically.',
+                      )
+                    }
+                  >
+                    Show recovery steps
+                  </Button>
+                )}
+              </div>
+            )}
+            <div className="view-tabs" role="tablist" aria-label="Repository content">
+              <button
+                role="tab"
+                aria-selected={tab === 'changes'}
+                className={tab === 'changes' ? 'active' : ''}
+                onClick={() => setTab('changes')}
+              >
+                <Layers2 size={14} />
+                <span className="tab-label">Changes</span>
+                <span>{changedFileCount}</span>
+                {tab === 'changes' && (
+                  <motion.div layoutId="workspace-tab-indicator" className="tab-indicator" />
+                )}
+              </button>
+              <button
+                role="tab"
+                aria-selected={tab === 'history'}
+                className={tab === 'history' ? 'active' : ''}
+                onClick={() => setTab('history')}
+              >
+                <GitCommitHorizontal size={15} />
+                History
+                {tab === 'history' && (
+                  <motion.div layoutId="workspace-tab-indicator" className="tab-indicator" />
+                )}
+              </button>
+              <div className="tabs-spacer" />
+              {tab === 'changes' && (
+                <span className="change-summary">
+                  <b>+{totalAdded}</b>
+                  <i>−{totalDeleted}</i>
+                  <span>across {changedFileCount} files</span>
+                </span>
+              )}
+              <button
+                className="view-options icon-button"
+                aria-label="More actions"
+                onClick={() => setPaletteOpen(true)}
+              >
+                <MoreHorizontal size={17} />
               </button>
             </div>
-          )}
-          {repository.guardian && (
-            <div className="guardian-banner" role="status">
-              <ShieldCheck size={17} />
-              <div>
-                <strong>Git Guardian is here.</strong>
-                <span>{repository.guardian.message}</span>
-              </div>
-              {repository.guardian.kind.toLowerCase().includes('detached') ? (
-                <Button size="sm" variant="outline" onClick={() => void rescue()}>
-                  Save on a new branch
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    setNotice(
-                      'Resolve conflicted paths and finish the merge or rebase in your existing Git tool. Branchline will refresh automatically.',
-                    )
-                  }
-                >
-                  Show recovery steps
-                </Button>
-              )}
-            </div>
-          )}
-          <div className="view-tabs" role="tablist" aria-label="Repository content">
-            <button
-              role="tab"
-              aria-selected={tab === 'changes'}
-              className={tab === 'changes' ? 'active' : ''}
-              onClick={() => setTab('changes')}
-            >
-              <Layers2 size={14} />
-              <span className="tab-label">Changes</span>
-              <span>{changedFileCount}</span>
-              {tab === 'changes' && (
-                <motion.div layoutId="workspace-tab-indicator" className="tab-indicator" />
-              )}
-            </button>
-            <button
-              role="tab"
-              aria-selected={tab === 'history'}
-              className={tab === 'history' ? 'active' : ''}
-              onClick={() => setTab('history')}
-            >
-              <GitCommitHorizontal size={15} />
-              History
-              {tab === 'history' && (
-                <motion.div layoutId="workspace-tab-indicator" className="tab-indicator" />
-              )}
-            </button>
-            <div className="tabs-spacer" />
             {tab === 'changes' && (
-              <span className="change-summary">
-                <b>+{totalAdded}</b>
-                <i>−{totalDeleted}</i>
-                <span>across {changedFileCount} files</span>
-              </span>
-            )}
-            <button
-              className="view-options icon-button"
-              aria-label="More actions"
-              onClick={() => setPaletteOpen(true)}
-            >
-              <MoreHorizontal size={17} />
-            </button>
-          </div>
-          {tab === 'changes' && (
-            <LearningFlow
-              stagedCount={staged.length}
-              changedCount={changedFileCount}
-              demo={demo}
-              onTryCommand={tryCommand}
-              onLesson={learn}
-            />
-          )}
-          <div className="workspace-content">
-            {tab === 'changes' ? (
-              <div className="changes-view">
-                <section className="changes-panel" aria-label="Changed files">
-                  <div className="file-search">
-                    <Search size={14} />
-                    <input
-                      aria-label="Filter changed files"
-                      placeholder="Filter files…"
-                      value={filter}
-                      onChange={(e) => setFilter(e.target.value)}
-                    />
-                    <span>⌘ F</span>
-                  </div>
-                  <div className="file-list">
-                    <div className="file-group-heading">
-                      <ChevronDown size={12} />
-                      <strong>Changes</strong>
-                      <span>{unstaged.length}</span>
-                      <AnimatedTooltip content="Click a file’s checkbox to include it in your next commit.">
-                        <CheckCheck size={13} />
-                      </AnimatedTooltip>
-                    </div>
-                    {visibleFiles
-                      .filter((file) => !file.staged)
-                      .map((file) => (
-                        <FileRow
-                          key={`${file.path}-unstaged`}
-                          file={file}
-                          active={selectedFile === file}
-                          onSelect={() => {
-                            setSelected(file.path);
-                            setSelectedStaged(file.staged);
-                          }}
-                          onToggle={() => void stage(file.path, file.staged)}
-                          busy={busy}
-                        />
-                      ))}
-                    <div className="file-group-heading staged-heading">
-                      <ChevronDown size={12} />
-                      <strong>Staged changes</strong>
-                      <span>{staged.length}</span>
-                      <ShieldCheck size={13} />
-                    </div>
-                    {visibleFiles
-                      .filter((file) => file.staged)
-                      .map((file) => (
-                        <FileRow
-                          key={`${file.path}-staged`}
-                          file={file}
-                          active={selectedFile === file}
-                          onSelect={() => {
-                            setSelected(file.path);
-                            setSelectedStaged(file.staged);
-                          }}
-                          onToggle={() => void stage(file.path, file.staged)}
-                          busy={busy}
-                        />
-                      ))}
-                    {!visibleFiles.length && (
-                      <div className="files-empty">
-                        {filter ? 'No files match your search.' : 'All caught up. Nice work.'}
-                      </div>
-                    )}
-                  </div>
-                </section>
-                <Suspense
-                  fallback={
-                    <div className="editor-loading">
-                      <LoaderCircle className="spin" size={18} />
-                      Opening Monaco…
-                    </div>
-                  }
-                >
-                  <DiffViewer
-                    path={repository.path}
-                    file={selectedFile}
-                    demo={demo}
-                    busy={busy}
-                    onStage={() => {
-                      if (selectedFile) void stage(selectedFile.path, selectedFile.staged);
-                    }}
-                  />
-                </Suspense>
-                <div className="commit-composer">
-                  <div className="commit-composer-top">
-                    <motion.span
-                      key={commitSaved ? 'saved' : 'ready'}
-                      className={`profile-avatar small commit-avatar ${commitSaved ? 'is-saved' : ''}`}
-                      initial={commitSaved && !reducedMotion ? { scale: 0.5, rotate: -25 } : false}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: 'spring', stiffness: 330, damping: 16 }}
-                      aria-hidden="true"
-                    >
-                      {commitSaved ? <Check size={17} /> : <GitCommitHorizontal size={18} />}
-                    </motion.span>
-                    <span>
-                      <Zap size={13} />
-                      {commitSaved ? 'A little history, saved.' : 'Make it a milestone.'}
-                    </span>
-                    <AnimatedTooltip content="Only staged changes are saved in a commit. Your other edits stay in your working folder.">
-                      <ShieldCheck size={15} />
-                    </AnimatedTooltip>
-                  </div>
-                  <label htmlFor="commit-message" className="sr-only">
-                    Commit message
-                  </label>
-                  <textarea
-                    id="commit-message"
-                    placeholder="What did you change?"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                        e.preventDefault();
-                        record({
-                          kind: 'interface',
-                          label: 'Commit keyboard shortcut',
-                          description:
-                            'Request a local checkpoint of staged changes. The Git operation reports whether it succeeded.',
-                          lessonId: 'commit',
-                        });
-                        void submitCommit();
-                      }
-                    }}
-                    maxLength={5000}
-                  />
-                  <div className="commit-composer-detail">
-                    <span>
-                      {staged.length} {staged.length === 1 ? 'file' : 'files'} staged
-                    </span>
-                    <span>⌘ ↵</span>
-                  </div>
-                  <Button
-                    className="commit-button"
-                    onClick={() => void submitCommit()}
-                    disabled={busy || !message.trim() || !staged.length}
-                  >
-                    {busy ? (
-                      <LoaderCircle className="spin" size={15} />
-                    ) : (
-                      <GitCommitHorizontal size={16} />
-                    )}
-                    Commit changes
-                    <ArrowRight size={15} />
-                  </Button>
-                  <p>Commit saves locally. Push shares.</p>
-                </div>
-              </div>
-            ) : (
-              <HistoryGraph
-                repository={repository}
-                onPlan={(next) => {
-                  record({
-                    kind: 'interface',
-                    label: `Preview ${next.kind}`,
-                    description:
-                      'Explore the consequences of a history edit. This preview leaves all commits unchanged.',
-                    lessonId: 'safety',
-                  });
-                  setPlan(next);
-                }}
+              <LearningFlow
+                stagedCount={staged.length}
+                changedCount={changedFileCount}
+                demo={demo}
+                onTryCommand={tryCommand}
+                onLesson={learn}
               />
             )}
-          </div>
-          <GlassBox
-            logs={logs}
-            open={consoleOpen}
-            onToggle={() => setConsoleOpen((value) => !value)}
-            demo={demo}
-            repositoryName={repository.name}
-            busy={busy}
-            activities={activities}
-            onRunCommand={runCommand}
-            suggestedCommand={suggestedCommand}
-            stageExamplePath={unstaged[0]?.path}
-          />
-          <footer className="statusbar">
-            <div>
-              <GitBranch size={12} />
-              <span>{repository.branch}</span>
-              <span className="status-divider">/</span>
-              {busy ? (
-                <>
-                  <LoaderCircle size={11} className="spin" />
-                  <span>Working…</span>
-                </>
+            <div className="workspace-content">
+              {tab === 'changes' ? (
+                <div className="changes-view">
+                  <section className="changes-panel" aria-label="Changed files">
+                    <div className="file-search">
+                      <Search size={14} />
+                      <input
+                        aria-label="Filter changed files"
+                        placeholder="Filter files…"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                      />
+                      <span>⌘ F</span>
+                    </div>
+                    <div className="file-list">
+                      <div className="file-group-heading">
+                        <ChevronDown size={12} />
+                        <strong>Changes</strong>
+                        <span>{unstaged.length}</span>
+                        <AnimatedTooltip content="Click a file’s checkbox to include it in your next commit.">
+                          <CheckCheck size={13} />
+                        </AnimatedTooltip>
+                      </div>
+                      {visibleFiles
+                        .filter((file) => !file.staged)
+                        .map((file) => (
+                          <FileRow
+                            key={`${file.path}-unstaged`}
+                            file={file}
+                            active={selectedFile === file}
+                            onSelect={() => {
+                              setSelected(file.path);
+                              setSelectedStaged(file.staged);
+                            }}
+                            onToggle={() => void stage(file.path, file.staged)}
+                            busy={busy}
+                          />
+                        ))}
+                      <div className="file-group-heading staged-heading">
+                        <ChevronDown size={12} />
+                        <strong>Staged changes</strong>
+                        <span>{staged.length}</span>
+                        <ShieldCheck size={13} />
+                      </div>
+                      {visibleFiles
+                        .filter((file) => file.staged)
+                        .map((file) => (
+                          <FileRow
+                            key={`${file.path}-staged`}
+                            file={file}
+                            active={selectedFile === file}
+                            onSelect={() => {
+                              setSelected(file.path);
+                              setSelectedStaged(file.staged);
+                            }}
+                            onToggle={() => void stage(file.path, file.staged)}
+                            busy={busy}
+                          />
+                        ))}
+                      {!visibleFiles.length && (
+                        <div className="files-empty">
+                          {filter ? 'No files match your search.' : 'All caught up. Nice work.'}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                  <Suspense
+                    fallback={
+                      <div className="editor-loading">
+                        <LoaderCircle className="spin" size={18} />
+                        Opening Monaco…
+                      </div>
+                    }
+                  >
+                    <DiffViewer
+                      path={repository.path}
+                      file={selectedFile}
+                      demo={demo}
+                      busy={busy}
+                      onStage={() => {
+                        if (selectedFile) void stage(selectedFile.path, selectedFile.staged);
+                      }}
+                    />
+                  </Suspense>
+                  <div className="commit-composer">
+                    <div className="commit-composer-top">
+                      <motion.span
+                        key={commitSaved ? 'saved' : 'ready'}
+                        className={`profile-avatar small commit-avatar ${commitSaved ? 'is-saved' : ''}`}
+                        initial={
+                          commitSaved && !reducedMotion ? { scale: 0.5, rotate: -25 } : false
+                        }
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: 'spring', stiffness: 330, damping: 16 }}
+                        aria-hidden="true"
+                      >
+                        {commitSaved ? <Check size={17} /> : <GitCommitHorizontal size={18} />}
+                      </motion.span>
+                      <span>
+                        <Zap size={13} />
+                        {commitSaved ? 'A little history, saved.' : 'Make it a milestone.'}
+                      </span>
+                      <AnimatedTooltip content="Only staged changes are saved in a commit. Your other edits stay in your working folder.">
+                        <ShieldCheck size={15} />
+                      </AnimatedTooltip>
+                    </div>
+                    <label htmlFor="commit-message" className="sr-only">
+                      Commit message
+                    </label>
+                    <textarea
+                      id="commit-message"
+                      placeholder="What did you change?"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                          e.preventDefault();
+                          record({
+                            kind: 'interface',
+                            label: 'Commit keyboard shortcut',
+                            description:
+                              'Request a local checkpoint of staged changes. The Git operation reports whether it succeeded.',
+                            lessonId: 'commit',
+                          });
+                          void submitCommit();
+                        }
+                      }}
+                      maxLength={5000}
+                    />
+                    <div className="commit-composer-detail">
+                      <span>
+                        {staged.length} {staged.length === 1 ? 'file' : 'files'} staged
+                      </span>
+                      <span>⌘ ↵</span>
+                    </div>
+                    <Button
+                      className="commit-button"
+                      onClick={() => void submitCommit()}
+                      disabled={busy || !message.trim() || !staged.length}
+                    >
+                      {busy ? (
+                        <LoaderCircle className="spin" size={15} />
+                      ) : (
+                        <GitCommitHorizontal size={16} />
+                      )}
+                      Commit changes
+                      <ArrowRight size={15} />
+                    </Button>
+                    <p>Commit saves locally. Push shares.</p>
+                  </div>
+                </div>
               ) : (
-                <>
-                  <ShieldCheck size={12} />
-                  <span>{repository.guardian ? 'Needs attention' : 'Your work is safe'}</span>
-                </>
+                <HistoryGraph
+                  repository={repository}
+                  onPlan={(next) => {
+                    record({
+                      kind: 'interface',
+                      label: `Preview ${next.kind}`,
+                      description:
+                        'Explore the consequences of a history edit. This preview leaves all commits unchanged.',
+                      lessonId: 'safety',
+                    });
+                    setPlan(next);
+                  }}
+                />
               )}
             </div>
-            <div>
-              <span>{demo ? 'Demo workspace' : 'Local repository'}</span>
-              <span className="status-divider">/</span>
-              <button onClick={() => setConsoleOpen((value) => !value)}>
-                <Terminal size={12} />
-                <span>Glass box</span>
-              </button>
-              <span className="status-divider">/</span>
-              <span>libgit2</span>
-            </div>
-          </footer>
-        </main>
-      </div>
+            <GlassBox
+              logs={logs}
+              open={consoleOpen}
+              onToggle={() => setConsoleOpen((value) => !value)}
+              demo={demo}
+              repositoryName={repository.name}
+              busy={busy}
+              activities={activities}
+              onRunCommand={runCommand}
+              suggestedCommand={suggestedCommand}
+              stageExamplePath={unstaged[0]?.path}
+            />
+            <footer className="statusbar">
+              <div>
+                <GitBranch size={12} />
+                <span>{repository.branch}</span>
+                <span className="status-divider">/</span>
+                {busy ? (
+                  <>
+                    <LoaderCircle size={11} className="spin" />
+                    <span>Working…</span>
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck size={12} />
+                    <span>{repository.guardian ? 'Needs attention' : 'Your work is safe'}</span>
+                  </>
+                )}
+              </div>
+              <div>
+                <span>{demo ? 'Demo workspace' : 'Local repository'}</span>
+                <span className="status-divider">/</span>
+                <button onClick={() => setConsoleOpen((value) => !value)}>
+                  <Terminal size={12} />
+                  <span>Glass box</span>
+                </button>
+                <span className="status-divider">/</span>
+                <span>libgit2</span>
+              </div>
+            </footer>
+          </main>
+        </div>
+      )}
       <AnimatePresence>
         {notice && (
           <motion.div
@@ -1022,17 +1157,23 @@ export default function App() {
         initialPath={initialPath}
         onPublished={(result) => {
           setPublishOpen(false);
-          void open(result.path);
+          void openPath(result.path);
           setNotice(`Published successfully: ${result.url}`);
         }}
       />
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} onAction={handleAction} />
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        onAction={handleAction}
+        hasWorkspace={workspaceVisited}
+      />
       <FirstRunGuide
         open={onboardingOpen}
         onOpenChange={changeGettingStarted}
         initialStep={onboardingStep}
         onOpenRepository={() => void openLocal()}
         onPublish={startPublish}
+        onExploreWorkspace={workspaceVisited ? enterWorkspace : tryDemo}
       />
       <Dialog.Root
         open={!!plan}
