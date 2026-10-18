@@ -15,6 +15,7 @@ import {
   Sparkles,
   Github,
   House,
+  ShieldCheck,
 } from 'lucide-react';
 
 export function CommandPalette({
@@ -134,6 +135,13 @@ export function CommandPalette({
                         <Terminal size={17} />
                         <span>Toggle Glass box console</span>
                         <kbd>⌘ J</kbd>
+                      </Command.Item>
+                      <Command.Item
+                        value="Privacy analytics usage sharing PostHog preferences"
+                        onSelect={() => run('privacy')}
+                      >
+                        <ShieldCheck size={17} />
+                        <span>Privacy &amp; usage sharing</span>
                       </Command.Item>
                     </Command.Group>
                     <Command.Group heading="Advanced tools · planned">

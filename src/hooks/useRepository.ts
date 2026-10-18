@@ -3,6 +3,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { demoLog, demoRepository, initialLogs } from '@/lib/demo';
 import { displayError, mergeLog } from '@/lib/console';
+import { trackEvent } from '@/lib/analytics';
 import { isDesktop, type GitLog, type RepositorySnapshot } from '@/lib/types';
 import { useActivity } from './useActivity';
 
@@ -68,6 +69,9 @@ export function useRepository() {
       setBusy(true);
       try {
         const result = await invoke<RepositorySnapshot>('open_repository', { path });
+        if (isDesktop()) {
+          trackEvent('gitsomething repository opened', { source: 'local', outcome: 'success' });
+        }
         if (request !== openRequest.current) return;
         generation.current++;
         activePath.current = result.path;
@@ -77,6 +81,9 @@ export function useRepository() {
         setNotice('');
         return result;
       } catch (error) {
+        if (isDesktop()) {
+          trackEvent('gitsomething repository opened', { source: 'local', outcome: 'error' });
+        }
         if (request === openRequest.current) {
           setNotice(displayError(error));
           record({
@@ -106,6 +113,9 @@ export function useRepository() {
           parentPath,
           cloneUrl,
         });
+        if (isDesktop()) {
+          trackEvent('gitsomething repository cloned', { source: 'github', outcome: 'success' });
+        }
         generation.current++;
         openRequest.current++;
         activePath.current = result.path;
@@ -115,6 +125,9 @@ export function useRepository() {
         setNotice('Repository cloned. Your working copy is saved on this computer.');
         return result;
       } catch (error) {
+        if (isDesktop()) {
+          trackEvent('gitsomething repository cloned', { source: 'github', outcome: 'error' });
+        }
         setNotice(displayError(error));
         record({
           kind: 'operation',
@@ -179,10 +192,22 @@ export function useRepository() {
         );
       } else {
         await invoke(staged ? 'unstage_file' : 'stage_file', { path: repository.path, filePath });
+        if (isDesktop()) {
+          trackEvent('gitsomething git action', {
+            action: staged ? 'unstage' : 'stage',
+            outcome: 'success',
+          });
+        }
         await refresh();
       }
       return true;
     } catch (error) {
+      if (!demo && isDesktop()) {
+        trackEvent('gitsomething git action', {
+          action: staged ? 'unstage' : 'stage',
+          outcome: 'error',
+        });
+      }
       setNotice(displayError(error));
       record({
         kind: 'operation',
@@ -238,10 +263,16 @@ export function useRepository() {
         setNotice('Demo commit saved. Your real files are unchanged.');
       } else {
         await invoke('commit_changes', { path: repository.path, message });
+        if (isDesktop()) {
+          trackEvent('gitsomething git action', { action: 'commit', outcome: 'success' });
+        }
         await refresh();
       }
       return true;
     } catch (error) {
+      if (!demo && isDesktop()) {
+        trackEvent('gitsomething git action', { action: 'commit', outcome: 'error' });
+      }
       setNotice(displayError(error));
       record({
         kind: 'operation',
@@ -281,11 +312,17 @@ export function useRepository() {
         setNotice(`Demo ${action} complete. Open a local repository to use real Git.`);
       } else {
         await invoke(`${action}_repository`, { path: repository.path });
+        if (isDesktop()) {
+          trackEvent('gitsomething git action', { action, outcome: 'success' });
+        }
         await refresh();
         setNotice(`${action[0].toUpperCase()}${action.slice(1)} complete.`);
       }
       return true;
     } catch (error) {
+      if (!demo && isDesktop()) {
+        trackEvent('gitsomething git action', { action, outcome: 'error' });
+      }
       setNotice(displayError(error));
       record({
         kind: 'operation',

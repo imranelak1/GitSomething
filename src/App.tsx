@@ -1,4 +1,13 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from 'react';
 import { LogoMark } from './components/brand/LogoMark';
 import { useStartup } from './components/startup/startup-context';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -84,12 +93,23 @@ import {
 } from './lib/recent-repositories';
 import { rememberGuide } from './lib/onboarding';
 import { Magnetic } from './components/registry/animmaster/Magnetic';
+import { AnalyticsPreferences } from './components/privacy/AnalyticsPreferences';
+import { getAnalyticsMode, subscribeAnalyticsMode, trackEvent } from './lib/analytics';
 
 const DiffViewer = lazy(() => import('./components/DiffViewer'));
 
 export default function App() {
   const { dismiss: dismissStartup } = useStartup();
   const auth = useGitHubAuth();
+  const analyticsMode = useSyncExternalStore(subscribeAnalyticsMode, getAnalyticsMode);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const launchRecorded = useRef(false);
+  useEffect(() => {
+    if (analyticsMode === 'off' || launchRecorded.current) return;
+    if (analyticsMode === 'identified' && !auth.ready) return;
+    launchRecorded.current = true;
+    trackEvent('gitsomething app opened');
+  }, [analyticsMode, auth.ready]);
   const githubIdentity = useRef('');
   githubIdentity.current = `${auth.account?.login || ''}:${auth.revision}`;
   const { activities, record, settle } = useActivity();
@@ -279,6 +299,7 @@ export default function App() {
   const openGettingStarted = (step = 0) => {
     setOnboardingStep(step);
     setOnboardingOpen(true);
+    trackEvent('gitsomething guide opened');
   };
   const changeGettingStarted = (value: boolean) => {
     if (!value) rememberGuide();
@@ -503,6 +524,7 @@ export default function App() {
         setConsoleOpen((value) => (screen === 'home' ? true : !value));
       } else setNotice('Open a repository or try the demo workspace to use the Glass Box.');
     } else if (action === 'guide') openGettingStarted();
+    else if (action === 'privacy') setPrivacyOpen(true);
     else if (action === 'github') openGitHubAccount();
     else if (action === 'learn') learn('stage');
     else if (action === 'terminal') tryCommand('help');
@@ -536,8 +558,10 @@ export default function App() {
       });
       await refresh();
       setNotice('Your work is safe on a new rescue branch.');
+      if (!demo) trackEvent('gitsomething git action', { action: 'rescue', outcome: 'success' });
     } catch (error) {
       setNotice(displayError(error));
+      if (!demo) trackEvent('gitsomething git action', { action: 'rescue', outcome: 'error' });
     }
   };
   return (
@@ -622,6 +646,8 @@ export default function App() {
           onGuide={() => openGettingStarted()}
           onConnectGitHub={openGitHubAccount}
           onCloneRepository={cloneGitHubRepository}
+          analyticsMode={analyticsMode}
+          onPrivacy={() => setPrivacyOpen(true)}
         />
       )}
       {workspaceVisited && (
@@ -1297,6 +1323,11 @@ export default function App() {
         hasWorkspace={workspaceVisited}
       />
       <GitHubAccountDialog open={accountOpen} onOpenChange={changeGitHubAccount} />
+      <AnalyticsPreferences
+        open={privacyOpen}
+        onOpenChange={setPrivacyOpen}
+        accountLogin={auth.account?.login}
+      />
       <FirstRunGuide
         open={onboardingOpen}
         onOpenChange={changeGettingStarted}
@@ -1304,6 +1335,7 @@ export default function App() {
         onOpenRepository={() => void openLocal()}
         onPublish={startPublish}
         onExploreWorkspace={workspaceVisited ? enterWorkspace : tryDemo}
+        onComplete={() => trackEvent('gitsomething guide completed')}
       />
       <Dialog.Root
         open={!!plan}

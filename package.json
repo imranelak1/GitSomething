@@ -20,6 +20,7 @@
     "test:github-repositories": "node scripts/verify-github-repositories.mjs",
     "test:startup": "node scripts/verify-startup.mjs",
     "test:native-learning": "node scripts/verify-native-learning.mjs",
+    "test:analytics": "node scripts/verify-analytics.mjs",
     "release:package": "node scripts/package-release.mjs",
     "brand:build": "node scripts/build-brand.mjs",
     "format": "prettier --write src scripts *.json *.ts docs README.md PRODUCT.md DESIGN.md"

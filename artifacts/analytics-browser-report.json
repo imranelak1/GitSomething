@@ -1,0 +1,86 @@
+{
+  "testedAt": "2026-10-18T01:43:26.373Z",
+  "scope": "Production bundle, simulated Tauri origin and account; all external traffic intercepted locally",
+  "checks": [
+    "Production native-origin simulation sends no analytics before consent",
+    "Privacy dialog is discoverable and focuses the current native radio",
+    "Capture API sends allowlisted anonymous usage without account, URL or browser metadata",
+    "Public GitHub username is shared only after choosing identified mode; email and name stay local",
+    "Opt-out immediately stops collection of subsequent real UI events",
+    "Opt-out persists across launch and removes the installation identity",
+    "320px layout scrolls to all controls and Escape returns focus",
+    "A saved named-sharing choice waits for delayed account restoration before counting a launch",
+    "No replay, flags, remote configuration, logs, metrics, provider traffic or browser errors"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "path": "/i/v0/e/",
+      "method": "POST",
+      "payload": {
+        "api_key": "phc_r3upAczUZ29qFrExQxeWmG6bCYmVrbcctbKSDtXpv54J",
+        "event": "gitsomething app opened",
+        "distinct_id": "gitsomething:anonymous:315aea54-89d6-48e7-92f6-62bfee117470",
+        "properties": {
+          "app_name": "GitSomething",
+          "app_version": "1.0.0-beta.2",
+          "runtime": "desktop",
+          "channel": "beta",
+          "$process_person_profile": false,
+          "$geoip_disable": true
+        },
+        "timestamp": "2026-10-18T01:43:27.981Z"
+      },
+      "hasCookie": false,
+      "hasReferrer": false
+    },
+    {
+      "path": "/i/v0/e/",
+      "method": "POST",
+      "payload": {
+        "api_key": "phc_r3upAczUZ29qFrExQxeWmG6bCYmVrbcctbKSDtXpv54J",
+        "event": "gitsomething guide opened",
+        "distinct_id": "gitsomething:github:analytics-fixture",
+        "properties": {
+          "app_name": "GitSomething",
+          "app_version": "1.0.0-beta.2",
+          "runtime": "desktop",
+          "channel": "beta",
+          "$process_person_profile": true,
+          "$geoip_disable": true,
+          "$set": {
+            "github_login": "analytics-fixture"
+          }
+        },
+        "timestamp": "2026-10-18T01:43:28.177Z"
+      },
+      "hasCookie": false,
+      "hasReferrer": false
+    },
+    {
+      "path": "/i/v0/e/",
+      "method": "POST",
+      "payload": {
+        "api_key": "phc_r3upAczUZ29qFrExQxeWmG6bCYmVrbcctbKSDtXpv54J",
+        "event": "gitsomething app opened",
+        "distinct_id": "gitsomething:github:analytics-fixture",
+        "properties": {
+          "app_name": "GitSomething",
+          "app_version": "1.0.0-beta.2",
+          "runtime": "desktop",
+          "channel": "beta",
+          "$process_person_profile": true,
+          "$geoip_disable": true,
+          "$set": {
+            "github_login": "analytics-fixture"
+          }
+        },
+        "timestamp": "2026-10-18T01:43:29.621Z"
+      },
+      "hasCookie": false,
+      "hasReferrer": false
+    }
+  ],
+  "externalRequests": [],
+  "status": "passed"
+}

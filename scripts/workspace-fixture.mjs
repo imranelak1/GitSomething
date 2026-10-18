@@ -2,11 +2,16 @@
 // stays on Home, so loading Monaco is an action taken by the test, not the app.
 export async function enterDemoWorkspace(page) {
   await page.waitForFunction(
-    () =>
-      document.querySelector('.monaco-diff-editor') ||
-      [...document.querySelectorAll('button')].some(
-        (button) => button.getAttribute('aria-label') === 'Try demo workspace',
-      ),
+    () => {
+      const accessible = (element) =>
+        element &&
+        element.getClientRects().length > 0 &&
+        !element.closest('[inert], [aria-hidden="true"]');
+      return (
+        accessible(document.querySelector('.monaco-diff-editor')) ||
+        accessible(document.querySelector('button[aria-label="Try demo workspace"]'))
+      );
+    },
     null,
     { timeout: 45_000 },
   );

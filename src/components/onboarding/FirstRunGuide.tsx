@@ -45,6 +45,7 @@ export function FirstRunGuide({
   onOpenRepository,
   onPublish,
   onExploreWorkspace,
+  onComplete,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -52,6 +53,7 @@ export function FirstRunGuide({
   onOpenRepository: () => void;
   onPublish: () => void;
   onExploreWorkspace?: () => void;
+  onComplete?: () => void;
 }) {
   const [step, setStep] = useState(initialStep);
   const launcher = useRef<HTMLElement | null>(null);
@@ -282,6 +284,7 @@ export function FirstRunGuide({
                     <Button
                       onClick={() => {
                         if (step === 3) {
+                          onComplete?.();
                           if (onExploreWorkspace) choose(onExploreWorkspace);
                           else onOpenChange(false);
                         } else setStep(step + 1);

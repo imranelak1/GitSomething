@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T21:39:04.806Z",
+  "testedAt": "2026-10-18T01:43:26.329Z",
   "browser": "155.0.4283.62",
   "scope": "GitHub sign-in, repository metadata, and Clone & open through mocked native IPC; no live OAuth, provider traffic, or filesystem changes",
   "checks": [
@@ -30,17 +30,15 @@
   "errors": [],
   "providerRequests": [],
   "screenshots": [
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/home-github-approval.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/desktop-development-signin-unavailable.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/320-development-signin-unavailable.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/390-development-signin-unavailable.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/desktop-repositories.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/desktop-clone-workspace.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/320-repositories.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/390-repositories.png",
-    "artifacts/github-repositories/2026-10-17T21-39-04-373Z/1440-repositories.png"
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/home-github-approval.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/desktop-development-signin-unavailable.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/320-development-signin-unavailable.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/390-development-signin-unavailable.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/desktop-repositories.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/desktop-clone-workspace.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/320-repositories.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/390-repositories.png",
+    "artifacts/github-repositories/2026-10-18T01-43-26-013Z/1440-repositories.png"
   ],
-  "status": "passed",
-  "confirmation": "Final 1.0.0-beta.2 production browser confirmation after the busyRef guard; browser QA complete.",
-  "version": "1.0.0-beta.2"
+  "status": "passed"
 }

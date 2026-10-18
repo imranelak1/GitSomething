@@ -12,6 +12,8 @@ The Windows x64 **1.0.0-beta.2** prerelease is available on GitHub. **[Download 
 
 Home opens first, with real recent repositories, open/create actions, a guide, and an explicit demo entry. The interface uses GitHub's dark palette with shared colors in `src/theme.css`. Purple teaching surfaces explain staging, local commits, and sharing. The glassy Glass Box shows Git commands and results, operation failures, and real account or publishing events. Guided Git commands use the same engine. Navigation, scrolling, resizing, appearance controls, and lesson openings stay out of the transcript. Drag its separator to resize it or use Terminal appearance to adjust text size; preferences are remembered. See [Learn with the Glass Box](docs/GLASS_BOX.md).
 
+The current source also includes optional [PostHog usage analytics](docs/ANALYTICS.md). **Usage sharing** on Home and **Privacy & usage sharing** in the command menu offer Off (the default), anonymous usage, or usage with a public GitHub username. Only packaged production desktop sessions can send the fixed action events; repository names, paths, code, messages and credentials stay local. The private owner dashboard covers activity, adoption and returning users. Previously released installers require an update before this integration is available.
+
 ## Run locally
 
 Install Node.js **22.12.0 or newer**, npm, and Rust **1.88 or newer**. Native development also needs the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/); on Windows these include Microsoft C++ build tools and WebView2.

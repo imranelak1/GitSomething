@@ -13,11 +13,13 @@ import {
   ListChecks,
   LoaderCircle,
   Plus,
+  ShieldCheck,
   Terminal,
   X,
 } from 'lucide-react';
 import type { RecentRepository } from '@/lib/recent-repositories';
 import type { GitHubRepository } from '@/lib/github-repositories';
+import type { AnalyticsMode } from '@/lib/analytics';
 import { GitHubRepositories } from './github/GitHubRepositories';
 import { TextRoll } from './registry/skiper/TextRoll';
 import { AnimatedButton } from './registry/vengeance/AnimatedButton';
@@ -38,6 +40,8 @@ interface HomePageProps {
   onGuide: () => void;
   onConnectGitHub: () => void;
   onCloneRepository: (repository: GitHubRepository) => Promise<boolean>;
+  analyticsMode: AnalyticsMode;
+  onPrivacy: () => void;
 }
 
 function lastOpenedLabel(timestamp: number): string {
@@ -76,6 +80,8 @@ export function HomePage({
   onGuide,
   onConnectGitHub,
   onCloneRepository,
+  analyticsMode,
+  onPrivacy,
 }: HomePageProps) {
   const reducedMotion = useReducedMotion();
 
@@ -315,6 +321,20 @@ export function HomePage({
               Connect GitHub <ArrowRight size={14} aria-hidden="true" />
             </button>
           )}
+          <button
+            className="home-privacy-button"
+            type="button"
+            onClick={onPrivacy}
+            data-analytics-preferences-trigger
+          >
+            <ShieldCheck size={15} aria-hidden="true" />
+            Usage sharing:{' '}
+            {analyticsMode === 'off'
+              ? 'Off'
+              : analyticsMode === 'anonymous'
+                ? 'Anonymous'
+                : 'With GitHub username'}
+          </button>
         </footer>
       </div>
     </main>

@@ -446,11 +446,28 @@
 }
 
 .home-footer {
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 16px;
   border-top: 1px solid var(--ui-border);
   padding-top: 19px;
   margin-top: 32px;
+}
+.home-privacy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: left;
+}
+.home-privacy-button:hover {
+  color: var(--ui-text);
 }
 .home-github-status {
   gap: 9px;

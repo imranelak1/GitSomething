@@ -1,0 +1,377 @@
+{
+  "projectId": 304237,
+  "dashboardId": 1032868,
+  "url": "https://eu.posthog.com/project/304237/dashboard/1032868",
+  "publicSharing": false,
+  "verifiedOn": "2026-10-18",
+  "verification": "All eight saved insights executed successfully. No GitSomething events were recorded at setup. No synthetic users or events were sent.",
+  "scope": "Consented production desktop builds only; existing beta installers are unchanged.",
+  "insights": [
+    {
+      "id": 6648076,
+      "shortId": "Z2Wi44BW",
+      "name": "GitSomething · Daily active users",
+      "description": "Unique participating GitSomething identities with any usage event each day. Anonymous installations and opted-in GitHub profiles; incomplete coverage because sharing is optional.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "name": "GitSomething usage",
+              "math": "dau"
+            }
+          ],
+          "trendsFilter": {
+            "display": "ActionsLineGraph"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648077,
+      "shortId": "NyK5aut9",
+      "name": "GitSomething · Git actions used",
+      "description": "Completed native Git actions in the last 30 days, grouped by action. Demo interactions are excluded.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            },
+            {
+              "key": "outcome",
+              "type": "event",
+              "operator": "exact",
+              "value": "success"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething git action",
+              "name": "gitsomething git action",
+              "math": "total"
+            }
+          ],
+          "breakdownFilter": {
+            "breakdowns": [
+              {
+                "property": "action",
+                "type": "event"
+              }
+            ]
+          },
+          "trendsFilter": {
+            "display": "ActionsBarValue"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648078,
+      "shortId": "cH3ePiBi",
+      "name": "GitSomething · GitHub users sharing their name",
+      "description": "Usage by public GitHub username for users who explicitly chose named sharing. Anonymous users are excluded from this table.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            },
+            {
+              "key": "github_login",
+              "type": "person",
+              "operator": "is_set"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "name": "Named usage",
+              "math": "total"
+            }
+          ],
+          "breakdownFilter": {
+            "breakdowns": [
+              {
+                "property": "github_login",
+                "type": "person"
+              }
+            ],
+            "breakdown_limit": 100
+          },
+          "trendsFilter": {
+            "display": "ActionsTable"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648079,
+      "shortId": "fNf8TVCY",
+      "name": "GitSomething · Git operation failures",
+      "description": "Reported failed native Git actions by action type. Contains no error text, paths or code.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            },
+            {
+              "key": "outcome",
+              "type": "event",
+              "operator": "exact",
+              "value": "error"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething git action",
+              "name": "gitsomething git action",
+              "math": "total"
+            }
+          ],
+          "breakdownFilter": {
+            "breakdowns": [
+              {
+                "property": "action",
+                "type": "event"
+              }
+            ]
+          },
+          "trendsFilter": {
+            "display": "ActionsBarValue"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648080,
+      "shortId": "70VPDE1M",
+      "name": "GitSomething · Repository activity",
+      "description": "Native local opens, GitHub clones and publishing outcomes from participating installations. No repository metadata is collected.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            },
+            {
+              "key": "outcome",
+              "type": "event",
+              "operator": "exact",
+              "value": "success"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething repository opened",
+              "name": "gitsomething repository opened",
+              "math": "total"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething repository cloned",
+              "name": "gitsomething repository cloned",
+              "math": "total"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething repository published",
+              "name": "gitsomething repository published",
+              "math": "total"
+            }
+          ],
+          "trendsFilter": {
+            "display": "ActionsLineGraph"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648081,
+      "shortId": "YBgHklUG",
+      "name": "GitSomething · App versions in use",
+      "description": "Unique participating identities by packaged app version over the selected period.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "name": "GitSomething usage",
+              "math": "dau"
+            }
+          ],
+          "breakdownFilter": {
+            "breakdowns": [
+              {
+                "property": "app_version",
+                "type": "event"
+              }
+            ]
+          },
+          "trendsFilter": {
+            "display": "ActionsTable"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648082,
+      "shortId": "KP4qW2qt",
+      "name": "GitSomething · Sign-ins and guide usage",
+      "description": "Successful GitHub sign-ins and guide opens/completions by participating installations. A guide completion means reaching its final Explore action, not proof of Git proficiency.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "TrendsQuery",
+          "interval": "day",
+          "dateRange": {
+            "date_from": "-30d"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            }
+          ],
+          "filterTestAccounts": false,
+          "series": [
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething github connected",
+              "name": "gitsomething github connected",
+              "math": "total"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething guide opened",
+              "name": "gitsomething guide opened",
+              "math": "total"
+            },
+            {
+              "kind": "EventsNode",
+              "event": "gitsomething guide completed",
+              "name": "gitsomething guide completed",
+              "math": "total"
+            }
+          ],
+          "trendsFilter": {
+            "display": "ActionsLineGraph"
+          }
+        }
+      }
+    },
+    {
+      "id": 6648083,
+      "shortId": "V7pDcU4I",
+      "name": "GitSomething · Weekly return rate",
+      "description": "Users returning to open GitSomething in subsequent weeks after their first recorded open. Sharing is optional; installing the existing beta does not send these new events.",
+      "query": {
+        "kind": "InsightVizNode",
+        "source": {
+          "kind": "RetentionQuery",
+          "dateRange": {
+            "date_from": "-8w"
+          },
+          "properties": [
+            {
+              "key": "app_name",
+              "type": "event",
+              "operator": "exact",
+              "value": "GitSomething"
+            }
+          ],
+          "filterTestAccounts": false,
+          "retentionFilter": {
+            "targetEntity": {
+              "id": "gitsomething app opened",
+              "type": "events"
+            },
+            "returningEntity": {
+              "id": "gitsomething app opened",
+              "type": "events"
+            },
+            "period": "Week",
+            "retentionType": "retention_first_time",
+            "totalIntervals": 8
+          }
+        }
+      }
+    }
+  ]
+}

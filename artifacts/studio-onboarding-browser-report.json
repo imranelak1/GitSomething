@@ -1,6 +1,6 @@
 {
   "baseURL": "http://127.0.0.1:1431",
-  "testedAt": "2026-10-17T14:10:45.928Z",
+  "testedAt": "2026-10-18T01:43:26.344Z",
   "browser": "155.0.4283.62",
   "scope": "Browser guide interactions and mocked native GitHub OAuth IPC only",
   "checks": [
@@ -42,16 +42,16 @@
   ],
   "pollingClock": "Real browser time; mode-tagged 5s/10s frontend polling checks",
   "frontendPolling": {
-    "firstDelayMs": 5036,
-    "pendingDelayMs": 5003,
-    "slowDownDelayMs": 10003,
+    "firstDelayMs": 5041,
+    "pendingDelayMs": 5002,
+    "slowDownDelayMs": 10004,
     "polls": [
       {
         "command": "github_auth_poll",
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792246297116,
+        "calledAt": 1792287865864,
         "pollMode": "pending"
       },
       {
@@ -59,7 +59,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792246302119,
+        "calledAt": 1792287870866,
         "pollMode": "slow_down"
       },
       {
@@ -67,7 +67,7 @@
         "args": {
           "sessionId": "test-session-1"
         },
-        "calledAt": 1792246312122,
+        "calledAt": 1792287880870,
         "pollMode": "connected"
       }
     ]

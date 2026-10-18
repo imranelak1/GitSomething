@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { setAnalyticsAccount, trackEvent } from '@/lib/analytics';
 import { useActivity } from './useActivity';
 
 export interface GitHubAccount {
@@ -49,6 +50,7 @@ export interface PendingGitHubAuthorization {
 
 interface GitHubAuthContextValue extends GitHubAuthStatus {
   desktop: boolean;
+  ready: boolean;
   revision: number;
   stage: 'idle' | 'starting' | 'waiting' | 'connected' | 'error';
   pending: PendingGitHubAuthorization | null;
@@ -84,6 +86,7 @@ function messageFrom(reason: unknown, fallback: string) {
 export function GitHubAuthProvider({ children }: { children: ReactNode }) {
   const { record, settle } = useActivity();
   const desktop = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+  const [ready, setReady] = useState(!desktop);
   const [status, setStatus] = useState<GitHubAuthStatus>(emptyStatus);
   const [stage, setStage] = useState<GitHubAuthContextValue['stage']>('idle');
   const [pending, setPending] = useState<PendingGitHubAuthorization | null>(null);
@@ -118,6 +121,7 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     try {
       const current = await invoke<GitHubAuthStatus>('github_auth_status');
       if (!mounted.current || currentGeneration !== generation.current) return;
+      setAnalyticsAccount(current.connected ? (current.account?.login ?? null) : null);
       const nextIdentity = current.connected ? (current.account?.login.toLowerCase() ?? '') : '';
       if (identity.current !== nextIdentity) {
         identity.current = nextIdentity;
@@ -131,6 +135,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     } catch (reason) {
       if (!mounted.current || currentGeneration !== generation.current) return;
       setError(messageFrom(reason, 'Could not check GitHub sign-in. Try again.'));
+    } finally {
+      if (mounted.current && currentGeneration === generation.current) setReady(true);
     }
   }, [desktop]);
 
@@ -256,6 +262,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
               }));
               setStage('connected');
               setError(null);
+              setAnalyticsAccount(result.account?.login ?? null);
+              trackEvent('gitsomething github connected');
               finishAuthActivity(
                 attempt,
                 'success',
@@ -332,6 +340,8 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
     try {
       await invoke('github_auth_disconnect');
       if (!mounted.current || currentGeneration !== generation.current) return;
+      setAnalyticsAccount(null);
+      trackEvent('gitsomething github disconnected');
       identity.current = '';
       setRevision((value) => value + 1);
       setStatus((current) => ({ ...current, connected: false, account: null, scopes: [] }));
@@ -353,6 +363,11 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       if (currentGeneration === generation.current) starting.current = false;
     }
   }, [cancel, desktop, record, settle, status.connected]);
+
+  useEffect(() => {
+    if (!desktop) return;
+    setAnalyticsAccount(status.connected ? (status.account?.login ?? null) : null);
+  }, [desktop, status.connected, status.account?.login]);
 
   useEffect(() => {
     mounted.current = true;
@@ -379,6 +394,7 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       ...status,
       error,
       desktop,
+      ready,
       revision,
       stage,
       pending,
@@ -392,6 +408,7 @@ export function GitHubAuthProvider({ children }: { children: ReactNode }) {
       status,
       error,
       desktop,
+      ready,
       revision,
       stage,
       pending,

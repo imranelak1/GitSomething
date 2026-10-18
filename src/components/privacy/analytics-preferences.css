@@ -1,0 +1,236 @@
+.analytics-preferences-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  background: #010409b8;
+}
+
+.analytics-preferences-dialog {
+  position: fixed;
+  z-index: 161;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(90dvh, calc(100dvh - 32px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 12px;
+  background: var(--ui-panel);
+  color: var(--ui-text);
+  color-scheme: dark;
+  scrollbar-color: var(--ui-border-strong) transparent;
+  font-family: 'Manrope', sans-serif;
+}
+
+.analytics-preferences-dialog *,
+.analytics-preferences-dialog *::before,
+.analytics-preferences-dialog *::after {
+  box-sizing: border-box;
+}
+
+.analytics-preferences-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px 24px 20px;
+}
+
+.analytics-preferences-header > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.analytics-preferences-title {
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+}
+
+.analytics-preferences-description {
+  margin: 8px 0 0;
+  color: var(--ui-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.analytics-preferences-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin: -4px -4px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ui-muted);
+  cursor: pointer;
+}
+
+.analytics-preferences-close:hover {
+  background: var(--ui-hover);
+  color: var(--ui-text);
+}
+
+.analytics-preferences-body {
+  padding: 0 24px 20px;
+}
+
+.analytics-preferences-unavailable {
+  margin: 0 0 16px;
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.analytics-preferences-options {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.analytics-preferences-legend {
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.analytics-preferences-option {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  min-height: 76px;
+  padding: 14px 0;
+  border-top: 1px solid var(--ui-border);
+  cursor: pointer;
+}
+
+.analytics-preferences-option:last-child {
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.analytics-preferences-option:hover {
+  background: var(--ui-canvas);
+}
+
+.analytics-preferences-option input {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: var(--ui-accent);
+  cursor: pointer;
+}
+
+.analytics-preferences-option-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.analytics-preferences-option-title {
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.analytics-preferences-option[data-selected='true'] .analytics-preferences-option-title {
+  font-weight: 600;
+}
+
+.analytics-preferences-option-description {
+  color: var(--ui-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.analytics-preferences-disclosure {
+  margin-top: 20px;
+}
+
+.analytics-preferences-disclosure h3 {
+  margin: 0 0 8px;
+  color: var(--ui-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.analytics-preferences-disclosure p,
+.analytics-preferences-future,
+.analytics-preferences-error {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.analytics-preferences-disclosure p,
+.analytics-preferences-future {
+  color: var(--ui-muted);
+}
+
+.analytics-preferences-future {
+  margin-top: 16px;
+}
+
+.analytics-preferences-error {
+  color: var(--ui-danger);
+}
+
+.analytics-preferences-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--ui-border);
+}
+
+.analytics-preferences-footer p {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.analytics-preferences-footer > button {
+  flex: none;
+}
+
+.analytics-preferences-close:focus-visible,
+.analytics-preferences-option input:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .analytics-preferences-header,
+  .analytics-preferences-footer {
+    padding: 20px;
+  }
+
+  .analytics-preferences-body {
+    padding: 0 20px 20px;
+  }
+
+  .analytics-preferences-footer {
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analytics-preferences-close {
+    transition: none;
+  }
+}

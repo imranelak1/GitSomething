@@ -27,6 +27,7 @@ import { AnimatedTooltip } from '../registry/vengeance/AnimatedTooltip';
 import { GitHubConnectCard } from '../auth/GitHubConnectCard';
 import { useGitHubAuth } from '../../hooks/useGitHubAuth';
 import { useActivity } from '../../hooks/useActivity';
+import { trackEvent } from '@/lib/analytics';
 import { Button } from '../ui/button';
 import { SlideToConfirm } from '../SlideToConfirm';
 import './publish.css';
@@ -424,6 +425,7 @@ export function DropzoneToGitHub({
     setMessage('Checking the folder and your account…');
     let unlisten: UnlistenFn | null = null;
     let listenerDisposed = false;
+    let publishStarted = false;
     const disposeListener = () => {
       if (!listenerDisposed && unlisten) {
         listenerDisposed = true;
@@ -443,6 +445,7 @@ export function DropzoneToGitHub({
         return;
       }
       activeUnlisten.current = disposeListener;
+      publishStarted = true;
       const published = await invoke<PublishedRepository>('publish_repository', {
         request: {
           path: path.trim(),
@@ -455,6 +458,11 @@ export function DropzoneToGitHub({
           operationId,
         },
       });
+      trackEvent('gitsomething repository published', {
+        provider,
+        visibility: privateRepo ? 'private' : 'public',
+        outcome: 'success',
+      });
       if (!mounted.current || activeOperation.current !== operationId) return;
       setProgress(Object.fromEntries(steps.map((step) => [step.key, 'success'])));
       setResult(published);
@@ -464,6 +472,13 @@ export function DropzoneToGitHub({
         output: 'Cloud repository created and the first push completed.',
       });
     } catch (reason) {
+      if (publishStarted) {
+        trackEvent('gitsomething repository published', {
+          provider,
+          visibility: privateRepo ? 'private' : 'public',
+          outcome: 'error',
+        });
+      }
       const failure =
         typeof reason === 'string'
           ? reason

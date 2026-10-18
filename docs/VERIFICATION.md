@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Optional PostHog integration, October 18, 2026
+
+The [private GitSomething dashboard](https://eu.posthog.com/project/304237/dashboard/1032868) contains eight verified queries for active identities, optional public GitHub usernames, Git actions/failures, repository activity, versions, guide/sign-in activity, and weekly returns. Every query filters `app_name = 'GitSomething'`. All currently return no usage; no synthetic events were sent. Definitions and IDs are saved in [analytics-dashboard.json](analytics-dashboard.json).
+
+The source adds default-Off sharing preferences and an explicit EU Capture API transport. Only fixed event labels and enum outcomes are sent. Named events contain the public GitHub login only after that choice; earlier anonymous history is never linked. Pending requests are cancelled when consent or the named identity changes. No SDK, replay, automatic capture, retry queue, cookies, URL/referrer payloads, repository metadata, code, messages, or credentials are collected.
+
+Validation passed: the production frontend build, TypeScript and **90 unit tests** (including **17 analytics tests**), and locked Rust configuration compilation. The [nine analytics browser checks](../artifacts/analytics-browser-report.json), [16 onboarding/OAuth checks](../artifacts/studio-onboarding-browser-report.json), and [22 GitHub repository checks](../artifacts/github-repositories-report.json) passed with zero browser errors or live provider traffic. Analytics requests are intercepted locally, including a simulated packaged origin and delayed account restoration; no test data enters PostHog. The [desktop](../artifacts/analytics/privacy-desktop.png) and [320px](../artifacts/analytics/privacy-320.png) preferences were visually reviewed.
+
+The onboarding run exposed an existing cached-reload fixture race: its DOM check found the demo button while startup still hid it from accessibility, so it skipped the click. The shared fixture now waits for a visible, accessible target. The application startup behavior is unchanged. Named launch tracking now waits for initial account restoration, and disconnect clears analytics identity before recording its anonymous event.
+
+This is source and dashboard integration evidence. The published beta installers are unchanged; a new production build is required to collect opted-in usage. Live ingestion from an installed production binary has not been exercised. See [analytics choices and transport](ANALYTICS.md).
+
 ## Public beta 2 publication, October 17, 2026
 
 **[GitSomething 1.0.0-beta.2](https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.2)** was published publicly at **21:55:02 UTC** with **15 assets**, `draft: false`, `prerelease: true`, and `immutable: true`. Repository release immutability was enabled before publication. Anonymous requests downloaded all 15 assets successfully and matched each byte count and independently calculated SHA-256. The application and installer hashes are unchanged from the tested candidate; only release notes, manifest, and checksum metadata changed for publication.
