@@ -2,7 +2,7 @@
 
 [Windows checks](../.github/workflows/windows-checks.yml) runs on pushes and pull requests to `main` that change application source, public assets, scripts, dependency manifests, TypeScript/Vite configuration, or `.github` files. Documentation and proof-only commits do not restart the checks. The workflow can also be started manually from the repository's Actions tab. It uses one Windows Server 2022 x64 runner with Node.js **22.21.0** and Rust **1.95.0**, matching the locally verified toolchain. A newer run for the same branch cancels an older run; each job has a 35-minute limit.
 
-The workflow installs dependencies from the npm lockfile, checks TypeScript and frontend unit tests, builds the frontend, checks Rust formatting, runs the Rust tests with the Cargo lockfile, and rejects Clippy warnings. These checks do not authorize GitHub, open the desktop app, or prove installer behavior or live provider integration. Browser fixtures and native/manual checks remain separate; see [VERIFICATION.md](VERIFICATION.md).
+The workflow installs dependencies from the npm lockfile, checks TypeScript and frontend unit tests, tests the Windows PE dependency auditor, builds the frontend, checks Rust formatting, runs the Rust tests with the Cargo lockfile, and rejects Clippy warnings. These checks do not authorize GitHub, open the desktop app, or prove installer behavior or live provider integration. Browser fixtures and native/manual checks remain separate; see [VERIFICATION.md](VERIFICATION.md).
 
 ## Shared GitHub configuration
 
@@ -12,18 +12,18 @@ Set **Settings → Secrets and variables → Actions → Variables → New repos
 | ------------------------------- | ---------------------------------------------------------------------------------- |
 | `GITSOMETHING_GITHUB_CLIENT_ID` | The registered GitSomething OAuth app's public Client ID, with Device Flow enabled |
 
-The workflow reads this value through GitHub's `vars` context. This public application identifier is embedded in native builds. It is not a personal access token or client secret. The ordinary debug-profile checks can run without it; a requested release installer fails if it is absent. [GitHub documents repository variables and their workflow context.](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)
+The workflow reads this value through GitHub's `vars` context. This public application identifier is embedded in native builds. It is not a personal access token or client secret. The ordinary debug-profile checks can run without it; a requested release build fails if it is absent. [GitHub documents repository variables and their workflow context.](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)
 
 ## Build a candidate without publishing
 
-From **Actions → Windows checks → Run workflow**, select the intended source branch and enable **Build and upload an unsigned Windows candidate after checks**. After checks pass, the job runs:
+From **Actions → Windows checks → Run workflow**, select the intended source branch and enable **Build and upload a single portable Windows EXE after checks** (`build_release`). After checks pass, the job runs:
 
 ```powershell
-npm run tauri build -- --bundles nsis -- --locked
+npm run tauri build -- --no-bundle -- --locked
 node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA"
 ```
 
-The packager checks synchronized versions, the matching release notes, and the expected public assets. It stages the installer, application executable, notes, brand exports, manifest, and SHA-256 checksums: **15 files** in `artifacts/releases/v<version>/`. The exact workflow source commit is recorded in the manifest. A successful manual run uploads this directory as an Actions artifact for seven days. Download it from that workflow run; access follows repository permissions.
+The default portable packager checks synchronized versions, matching release notes, Windows x64 architecture, and normal/delay DLL imports. It stages one application EXE plus internal `manifest.json` and `SHA256SUMS.txt` records in `artifacts/releases/v<version>/`. The manifest records the exact workflow source commit. CI uploads the EXE and verification records as separate Actions artifacts for seven days. Download them from that workflow run; access follows repository permissions. Only the EXE belongs in the public release asset list. WebView2 remains a system prerequisite; this direct-run build does not provision it.
 
 This workflow creates no Git tag or GitHub release and does not sign executables. The candidate remains unsigned. A successful build and checksum manifest do not establish that installation, browser authorization, or pushing works. Verify the native version and remaining release checks before preparing a release; see [RELEASING.md](RELEASING.md).
 

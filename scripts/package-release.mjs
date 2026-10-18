@@ -3,6 +3,7 @@ import { copyFile, mkdir, open, readFile, readdir, stat, writeFile } from 'node:
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { inspectWindowsExe } from './inspect-windows-exe.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 let options;
@@ -22,6 +23,7 @@ function parseOptions(args) {
     ['--exe', 'exe'],
     ['--target', 'target'],
     ['--source-revision', 'sourceRevision'],
+    ['--format', 'format'],
   ]);
   for (let index = 0; index < args.length; index += 1) {
     const flag = args[index];
@@ -38,6 +40,13 @@ function parseOptions(args) {
   }
   if (parsed.target && parsed.target !== 'x86_64-pc-windows-msvc') {
     throw new Error('This release packager supports only Windows x64.');
+  }
+  parsed.format ??= 'portable';
+  if (!['portable', 'full'].includes(parsed.format)) {
+    throw new Error('--format must be portable or full.');
+  }
+  if (parsed.format === 'portable' && parsed.installer) {
+    throw new Error('--installer requires --format full.');
   }
   if (parsed.sourceRevision && !/^[a-f0-9]{40}$/i.test(parsed.sourceRevision)) {
     throw new Error('--source-revision requires a complete 40-character commit hash.');
@@ -75,8 +84,11 @@ async function prepare() {
       'Synchronize the package, npm lockfile, Cargo manifest/lockfile, and Tauri versions first.',
     );
   }
-  if (config.productName !== 'GitSomething' || !config.bundle?.targets?.includes('nsis')) {
-    throw new Error('Expected the GitSomething NSIS bundle configuration.');
+  if (
+    config.productName !== 'GitSomething' ||
+    (options.format === 'full' && !config.bundle?.targets?.includes('nsis'))
+  ) {
+    throw new Error('Expected the GitSomething product and requested bundle configuration.');
   }
   if (
     config.bundle?.windows?.certificateThumbprint ||
@@ -92,7 +104,7 @@ async function prepare() {
   const releaseDir = path.join(root, 'src-tauri/target', options.target ?? '', 'release');
   const installerName = `GitSomething_${version}_x64-setup.exe`;
   const appName = `GitSomething_${version}_windows-x64.exe`;
-  const files = [
+  const fullFiles = [
     {
       source: options.installer
         ? path.resolve(options.installer)
@@ -163,7 +175,8 @@ async function prepare() {
       kind: 'brand',
     },
   ];
-  const notes = await readFile(files[2].source, 'utf8');
+  const files = options.format === 'portable' ? [fullFiles[1]] : fullFiles;
+  const notes = await readFile(fullFiles[2].source, 'utf8');
   if (
     !notes.startsWith(`# GitSomething ${version}\n`) &&
     !notes.startsWith(`# GitSomething ${version}\r\n`)
@@ -191,6 +204,12 @@ async function prepare() {
       }
     }
   }
+  const application = await inspectWindowsExe(fullFiles[1].source);
+  if (application.architecture !== 'x86_64' || application.unsupportedImports.length) {
+    throw new Error(
+      `The portable application must be Windows x64 with only system DLL imports. Unexpected dependencies: ${application.unsupportedImports.join(', ') || application.architecture}`,
+    );
+  }
   const output = path.join(root, 'artifacts/releases', tag);
   const allowed = new Set([...files.map((file) => file.name), 'manifest.json', 'SHA256SUMS.txt']);
   const existing = await readdir(output).catch((error) => {
@@ -213,6 +232,11 @@ async function prepare() {
   for (const file of files) {
     const destination = path.join(output, file.name);
     const before = await sha256(file.source);
+    if (file.kind === 'windows-application' && before !== application.sha256) {
+      throw new Error(
+        'The application changed after its dependency audit; retry after the build finishes.',
+      );
+    }
     await copyFile(file.source, destination);
     const copied = await sha256(destination);
     if (before !== copied)
@@ -231,8 +255,17 @@ async function prepare() {
     prerelease: version.includes('-'),
     platform: 'windows',
     architecture: 'x86_64',
+    distribution: options.format,
+    publicAssets: options.format === 'portable' ? [appName] : files.map((file) => file.name),
     codeSigning: 'unsigned',
     webview: 'Microsoft Edge WebView2',
+    webviewProvisioning:
+      options.format === 'portable' ? 'system runtime required' : 'installer bootstrapper',
+    nativeDependencies: {
+      imports: application.imports,
+      delayImports: application.delayImports,
+      unsupportedImports: application.unsupportedImports,
+    },
     githubOAuth:
       'shared public application identifier embedded at build time; access tokens not included',
     ...(options.sourceRevision ? { sourceRevision: options.sourceRevision.toLowerCase() } : {}),
@@ -246,6 +279,9 @@ async function prepare() {
   ];
   await writeFile(path.join(output, 'SHA256SUMS.txt'), `${checksums.join('\n')}\n`, 'utf8');
   console.log(`Prepared ${assets.length} assets, manifest, and SHA-256 checksums: ${output}`);
+  if (options.format === 'portable') {
+    console.log(`Upload only ${appName}; keep manifest.json and SHA256SUMS.txt as build records.`);
+  }
   console.log(
     'This is an unsigned preview. Live OAuth and installation verification must be recorded separately.',
   );

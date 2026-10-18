@@ -2,6 +2,18 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Single-executable beta 3, October 18, 2026
+
+**1.0.0-beta.3** is packaged as one direct-run Windows x64 application EXE. Its interface, Monaco assets, Git engine, and application resources are embedded. The packaging default selects only that EXE for public upload; manifests and checksum records stay internal. The legacy `--format full` remains explicit. Existing releases are unchanged.
+
+The locked production build, TypeScript and **90 frontend tests**, **42 Rust tests**, Rust formatting, strict Clippy, and **12 PE-auditor tests** passed. The auditor covers ordinary and delayed sidecars, Windows API contracts, malformed/truncated headers, RVA mapping, terminators, and architecture. The packager binds copied bytes to the audited SHA-256 and refuses unexpected staging files.
+
+The **20,231,168-byte** candidate has SHA-256 `d9b7b806f06f284e994c59878cbac272d9ee91389f369d65092c17610d5598fd`. It is **NotSigned**. A copy launched from a separate folder containing only the EXE. [Five native runtime groups](../artifacts/release/beta3-native-runtime.json) verified the actual beta.3 version, shared OAuth configuration, original mark, bundled Monaco worker, and absence of runtime/CSP errors. Existing GitHub connection restoration succeeded; no private metadata or native screenshot was recorded.
+
+The [portable smoke report](../artifacts/release/beta3-portable-smoke.json) separately verifies that folder still contains only the EXE after launch, that its 32 ordinary DLL imports are Windows components with no delayed or third-party imports, and that real Rust/libgit2 IPC reads this local repository's branch and history. Usage sharing remained Off. No Git shell executable, Node.js, Rust, or companion application DLL was needed at runtime.
+
+Microsoft Edge WebView2 was already installed on this test machine and remains required. This is not clean-machine or missing-runtime evidence, and a PE import-name audit does not inspect runtime `LoadLibrary` calls or verify Windows DLL signatures. Live private cloning, native picker interaction, provider publication/pushing, and production analytics ingestion remain unverified. The beta.2 clone evidence below remains version-specific.
+
 ## Optional PostHog integration, October 18, 2026
 
 The [private GitSomething dashboard](https://eu.posthog.com/project/304237/dashboard/1032868) contains eight verified queries for active identities, optional public GitHub usernames, Git actions/failures, repository activity, versions, guide/sign-in activity, and weekly returns. Every query filters `app_name = 'GitSomething'`. All currently return no usage; no synthetic events were sent. Definitions and IDs are saved in [analytics-dashboard.json](analytics-dashboard.json).
@@ -12,7 +24,7 @@ Validation passed: the production frontend build, TypeScript and **90 unit tests
 
 The onboarding run exposed an existing cached-reload fixture race: its DOM check found the demo button while startup still hid it from accessibility, so it skipped the click. The shared fixture now waits for a visible, accessible target. The application startup behavior is unchanged. Named launch tracking now waits for initial account restoration, and disconnect clears analytics identity before recording its anonymous event.
 
-This is source and dashboard integration evidence. The published beta installers are unchanged; a new production build is required to collect opted-in usage. Live ingestion from an installed production binary has not been exercised. See [analytics choices and transport](ANALYTICS.md).
+This records source and dashboard integration evidence before beta.3 packaging. Earlier published beta installers are unchanged; beta.3 includes this integration. Live ingestion from a production binary has not been exercised. See [analytics choices and transport](ANALYTICS.md).
 
 ## Public beta 2 publication, October 17, 2026
 

@@ -25,8 +25,8 @@ on:
       - '.github/**'
   workflow_dispatch:
     inputs:
-      build_installer:
-        description: Build and upload an unsigned Windows candidate after checks
+      build_release:
+        description: Build and upload a single portable Windows EXE after checks
         required: false
         type: boolean
         default: false
@@ -87,6 +87,9 @@ jobs:
       - name: Check TypeScript and unit tests
         run: npm run check
 
+      - name: Test Windows executable dependency audit
+        run: node --test scripts/inspect-windows-exe.test.mjs
+
       - name: Build frontend
         run: npm run build
 
@@ -100,19 +103,19 @@ jobs:
         run: cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 
       - name: Validate publisher configuration
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
         run: |
           if ([string]::IsNullOrWhiteSpace($env:GITSOMETHING_GITHUB_CLIENT_ID)) {
-            throw 'Set the GITSOMETHING_GITHUB_CLIENT_ID repository variable to the registered app public Client ID before building an installer. Do not supply an access token or client secret.'
+            throw 'Set the GITSOMETHING_GITHUB_CLIENT_ID repository variable to the registered app public Client ID before building a release. Do not supply an access token or client secret.'
           }
 
-      - name: Build unsigned Windows installer
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
-        run: npm run tauri build -- --bundles nsis -- --locked
+      - name: Build portable Windows executable
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
+        run: npm run tauri build -- --no-bundle -- --locked
 
       - name: Stage verified candidate assets
         id: candidate
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
         run: |
           node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA"
           if ($LASTEXITCODE -ne 0) {
@@ -122,11 +125,22 @@ jobs:
           "directory=artifacts/releases/v$releaseVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "name=GitSomething_${releaseVersion}_windows-x64" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Upload candidate assets for review
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_installer }}
+      - name: Upload single executable
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{ steps.candidate.outputs.name }}
-          path: ${{ steps.candidate.outputs.directory }}/
+          path: ${{ steps.candidate.outputs.directory }}/*.exe
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload internal verification records
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ${{ steps.candidate.outputs.name }}-verification
+          path: |
+            ${{ steps.candidate.outputs.directory }}/manifest.json
+            ${{ steps.candidate.outputs.directory }}/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 7
