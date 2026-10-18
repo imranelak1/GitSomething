@@ -18,10 +18,12 @@ npm run check
 node --test scripts/inspect-windows-exe.test.mjs
 cargo test --locked --manifest-path src-tauri/Cargo.toml
 cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
-npm run tauri build -- --bundles nsis -- --locked
+npm run tauri build -- --bundles nsis --no-binary-patching -- --locked
 ```
 
 Tauri builds the frontend and application; the final separator passes `--locked` to Cargo. Close an app running from the output directory before relinking it. The host-build application is `src-tauri/target/release/gitsomething.exe`; the setup output is `src-tauri/target/release/bundle/nsis/GitSomething_1.0.0-beta.4_x64-setup.exe`. An explicit `--target x86_64-pc-windows-msvc` build uses `src-tauri/target/x86_64-pc-windows-msvc/release/` instead.
+
+Keep `--no-binary-patching`: Tauri otherwise temporarily changes an embedded bundle-type marker in the installer payload and restores the standalone file afterward. This project ships one NSIS format and has no per-format updater, so preserving identical app bytes lets the installation verifier compare its SHA-256 directly against the audited executable. To rebundle an already verified locked build, use `npm run tauri bundle -- --bundles nsis --no-binary-patching` without rebuilding the application.
 
 The NSIS setup installs for the current Windows user and supplies application shortcuts. The app includes its interface, Git engine, and assets; Git, Node.js, and Rust are not runtime requirements. Tauri's configured `downloadBootstrapper` obtains [Microsoft Edge WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/) if missing, so that step requires internet access. Microsoft's [runtime distribution guidance](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution) explains availability and deployment. Preferences and recents use the normal app profile, and GitHub credentials use the OS credential store.
 

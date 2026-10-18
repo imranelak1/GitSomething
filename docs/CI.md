@@ -19,7 +19,7 @@ The workflow reads this value through GitHub's `vars` context. This public appli
 From **Actions → Windows checks → Run workflow**, select the intended source branch and enable the **single Windows setup EXE** build (`build_release`). After checks pass, the job runs:
 
 ```powershell
-npm run tauri build -- --bundles nsis -- --locked
+npm run tauri build -- --bundles nsis --no-binary-patching -- --locked
 # The workflow verifies installation before packaging.
 node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA" --installer-proof "$env:RUNNER_TEMP/gitsomething-installer-verification/report.json"
 ```
