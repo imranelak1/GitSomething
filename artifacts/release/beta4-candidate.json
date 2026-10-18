@@ -1,0 +1,27 @@
+{
+  "verifiedAt": "2026-10-18T13:44:26.985Z",
+  "releaseId": 416471690,
+  "draft": true,
+  "prerelease": true,
+  "assets": 1,
+  "sourceRevision": "c55b80de766669c6cda6c9d162b7041920df0723",
+  "tagObject": "47f562cdbf16ed226ca8fdc99cb4796d59f5f007",
+  "setup": {
+    "name": "GitSomething_1.0.0-beta.4_x64-setup.exe",
+    "kind": "windows-installer",
+    "bytes": 6790132,
+    "sha256": "0a7887ac2de55ec291b95ab67d00b91ee22e3147ea0dbf377023bea2964a8e10"
+  },
+  "application": {
+    "bytes": 20231168,
+    "sha256": "336a22059a177e6fdbf1e62d67746afaa1b4850e2fea043d0190b06c31522edc",
+    "architecture": "x86_64"
+  },
+  "installerWorkflow": {
+    "runId": 39132785146,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/imranelak1/GitSomething/actions/runs/39132785146"
+  },
+  "checks": "Draft asset digest, size, name, source, tag target, installed-payload proof, and release-body SHA match"
+}

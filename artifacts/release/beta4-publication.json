@@ -1,0 +1,46 @@
+{
+  "verifiedAt": "2026-10-18T13:47:00.711Z",
+  "releaseId": 416471690,
+  "tag": "v1.0.0-beta.4",
+  "sourceRevision": "c55b80de766669c6cda6c9d162b7041920df0723",
+  "tagObject": "47f562cdbf16ed226ca8fdc99cb4796d59f5f007",
+  "publishedAt": "2026-10-18T13:46:43Z",
+  "url": "https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.4",
+  "draft": false,
+  "prerelease": true,
+  "immutable": true,
+  "publicAssetCount": 1,
+  "asset": {
+    "name": "GitSomething_1.0.0-beta.4_x64-setup.exe",
+    "bytes": 6790132,
+    "sha256": "0a7887ac2de55ec291b95ab67d00b91ee22e3147ea0dbf377023bea2964a8e10",
+    "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.4/GitSomething_1.0.0-beta.4_x64-setup.exe"
+  },
+  "anonymousApiStatus": 200,
+  "anonymousPageStatus": 200,
+  "anonymousDownloadStatus": 200,
+  "releaseAttestation": "gh release verify passed",
+  "downloadAttestation": {
+    "command": "gh release verify-asset v1.0.0-beta.4 <fresh-public-download> --repo imranelak1/GitSomething",
+    "exitCode": 0,
+    "output": "Calculated digest for GitSomething_1.0.0-beta.4_x64-setup.exe: sha256:0a7887ac2de55ec291b95ab67d00b91ee22e3147ea0dbf377023bea2964a8e10\nResolved tag v1.0.0-beta.4 to sha1:47f562cdbf16ed226ca8fdc99cb4796d59f5f007\nLoaded attestation from GitHub API\n\n✓ Verification succeeded! GitSomething_1.0.0-beta.4_x64-setup.exe is present in release v1.0.0-beta.4"
+  },
+  "windowsCodeSigning": "NotSigned",
+  "windowsCI": {
+    "runId": 39132777418,
+    "url": "https://github.com/imranelak1/GitSomething/actions/runs/39132777418",
+    "headSha": "c55b80de766669c6cda6c9d162b7041920df0723",
+    "status": "completed",
+    "conclusion": "success",
+    "durationSeconds": 163
+  },
+  "installerVerification": {
+    "runId": 39132785146,
+    "url": "https://github.com/imranelak1/GitSomething/actions/runs/39132785146",
+    "headSha": "c55b80de766669c6cda6c9d162b7041920df0723",
+    "status": "completed",
+    "conclusion": "success",
+    "checks": 33,
+    "applicationSha256": "336a22059a177e6fdbf1e62d67746afaa1b4850e2fea043d0190b06c31522edc"
+  }
+}
