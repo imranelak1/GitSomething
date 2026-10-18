@@ -1,6 +1,6 @@
 [package]
 name = "gitsomething"
-version = "1.0.0-beta.3"
+version = "1.0.0-beta.4"
 description = "A thoughtful desktop Git client"
 authors = ["GitSomething contributors"]
 edition = "2021"

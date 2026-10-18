@@ -24,6 +24,7 @@ function parseOptions(args) {
     ['--target', 'target'],
     ['--source-revision', 'sourceRevision'],
     ['--format', 'format'],
+    ['--installer-proof', 'installerProof'],
   ]);
   for (let index = 0; index < args.length; index += 1) {
     const flag = args[index];
@@ -41,12 +42,12 @@ function parseOptions(args) {
   if (parsed.target && parsed.target !== 'x86_64-pc-windows-msvc') {
     throw new Error('This release packager supports only Windows x64.');
   }
-  parsed.format ??= 'portable';
-  if (!['portable', 'full'].includes(parsed.format)) {
-    throw new Error('--format must be portable or full.');
+  parsed.format ??= 'installer';
+  if (!['installer', 'portable', 'full'].includes(parsed.format)) {
+    throw new Error('--format must be installer, portable, or full.');
   }
   if (parsed.format === 'portable' && parsed.installer) {
-    throw new Error('--installer requires --format full.');
+    throw new Error('--installer requires --format installer or full.');
   }
   if (parsed.sourceRevision && !/^[a-f0-9]{40}$/i.test(parsed.sourceRevision)) {
     throw new Error('--source-revision requires a complete 40-character commit hash.');
@@ -86,7 +87,7 @@ async function prepare() {
   }
   if (
     config.productName !== 'GitSomething' ||
-    (options.format === 'full' && !config.bundle?.targets?.includes('nsis'))
+    (options.format !== 'portable' && !config.bundle?.targets?.includes('nsis'))
   ) {
     throw new Error('Expected the GitSomething product and requested bundle configuration.');
   }
@@ -175,7 +176,12 @@ async function prepare() {
       kind: 'brand',
     },
   ];
-  const files = options.format === 'portable' ? [fullFiles[1]] : fullFiles;
+  const files =
+    options.format === 'installer'
+      ? [fullFiles[0]]
+      : options.format === 'portable'
+        ? [fullFiles[1]]
+        : fullFiles;
   const notes = await readFile(fullFiles[2].source, 'utf8');
   if (
     !notes.startsWith(`# GitSomething ${version}\n`) &&
@@ -210,6 +216,37 @@ async function prepare() {
       `The portable application must be Windows x64 with only system DLL imports. Unexpected dependencies: ${application.unsupportedImports.join(', ') || application.architecture}`,
     );
   }
+  let installerVerification;
+  let installerSha256;
+  if (options.format !== 'portable') {
+    installerSha256 = await sha256(fullFiles[0].source);
+    if (options.installerProof) {
+      const proof = JSON.parse(await readFile(path.resolve(options.installerProof), 'utf8'));
+      if (
+        proof.status !== 'passed' ||
+        proof.version !== version ||
+        proof.installer?.sha256 !== installerSha256 ||
+        proof.installer?.bytes !== (await stat(fullFiles[0].source)).size ||
+        proof.application?.sha256 !== application.sha256 ||
+        proof.application?.bytes !== application.bytes ||
+        proof.application?.architecture !== 'x86_64'
+      ) {
+        throw new Error(
+          'Installer verification must pass for this version, setup file, and audited application bytes.',
+        );
+      }
+      installerVerification = {
+        method: 'disposable Windows CI installation, shortcuts, payload hash, and uninstall',
+        status: proof.status,
+        installerSha256,
+        applicationSha256: application.sha256,
+      };
+    } else if (!options.dryRun) {
+      throw new Error(
+        'Installer staging requires --installer-proof from scripts/verify-windows-installer.ps1 on a disposable Windows CI runner.',
+      );
+    }
+  }
   const output = path.join(root, 'artifacts/releases', tag);
   const allowed = new Set([...files.map((file) => file.name), 'manifest.json', 'SHA256SUMS.txt']);
   const existing = await readdir(output).catch((error) => {
@@ -223,6 +260,11 @@ async function prepare() {
   }
   if (options.dryRun) {
     console.log(`Validated ${files.length} inputs for GitSomething ${version}; no files written.`);
+    if (options.format !== 'portable' && !installerVerification) {
+      console.log(
+        'Installer inputs only; staging still requires matching installation verification.',
+      );
+    }
     console.log(`Output: ${output}`);
     return;
   }
@@ -235,6 +277,11 @@ async function prepare() {
     if (file.kind === 'windows-application' && before !== application.sha256) {
       throw new Error(
         'The application changed after its dependency audit; retry after the build finishes.',
+      );
+    }
+    if (file.kind === 'windows-installer' && before !== installerSha256) {
+      throw new Error(
+        'The installer changed after verification; retry with proof for the final build.',
       );
     }
     await copyFile(file.source, destination);
@@ -256,7 +303,10 @@ async function prepare() {
     platform: 'windows',
     architecture: 'x86_64',
     distribution: options.format,
-    publicAssets: options.format === 'portable' ? [appName] : files.map((file) => file.name),
+    publicAssets:
+      options.format === 'full'
+        ? [...files.map((file) => file.name), 'manifest.json', 'SHA256SUMS.txt']
+        : files.map((file) => file.name),
     codeSigning: 'unsigned',
     webview: 'Microsoft Edge WebView2',
     webviewProvisioning:
@@ -266,6 +316,12 @@ async function prepare() {
       delayImports: application.delayImports,
       unsupportedImports: application.unsupportedImports,
     },
+    bundledApplication: {
+      bytes: application.bytes,
+      sha256: application.sha256,
+      architecture: application.architecture,
+    },
+    ...(installerVerification ? { installerVerification } : {}),
     githubOAuth:
       'shared public application identifier embedded at build time; access tokens not included',
     ...(options.sourceRevision ? { sourceRevision: options.sourceRevision.toLowerCase() } : {}),
@@ -279,8 +335,10 @@ async function prepare() {
   ];
   await writeFile(path.join(output, 'SHA256SUMS.txt'), `${checksums.join('\n')}\n`, 'utf8');
   console.log(`Prepared ${assets.length} assets, manifest, and SHA-256 checksums: ${output}`);
-  if (options.format === 'portable') {
-    console.log(`Upload only ${appName}; keep manifest.json and SHA256SUMS.txt as build records.`);
+  if (options.format !== 'full') {
+    console.log(
+      `Upload only ${files[0].name}; keep manifest.json and SHA256SUMS.txt as build records.`,
+    );
   }
   console.log(
     'This is an unsigned preview. Live OAuth and installation verification must be recorded separately.',

@@ -2,6 +2,14 @@
 
 Use this checklist to assess the application. Record actual command results in the implementation handoff; unchecked items here are not evidence that they passed.
 
+## Single setup executable: beta 4, October 18, 2026
+
+**1.0.0-beta.4** changes the main download to one current-user NSIS setup EXE. Start menu and desktop shortcuts are supported by Tauri's installer; the interactive desktop checkbox is checked by default. WebView2 uses `downloadBootstrapper` when missing and requires internet for that step. The earlier beta.3 portable release is unchanged.
+
+The locked NSIS production build passed. The unsigned **6,791,719-byte** setup has SHA-256 `08d214082fe72cc4599368ec1e90df91031104ec4dd99c8ed44ebc117b52ad46`. Its unsigned **20,231,168-byte** application has SHA-256 `336a22059a177e6fdbf1e62d67746afaa1b4850e2fea043d0190b06c31522edc`. The [five native runtime checks](../artifacts/release/beta4-native-runtime.json) confirmed the actual beta.4 version, embedded GitHub configuration, branding, bundled Monaco worker, restored connection, and absence of runtime/CSP errors. No private metadata or native screenshots were recorded.
+
+Installer verification runs on a disposable GitHub-hosted Windows runner, with fixed expected setup and application hashes. Packaging requires its passed report, matching the version and both exact binaries. Input-only dry-run success does not authorize staging. This keeps a stale installer from borrowing unrelated application-audit metadata. Actual installation results will be recorded after that run; the maintainer's existing installation is untouched.
+
 ## Single-executable beta 3, October 18, 2026
 
 **1.0.0-beta.3** is packaged as one direct-run Windows x64 application EXE. Its interface, Monaco assets, Git engine, and application resources are embedded. The packaging default selects only that EXE for public upload; manifests and checksum records stay internal. The legacy `--format full` remains explicit. Existing releases are unchanged.

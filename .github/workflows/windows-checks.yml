@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
     inputs:
       build_release:
-        description: Build and upload a single portable Windows EXE after checks
+        description: Build and upload a single Windows setup EXE after checks
         required: false
         type: boolean
         default: false
@@ -109,15 +109,23 @@ jobs:
             throw 'Set the GITSOMETHING_GITHUB_CLIENT_ID repository variable to the registered app public Client ID before building a release. Do not supply an access token or client secret.'
           }
 
-      - name: Build portable Windows executable
+      - name: Build Windows setup executable
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
-        run: npm run tauri build -- --no-bundle -- --locked
+        run: npm run tauri build -- --bundles nsis -- --locked
+
+      - name: Verify installation, payload, shortcuts, and uninstall
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
+        run: |
+          $releaseVersion = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          $installer = (Resolve-Path -LiteralPath "src-tauri/target/release/bundle/nsis/GitSomething_${releaseVersion}_x64-setup.exe").Path
+          $application = (Resolve-Path -LiteralPath src-tauri/target/release/gitsomething.exe).Path
+          ./scripts/verify-windows-installer.ps1 -InstallerPath $installer -ExpectedInstallerSha256 (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash -ExpectedApplicationSha256 (Get-FileHash -LiteralPath $application -Algorithm SHA256).Hash -ExpectedVersion $releaseVersion
 
       - name: Stage verified candidate assets
         id: candidate
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
         run: |
-          node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA"
+          node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA" --installer-proof "$env:RUNNER_TEMP/gitsomething-installer-verification/report.json"
           if ($LASTEXITCODE -ne 0) {
             throw 'Release packaging validation failed.'
           }
@@ -125,7 +133,7 @@ jobs:
           "directory=artifacts/releases/v$releaseVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           "name=GitSomething_${releaseVersion}_windows-x64" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Upload single executable
+      - name: Upload single setup executable
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
@@ -143,4 +151,13 @@ jobs:
             ${{ steps.candidate.outputs.directory }}/manifest.json
             ${{ steps.candidate.outputs.directory }}/SHA256SUMS.txt
           if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload installation verification report
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.build_release }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: windows-installer-verification-${{ github.run_id }}
+          path: ${{ runner.temp }}/gitsomething-installer-verification/report.json
+          if-no-files-found: warn
           retention-days: 7

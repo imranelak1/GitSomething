@@ -16,16 +16,21 @@ The workflow reads this value through GitHub's `vars` context. This public appli
 
 ## Build a candidate without publishing
 
-From **Actions → Windows checks → Run workflow**, select the intended source branch and enable **Build and upload a single portable Windows EXE after checks** (`build_release`). After checks pass, the job runs:
+From **Actions → Windows checks → Run workflow**, select the intended source branch and enable the **single Windows setup EXE** build (`build_release`). After checks pass, the job runs:
 
 ```powershell
-npm run tauri build -- --no-bundle -- --locked
-node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA"
+npm run tauri build -- --bundles nsis -- --locked
+# The workflow verifies installation before packaging.
+node scripts/package-release.mjs --source-revision "$env:GITHUB_SHA" --installer-proof "$env:RUNNER_TEMP/gitsomething-installer-verification/report.json"
 ```
 
-The default portable packager checks synchronized versions, matching release notes, Windows x64 architecture, and normal/delay DLL imports. It stages one application EXE plus internal `manifest.json` and `SHA256SUMS.txt` records in `artifacts/releases/v<version>/`. The manifest records the exact workflow source commit. CI uploads the EXE and verification records as separate Actions artifacts for seven days. Download them from that workflow run; access follows repository permissions. Only the EXE belongs in the public release asset list. WebView2 remains a system prerequisite; this direct-run build does not provision it.
+The workflow tests a fresh current-user installation on its disposable runner before packaging: actual installed application hash/version/architecture, registry values, desktop and Start menu shortcut targets, and uninstall cleanup. The CI-only verifier refuses pre-existing GitSomething registrations or shortcuts. It never launches the application or authorizes GitHub.
+
+The default installer packager checks synchronized versions, matching release notes, Windows x64 application architecture, normal/delay DLL imports, and the passed installation report's exact setup/application hashes. It stages one NSIS setup EXE plus internal `manifest.json` and `SHA256SUMS.txt` records in `artifacts/releases/v<version>/`. The manifest records the exact workflow source commit. CI uploads the EXE and verification records as separate Actions artifacts for seven days. Download them from that workflow run; access follows repository permissions. Only the setup EXE belongs in the public release asset list. Setup is configured to download WebView2 if missing; that step needs internet access. The explicit local `--format portable` and `--format full` options do not change this CI default.
 
 This workflow creates no Git tag or GitHub release and does not sign executables. The candidate remains unsigned. A successful build and checksum manifest do not establish that installation, browser authorization, or pushing works. Verify the native version and remaining release checks before preparing a release; see [RELEASING.md](RELEASING.md).
+
+[Verify Windows installer](../.github/workflows/verify-windows-installer.yml) provides the same installation checks for an existing draft candidate. Dispatch it with the matching version tag and both expected SHA-256 hashes. It requires exactly one setup asset, downloads it using a read-only token limited to that step, then runs the installer without that token. It uploads the verification report even after a test failure. This workflow also leaves publication to the maintainer.
 
 ## Permissions, actions, and caching
 

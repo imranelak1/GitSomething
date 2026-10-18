@@ -1,0 +1,128 @@
+name: Verify Windows installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Draft release tag matching the checked-out package version
+        required: true
+        type: string
+      setup_sha256:
+        description: Expected SHA-256 of the setup executable
+        required: true
+        type: string
+      application_sha256:
+        description: Expected SHA-256 of the installed application executable
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    name: Verify Windows x64 setup
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - name: Check out verification source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Validate release and checksum inputs
+        id: candidate
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SETUP_SHA256: ${{ inputs.setup_sha256 }}
+          APPLICATION_SHA256: ${{ inputs.application_sha256 }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $releaseVersion = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          if ($releaseVersion -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?$') {
+            throw 'The checked-out package version is invalid.'
+          }
+          if ($env:RELEASE_TAG -cne "v$releaseVersion") {
+            throw 'The release tag must match the checked-out package version.'
+          }
+          if ($env:SETUP_SHA256 -notmatch '^[a-fA-F0-9]{64}$' -or $env:APPLICATION_SHA256 -notmatch '^[a-fA-F0-9]{64}$') {
+            throw 'Both expected SHA-256 inputs must contain exactly 64 hexadecimal characters.'
+          }
+          $downloadDirectory = Join-Path $env:RUNNER_TEMP "gitsomething-installer-download-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT"
+          if (Test-Path -LiteralPath $downloadDirectory) {
+            throw 'The candidate download directory already exists.'
+          }
+          New-Item -ItemType Directory -Path $downloadDirectory | Out-Null
+          $setupFilename = "GitSomething_${releaseVersion}_x64-setup.exe"
+          $installerPath = Join-Path $downloadDirectory $setupFilename
+          "version=$releaseVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "filename=$setupFilename" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "directory=$downloadDirectory" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "installer_path=$installerPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Download the single draft setup asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SETUP_SHA256: ${{ inputs.setup_sha256 }}
+          SETUP_FILENAME: ${{ steps.candidate.outputs.filename }}
+          DOWNLOAD_DIRECTORY: ${{ steps.candidate.outputs.directory }}
+          INSTALLER_PATH: ${{ steps.candidate.outputs.installer_path }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $releaseJson = gh release view $env:RELEASE_TAG --repo $env:GH_REPO --json isDraft,tagName,assets
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Could not read the requested draft release.'
+          }
+          $release = $releaseJson | ConvertFrom-Json
+          if ($release.isDraft -ne $true -or $release.tagName -cne $env:RELEASE_TAG) {
+            throw 'Installer verification requires the exact unpublished draft release.'
+          }
+          $assets = @($release.assets)
+          if ($assets.Count -ne 1 -or $assets[0].name -cne $env:SETUP_FILENAME) {
+            throw 'The draft must contain exactly the expected single setup executable.'
+          }
+          gh release download $env:RELEASE_TAG --repo $env:GH_REPO --pattern $env:SETUP_FILENAME --dir $env:DOWNLOAD_DIRECTORY
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Downloading the draft setup executable failed.'
+          }
+          $downloadedFiles = @(Get-ChildItem -LiteralPath $env:DOWNLOAD_DIRECTORY -Force)
+          if ($downloadedFiles.Count -ne 1 -or $downloadedFiles[0].PSIsContainer -or $downloadedFiles[0].Name -cne $env:SETUP_FILENAME) {
+            throw 'The download did not produce exactly the expected setup file.'
+          }
+          $actualHash = (Get-FileHash -LiteralPath $env:INSTALLER_PATH -Algorithm SHA256).Hash
+          if ($actualHash -ine $env:SETUP_SHA256) {
+            throw 'The downloaded setup SHA-256 differs from the approved candidate.'
+          }
+
+      - name: Verify fresh installation, shortcuts, payload, and uninstall
+        env:
+          INSTALLER_PATH: ${{ steps.candidate.outputs.installer_path }}
+          EXPECTED_VERSION: ${{ steps.candidate.outputs.version }}
+          SETUP_SHA256: ${{ inputs.setup_sha256 }}
+          APPLICATION_SHA256: ${{ inputs.application_sha256 }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          pwsh -NoLogo -NoProfile -File ./scripts/verify-windows-installer.ps1 `
+            -InstallerPath $env:INSTALLER_PATH `
+            -ExpectedInstallerSha256 $env:SETUP_SHA256 `
+            -ExpectedApplicationSha256 $env:APPLICATION_SHA256 `
+            -ExpectedVersion $env:EXPECTED_VERSION
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Windows installer verification failed.'
+          }
+
+      - name: Upload installer verification report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: windows-installer-verification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gitsomething-installer-verification/report.json
+          if-no-files-found: warn
+          retention-days: 7
