@@ -30,7 +30,7 @@ The default installer packager checks synchronized versions, matching release no
 
 This workflow creates no Git tag or GitHub release and does not sign executables. The candidate remains unsigned. A successful build and checksum manifest do not establish that installation, browser authorization, or pushing works. Verify the native version and remaining release checks before preparing a release; see [RELEASING.md](RELEASING.md).
 
-[Verify Windows installer](../.github/workflows/verify-windows-installer.yml) provides the same installation checks for an existing draft candidate. Dispatch it with the matching version tag and both expected SHA-256 hashes. It requires exactly one setup asset, downloads it using a read-only token limited to that step, then runs the installer without that token. It uploads the verification report even after a test failure. This workflow also leaves publication to the maintainer.
+[Verify Windows installer](../.github/workflows/verify-windows-installer.yml) provides the same installation checks for an existing draft candidate. Dispatch it with the matching version tag and both expected SHA-256 hashes. It requires exactly one setup asset. GitHub requires push access to read drafts, so this separate job grants `contents: write` and passes its token only to the download step; setup and verification run without that token. The workflow only reads the draft and never publishes or edits it. It uploads the verification report even after a test failure. [GitHub documents draft visibility](https://docs.github.com/en/rest/releases/releases#list-releases).
 
 ## Permissions, actions, and caching
 

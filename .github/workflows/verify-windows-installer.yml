@@ -24,6 +24,10 @@ jobs:
     name: Verify Windows x64 setup
     runs-on: windows-2022
     timeout-minutes: 20
+    permissions:
+      # GitHub exposes drafts only to identities with push access. This token is
+      # passed solely to the download step, never to setup or verification.
+      contents: write
     defaults:
       run:
         shell: pwsh
