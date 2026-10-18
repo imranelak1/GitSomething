@@ -1,0 +1,38 @@
+{
+  "verifiedAt": "2026-10-18T13:32:33.413Z",
+  "releaseId": 416466666,
+  "tag": "v1.0.0-beta.3",
+  "sourceRevision": "e158dfd5d2342fe819fd85021ae3791437760ae7",
+  "tagObject": "5e1a6569737e78d6d0775e889c01842e93e4e61e",
+  "publishedAt": "2026-10-18T13:32:08Z",
+  "url": "https://github.com/imranelak1/GitSomething/releases/tag/v1.0.0-beta.3",
+  "draft": false,
+  "prerelease": true,
+  "immutable": true,
+  "publicAssetCount": 1,
+  "asset": {
+    "name": "GitSomething_1.0.0-beta.3_windows-x64.exe",
+    "bytes": 20231168,
+    "sha256": "d9b7b806f06f284e994c59878cbac272d9ee91389f369d65092c17610d5598fd",
+    "url": "https://github.com/imranelak1/GitSomething/releases/download/v1.0.0-beta.3/GitSomething_1.0.0-beta.3_windows-x64.exe"
+  },
+  "anonymousApiStatus": 200,
+  "anonymousPageStatus": 200,
+  "anonymousDownloadStatus": 200,
+  "releaseAttestation": "gh release verify passed",
+  "downloadAttestation": {
+    "command": "gh release verify-asset v1.0.0-beta.3 <fresh-public-download> --repo imranelak1/GitSomething",
+    "exitCode": 0,
+    "output": "Calculated digest for GitSomething_1.0.0-beta.3_windows-x64.exe: sha256:d9b7b806f06f284e994c59878cbac272d9ee91389f369d65092c17610d5598fd\nResolved tag v1.0.0-beta.3 to sha1:5e1a6569737e78d6d0775e889c01842e93e4e61e\nLoaded attestation from GitHub API\n\n✓ Verification succeeded! GitSomething_1.0.0-beta.3_windows-x64.exe is present in release v1.0.0-beta.3"
+  },
+  "windowsCodeSigning": "NotSigned",
+  "windowsCI": {
+    "runId": 39131715060,
+    "url": "https://github.com/imranelak1/GitSomething/actions/runs/39131715060",
+    "headSha": "e158dfd5d2342fe819fd85021ae3791437760ae7",
+    "status": "completed",
+    "conclusion": "success",
+    "durationSeconds": 214,
+    "packaging": "Local verified production EXE; manual CI packaging steps skipped on push"
+  }
+}
