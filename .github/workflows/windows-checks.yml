@@ -87,8 +87,8 @@ jobs:
       - name: Check TypeScript and unit tests
         run: npm run check
 
-      - name: Test Windows executable dependency audit
-        run: node --test scripts/inspect-windows-exe.test.mjs
+      - name: Test Windows release validation
+        run: node --test scripts/inspect-windows-exe.test.mjs scripts/package-release.test.mjs
 
       - name: Build frontend
         run: npm run build

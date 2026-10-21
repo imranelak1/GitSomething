@@ -160,8 +160,156 @@ export async function inspectWindowsExe(filePath) {
     fail('unterminated import descriptor table.');
   };
 
+  // RT_VERSION preserves the textual prerelease that VS_FIXEDFILEINFO's four
+  // numeric components cannot represent. All translations must agree.
+  const readProductVersion = () => {
+    if (directoryCount <= 2) return null;
+    const directory = optionalOffset + directoryOffset + 16;
+    const resourceRva = u32(directory, 'resource directory RVA');
+    const resourceSize = u32(directory + 4, 'resource directory size');
+    if (resourceRva === 0 && resourceSize === 0) return null;
+    if (resourceRva === 0 || resourceSize < 16) fail('invalid resource directory.');
+    const { offset: resourceOffset } = resolveRva(resourceRva, resourceSize, 'resource directory');
+    const resourceRange = (relative, length) => {
+      if (relative < 0 || relative > resourceSize - length)
+        fail('resource tree points outside its directory.');
+      return resourceOffset + relative;
+    };
+    const align4 = (value) => Math.ceil(value / 4) * 4;
+    const zeroPadding = (start, end) => {
+      if (!bytes.subarray(start, end).every((value) => value === 0))
+        fail('nonzero version-block padding.');
+    };
+    const readBlock = (start, limit) => {
+      if (start + 6 > limit) fail('truncated version block.');
+      const length = u16(start, 'version-block length');
+      const valueLength = u16(start + 2, 'version-block value length');
+      const type = u16(start + 4, 'version-block type');
+      const end = start + length;
+      if (length < 8 || end > limit || type > 1) fail('invalid version-block length or type.');
+      let cursor = start + 6;
+      while (cursor + 2 <= end && u16(cursor, 'version-block key') !== 0) cursor += 2;
+      if (cursor + 2 > end || cursor === start + 6)
+        fail('unterminated or empty version-block key.');
+      const key = bytes.toString('utf16le', start + 6, cursor);
+      cursor += 2;
+      const valueStart = Math.min(align4(cursor), end);
+      zeroPadding(cursor, valueStart);
+      const valueEnd = valueStart + valueLength * (type === 1 ? 2 : 1);
+      if (valueEnd > end) fail('version-block value exceeds its block.');
+      return { key, type, valueLength, valueStart, valueEnd, end };
+    };
+    const children = (block) => {
+      const result = [];
+      let cursor = Math.min(align4(block.valueEnd), block.end);
+      zeroPadding(block.valueEnd, cursor);
+      while (cursor < block.end) {
+        const child = readBlock(cursor, block.end);
+        result.push(child);
+        const next = Math.min(align4(child.end), block.end);
+        zeroPadding(child.end, next);
+        cursor = next;
+      }
+      return result;
+    };
+    const versions = [];
+    const parseVersion = (start, size) => {
+      const root = readBlock(start, start + size);
+      if (
+        root.key !== 'VS_VERSION_INFO' ||
+        root.type !== 0 ||
+        ![0, 52].includes(root.valueLength)
+      ) {
+        fail('invalid VS_VERSION_INFO root.');
+      }
+      if (size - (root.end - start) > 3) fail('unexpected data after VS_VERSION_INFO.');
+      zeroPadding(root.end, start + size);
+      if (root.valueLength && u32(root.valueStart, 'fixed version signature') !== 0xfeef04bd) {
+        fail('invalid VS_FIXEDFILEINFO signature.');
+      }
+      let foundTable = false;
+      for (const info of children(root)) {
+        // NSIS emits type 0 for empty containers; only leaf text values need
+        // type 1's UTF-16 length units.
+        if (!['StringFileInfo', 'VarFileInfo'].includes(info.key) || info.valueLength !== 0) {
+          fail('invalid version information container.');
+        }
+        for (const table of children(info)) {
+          if (info.key === 'VarFileInfo') {
+            if (table.type !== 0 || children(table).length)
+              fail('invalid binary version translation.');
+            continue;
+          }
+          if (!/^[a-f0-9]{8}$/i.test(table.key) || table.valueLength !== 0) {
+            fail('invalid version StringTable.');
+          }
+          foundTable = true;
+          let version = null;
+          let foundVersion = false;
+          for (const string of children(table)) {
+            if (string.type !== 1 || children(string).length) fail('invalid version String block.');
+            if (string.key !== 'ProductVersion') continue;
+            if (foundVersion) fail('duplicate ProductVersion in a translation.');
+            foundVersion = true;
+            if (string.valueLength) {
+              if (u16(string.valueEnd - 2, 'ProductVersion terminator') !== 0)
+                fail('unterminated ProductVersion.');
+              version = bytes.toString('utf16le', string.valueStart, string.valueEnd - 2) || null;
+              if (version?.includes('\0')) fail('embedded null in ProductVersion.');
+            }
+          }
+          versions.push(version);
+        }
+      }
+      if (!foundTable) versions.push(null);
+    };
+    let visited = 0;
+    const active = new Set();
+    const walk = (relative, depth, versionBranch = false) => {
+      if (active.has(relative)) fail('cyclic resource directory.');
+      active.add(relative);
+      const start = resourceRange(relative, 16);
+      const named = u16(start + 12, 'named resource count');
+      const count = named + u16(start + 14, 'ID resource count');
+      resourceRange(relative + 16, count * 8);
+      for (let index = 0; index < count; index += 1) {
+        if (++visited > 100000) fail('resource tree exceeds inspection limit.');
+        const entry = start + 16 + index * 8;
+        const name = u32(entry, 'resource name or ID');
+        if (Boolean(name & 0x80000000) !== index < named) fail('invalid resource name ordering.');
+        if (name & 0x80000000) {
+          const text = resourceRange(name & 0x7fffffff, 2);
+          resourceRange(name & 0x7fffffff, 2 + u16(text, 'resource-name length') * 2);
+        } else if (name > 0xffff) fail('invalid numeric resource ID.');
+        const target = u32(entry + 4, 'resource target');
+        const isDirectory = Boolean(target & 0x80000000);
+        const offset = target & 0x7fffffff;
+        const selected = depth === 0 ? name === 16 : versionBranch;
+        if (depth < 2) {
+          if (!isDirectory) fail('resource data appears before the language level.');
+          walk(offset, depth + 1, selected);
+        } else {
+          if (isDirectory) fail('resource directory exceeds the language level.');
+          const data = resourceRange(offset, 16);
+          const size = u32(data + 4, 'resource data size');
+          const { offset: payload } = resolveRva(
+            u32(data, 'resource data RVA'),
+            size,
+            'resource data',
+          );
+          if (selected) parseVersion(payload, size);
+        }
+      }
+      active.delete(relative);
+    };
+    walk(0, 0);
+    if (new Set(versions).size > 1) fail('conflicting ProductVersion translations or resources.');
+    return versions[0] ?? null;
+  };
+
   const imports = readImports(1, 20, false);
   const delayImports = readImports(13, 32, true);
+  const productVersion = readProductVersion();
   const dependencyClassification = [...new Set([...imports, ...delayImports])]
     .sort()
     .map((name) => ({
@@ -174,6 +322,7 @@ export async function inspectWindowsExe(filePath) {
     sha256: createHash('sha256').update(bytes).digest('hex'),
     machine,
     architecture,
+    productVersion,
     format: is64 ? 'PE32+' : 'PE32',
     imports,
     delayImports,

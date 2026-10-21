@@ -15,7 +15,7 @@ Synchronize `package.json`, both application versions in `package-lock.json`, `s
 ```powershell
 npm ci
 npm run check
-node --test scripts/inspect-windows-exe.test.mjs
+node --test scripts/inspect-windows-exe.test.mjs scripts/package-release.test.mjs
 cargo test --locked --manifest-path src-tauri/Cargo.toml
 cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 npm run tauri build -- --bundles nsis --no-binary-patching -- --locked
@@ -50,7 +50,7 @@ npm run release:package -- --format installer --dry-run --source-revision $relea
 npm run release:package -- --format installer --source-revision $releaseSourceRevision --installer-proof $installerProof
 ```
 
-`installer` is also the default when `--format` is omitted. Use `--target x86_64-pc-windows-msvc` for a targeted build, `--installer <actual-setup.exe>` to select the setup input, or `--exe <actual-gitsomething.exe>` to select the application inspected by the packager. Actual installer/full staging requires a passed report matching the version and exact setup/application hashes; an input-only dry-run is insufficient. The packager then creates `GitSomething_1.0.0-beta.4_x64-setup.exe` and internal provenance/checksum evidence under `artifacts/releases/v1.0.0-beta.4/`. The manifest's `sourceRevision` identifies the build source, which may differ from a later documentation HEAD.
+`installer` is also the default when `--format` is omitted. Use `--target x86_64-pc-windows-msvc` for a targeted build, `--installer <actual-setup.exe>` to select the setup input, or `--exe <actual-gitsomething.exe>` to select the application inspected by the packager. Every format, including portable and dry-run, requires the application's embedded `ProductVersion` to match the release version exactly, including prerelease suffixes. Missing, ambiguous, or malformed version metadata is rejected before staging. Actual installer/full staging also requires a passed report matching the version and exact setup/application hashes; an input-only dry-run is insufficient. The packager then creates `GitSomething_1.0.0-beta.4_x64-setup.exe` and internal provenance/checksum evidence under `artifacts/releases/v1.0.0-beta.4/`. The manifest's `sourceRevision` identifies the build source, which may differ from a later documentation HEAD.
 
 Upload **only that EXE** for the beta.4 setup release. Keep generated manifests, checksum lists, reports, notes copies, and branding exports as internal build evidence rather than extra download choices. Put the complete executable SHA-256 in the release body, replacing `INSERT_SHA256` in the beta.4 notes after the bytes are final:
 
