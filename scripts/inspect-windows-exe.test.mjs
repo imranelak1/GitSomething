@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test, after } from 'node:test';
 import { inspectWindowsExe } from './inspect-windows-exe.mjs';
+import { createWindowsExeFixture as fixture } from './fixtures/windows-exe.mjs';
 
 const directory = await mkdtemp(path.join(os.tmpdir(), 'gitsomething-pe-audit-'));
 const files = [];
@@ -11,42 +12,6 @@ after(async () => {
   await Promise.all(files.map((file) => unlink(file)));
   await rmdir(directory);
 });
-
-function fixture({ normal = 'kernel32.dll', delayed, legacyDelay = false, x86 = false } = {}) {
-  const bytes = Buffer.alloc(0x400);
-  bytes.write('MZ');
-  bytes.writeUInt32LE(0x80, 0x3c);
-  bytes.write('PE\0\0', 0x80);
-  bytes.writeUInt16LE(x86 ? 0x14c : 0x8664, 0x84);
-  bytes.writeUInt16LE(1, 0x86);
-  bytes.writeUInt16LE(0xf0, 0x94);
-  bytes.writeUInt16LE(0x0002, 0x96);
-  bytes.writeUInt16LE(x86 ? 0x10b : 0x20b, 0x98);
-  if (x86) bytes.writeUInt32LE(0x400000, 0x98 + 28);
-  else bytes.writeBigUInt64LE(0x140000000n, 0x98 + 24);
-  bytes.writeUInt32LE(0x200, 0x98 + 60);
-  const dataDirectory = 0x98 + (x86 ? 96 : 112);
-  bytes.writeUInt32LE(16, dataDirectory - 4);
-  bytes.write('.rdata', 0x188);
-  bytes.writeUInt32LE(0x200, 0x188 + 8);
-  bytes.writeUInt32LE(0x1000, 0x188 + 12);
-  bytes.writeUInt32LE(0x200, 0x188 + 16);
-  bytes.writeUInt32LE(0x200, 0x188 + 20);
-  if (normal) {
-    bytes.writeUInt32LE(0x1000, dataDirectory + 8);
-    bytes.writeUInt32LE(40, dataDirectory + 12);
-    bytes.writeUInt32LE(0x1080, 0x200 + 12);
-    bytes.write(`${normal}\0`, 0x280);
-  }
-  if (delayed) {
-    bytes.writeUInt32LE(0x1040, dataDirectory + 13 * 8);
-    bytes.writeUInt32LE(64, dataDirectory + 13 * 8 + 4);
-    bytes.writeUInt32LE(legacyDelay ? 0 : 1, 0x240);
-    bytes.writeUInt32LE((legacyDelay ? 0x400000 : 0) + 0x10c0, 0x244);
-    bytes.write(`${delayed}\0`, 0x2c0);
-  }
-  return bytes;
-}
 
 async function inspect(bytes) {
   const file = path.join(directory, `${files.length}.exe`);
@@ -159,4 +124,97 @@ test('rejects DLL input and invalid delay attributes', async () => {
   const delay = fixture({ delayed: 'kernel32.dll' });
   delay.writeUInt32LE(2, 0x240);
   await assert.rejects(inspect(delay), /delay-import attributes/);
+});
+
+test('reads exact textual prerelease and build metadata instead of numeric fixed version', async () => {
+  for (const version of ['1.0.0-beta.3', '1.0.0-beta.4', '2.3.4-rc.1+build.7']) {
+    assert.equal((await inspect(fixture({ productVersion: version }))).productVersion, version);
+  }
+});
+
+test('returns null when version resource or ProductVersion is absent', async () => {
+  assert.equal((await inspect(fixture())).productVersion, null);
+  const bytes = fixture({ productVersion: '1.0.0-beta.4' });
+  const key = bytes.indexOf(Buffer.from('ProductVersion\0', 'utf16le'));
+  bytes.write('AnotherVersion\0', key, 'utf16le');
+  assert.equal((await inspect(bytes)).productVersion, null);
+});
+
+test('accepts agreeing translations and NSIS empty containers with binary type', async () => {
+  const bytes = fixture({ productVersions: ['1.0.0-beta.4', '1.0.0-beta.4'] });
+  for (const key of ['StringFileInfo', '040904b0', '040a04b0']) {
+    bytes.writeUInt16LE(0, bytes.indexOf(Buffer.from(`${key}\0`, 'utf16le')) - 2);
+  }
+  assert.equal((await inspect(bytes)).productVersion, '1.0.0-beta.4');
+});
+
+test('rejects conflicting ProductVersion translations', async () => {
+  await assert.rejects(
+    inspect(fixture({ productVersions: ['1.0.0-beta.3', '1.0.0-beta.4'] })),
+    /conflicting ProductVersion/,
+  );
+});
+
+test('rejects conflicting version resources across languages', async () => {
+  const bytes = fixture({ productVersion: '1.0.0-beta.3' });
+  const other = fixture({ productVersion: '1.0.0-beta.4' });
+  bytes.writeUInt32LE(0x800, 0x98 + 112 + 2 * 8 + 4);
+  bytes.writeUInt32LE(0x80000300, 0x42c);
+  bytes.writeUInt16LE(2, 0x700 + 14);
+  bytes.writeUInt32LE(0x409, 0x710);
+  bytes.writeUInt32LE(0x320, 0x714);
+  bytes.writeUInt32LE(0x411, 0x718);
+  bytes.writeUInt32LE(0x330, 0x71c);
+  bytes.copy(bytes, 0x720, 0x448, 0x458);
+  bytes.writeUInt32LE(0x1600, 0x730);
+  const length = other.readUInt16LE(0x460);
+  bytes.writeUInt32LE(length, 0x734);
+  other.copy(bytes, 0x800, 0x460, 0x460 + length);
+  await assert.rejects(inspect(bytes), /conflicting ProductVersion/);
+});
+
+test('rejects cyclic and out-of-bounds resource directory entries', async () => {
+  const cycle = fixture({ productVersion: '1.0.0-beta.4' });
+  cycle.writeUInt32LE(0x80000000, 0x414);
+  await assert.rejects(inspect(cycle), /cyclic resource/);
+  const outside = fixture({ productVersion: '1.0.0-beta.4' });
+  outside.writeUInt32LE(0x80000fff, 0x414);
+  await assert.rejects(inspect(outside), /resource tree points outside/);
+  const count = fixture({ productVersion: '1.0.0-beta.4' });
+  count.writeUInt16LE(0xffff, 0x400 + 14);
+  await assert.rejects(inspect(count), /resource tree points outside/);
+});
+
+test('rejects invalid resource data mapping and premature data leaves', async () => {
+  const mapping = fixture({ productVersion: '1.0.0-beta.4' });
+  mapping.writeUInt32LE(0x5000, 0x448);
+  await assert.rejects(inspect(mapping), /resource data does not map/);
+  const early = fixture({ productVersion: '1.0.0-beta.4' });
+  early.writeUInt32LE(0x48, 0x414);
+  await assert.rejects(inspect(early), /before the language level/);
+});
+
+test('rejects malformed VS_VERSION_INFO blocks and fixed signatures', async () => {
+  const short = fixture({ productVersion: '1.0.0-beta.4' });
+  short.writeUInt16LE(7, 0x460);
+  await assert.rejects(inspect(short), /version-block length/);
+  const value = fixture({ productVersion: '1.0.0-beta.4' });
+  const key = value.indexOf(Buffer.from('ProductVersion\0', 'utf16le'));
+  value.writeUInt16LE(0xffff, key - 4);
+  await assert.rejects(inspect(value), /version-block value exceeds/);
+  const signature = fixture({ productVersion: '1.0.0-beta.4' });
+  signature.writeUInt32LE(0, 0x460 + 40);
+  await assert.rejects(inspect(signature), /VS_FIXEDFILEINFO signature/);
+});
+
+test('rejects unterminated ProductVersion and hidden child blocks in strings', async () => {
+  const bytes = fixture({ productVersion: '1.0.0-beta.4' });
+  const key = bytes.indexOf(Buffer.from('ProductVersion\0', 'utf16le'));
+  const start = key - 6;
+  const end = start + bytes.readUInt16LE(start);
+  bytes.writeUInt16LE(0x41, end - 2);
+  await assert.rejects(inspect(bytes), /unterminated ProductVersion/);
+  const hidden = fixture({ productVersion: '1.0.0-beta.4' });
+  hidden.writeUInt16LE(0, key - 4);
+  await assert.rejects(inspect(hidden), /version-block|version String/);
 });

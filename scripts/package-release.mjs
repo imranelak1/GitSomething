@@ -211,6 +211,11 @@ async function prepare() {
     }
   }
   const application = await inspectWindowsExe(fullFiles[1].source);
+  if (application.productVersion !== version) {
+    throw new Error(
+      `The application's embedded ProductVersion must match ${version}; found ${application.productVersion || 'no ProductVersion'}. Rebuild before packaging.`,
+    );
+  }
   if (application.architecture !== 'x86_64' || application.unsupportedImports.length) {
     throw new Error(
       `The portable application must be Windows x64 with only system DLL imports. Unexpected dependencies: ${application.unsupportedImports.join(', ') || application.architecture}`,
@@ -320,6 +325,7 @@ async function prepare() {
       bytes: application.bytes,
       sha256: application.sha256,
       architecture: application.architecture,
+      productVersion: application.productVersion,
     },
     ...(installerVerification ? { installerVerification } : {}),
     githubOAuth:
